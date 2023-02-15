@@ -6,7 +6,7 @@ import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 export * from 'cofe-ct-ecommerce/actionControllers/AccountController';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
-import {parseBirthday} from 'cofe-ct-ecommerce/utils/parseBirthday';
+import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
 import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { NotificationApi } from '../apis/NotificationApi';
@@ -167,7 +167,6 @@ export const logout: ActionHook = async (request: Request, actionContext: Action
     },
   } as Response;
 };
-
 
 /**
  * Reset password
