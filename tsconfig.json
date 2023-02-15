@@ -1,0 +1,43 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "es2019",
+        "lib": [
+            "es2019",
+        ],
+        "baseUrl": "./",
+        "sourceMap": true,
+        "allowJs": true,
+        "moduleResolution": "node",
+        "outDir": "./",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "strictNullChecks": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "removeComments": true,
+        "skipLibCheck": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "node_modules/@commercetools/platform-sdk/dist/declarations/src/index.d.ts"
+        ],
+        "types": [
+            "node",
+            "jest"
+        ],
+        "noUnusedLocals": false,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "isolatedModules": true,
+        "noEmit": false,
+    },
+    "include": [
+        "./*",
+    ],
+    "exclude": [
+        "node_modules/*",
+        "build"
+    ]
+}

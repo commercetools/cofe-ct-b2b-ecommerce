@@ -1,0 +1,40 @@
+{
+  "name": "cofe-ct-b2b-ecommerce",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/commercetools/cofe-ct-ecommerce.git"
+  },
+  "author": "Commercetools",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/commercetools/cofe-ct-ecommerce/issues"
+  },
+  "homepage": "https://github.com/commercetools/cofe-ct-ecommerce#readme",
+  "dependencies": {
+    "@commercetools/frontend-domain-types": "^1.0.3",
+    "@commercetools/platform-sdk": "^4.5.0",
+    "@frontastic/extension-types": "^0.0.11",
+    "@types/node": "^18.13.0",
+    "axios": "^1.3.3",
+    "cofe-ct-ecommerce": "https://github.com/commercetools/cofe-ct-ecommerce",
+    "jest": "^29.4.3",
+    "nodemailer": "^6.9.1",
+    "performance-now": "^2.1.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "typescript": "^4.9.5"
+  }
+}
