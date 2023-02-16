@@ -2,7 +2,7 @@
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 import * as AccountSourceActions from './actionControllers/AccountController';
 
-export const extender = (sourcePath: string, target: any): typeof module => {
+export const extender= <T>(sourcePath: string, target: T): T => {
   const source = require(sourcePath);
   if (!target) {
     return source;
@@ -13,4 +13,4 @@ export const extender = (sourcePath: string, target: any): typeof module => {
   };
 };
 
-export const AccountAction = extender('cofe-ct-ecommerce/actionControllers/AccountController', AccountSourceActions);
+export const AccountAction = extender<typeof AccountSourceActions>('cofe-ct-ecommerce/actionControllers/AccountController', AccountSourceActions);
