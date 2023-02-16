@@ -1,6 +1,6 @@
 {
   "name": "cofe-ct-b2b-ecommerce",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -36,5 +36,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "cofe-ct-ecommerce": "https://github.com/commercetools/cofe-ct-ecommerce"
   }
 }
