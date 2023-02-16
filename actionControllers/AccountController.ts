@@ -4,7 +4,6 @@ import { AccountApi } from '../apis/AccountApi';
 import { AccountExtended as Account } from 'cofe-ct-ecommerce/interfaces/AccountExtended';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
-export * from 'cofe-ct-ecommerce/actionControllers/AccountController';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
 import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
