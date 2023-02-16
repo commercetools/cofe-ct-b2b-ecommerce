@@ -25,3 +25,4 @@ export class NotificationApi extends BaseApi {
     }
   };
 }
+
