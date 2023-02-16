@@ -1,14 +1,18 @@
-import * as AccountSourceActions from 'cofe-ct-ecommerce/actionControllers/AccountController';
-import * as AccountTargetActions from './actionControllers/AccountController';
+import {
+  AccountController as AccountControllerBase,
+  AccountControllerType as AccountControllerBaseType,
+} from 'cofe-ct-ecommerce/actionControllers/AccountController';
+import { AccountController, AccountControllerType } from './actionControllers/AccountController';
 
-export const extender= <T, R>(source: T, target: R):  R | T => {
+export const extender = (args: object) => (source: any, target: any) => {
   if (!target) {
     return source;
   }
   return {
-    ...source,
-    ...target,
+    ...source(args),
+    ...target(args),
   };
 };
 
-export const AccountAction = extender<typeof AccountSourceActions, typeof AccountTargetActions>(AccountSourceActions, AccountTargetActions);
+export const AccountAction: (args: object) => AccountControllerType & AccountControllerBaseType = (args: object) =>
+  extender(args)(AccountControllerBase, AccountController);
