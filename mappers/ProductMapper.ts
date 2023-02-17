@@ -11,11 +11,11 @@ import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { ProductMapper as BaseProductMaper } from 'cofe-ct-ecommerce/mappers/ProductMapper';
 
 export class ProductMapper extends BaseProductMaper {
-  static commercetoolsProductVariantToVariant: (
+  static commercetoolsProductVariantToVariant(
     commercetoolsVariant: CommercetoolsProductVariant,
     locale: Locale,
     productPrice?: Price,
-  ) => Variant = (commercetoolsVariant: CommercetoolsProductVariant, locale: Locale, productPrice?: Price) => {
+  ): Variant {
     const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
     const { price, discountedPrice, discounts } = this.extractPriceAndDiscounts(commercetoolsVariant, locale);
 
