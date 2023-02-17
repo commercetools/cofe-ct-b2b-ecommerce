@@ -33,13 +33,31 @@ export class ProductMapper extends BaseProductMaper {
 
     return product;
   };
+
+  static commercetoolsProductProjectionToVariants: (
+    commercetoolsProduct: CommercetoolsProductProjection,
+    locale: Locale,
+  ) => Variant[] = (commercetoolsProduct: CommercetoolsProductProjection, locale: Locale) => {
+    const variants: Variant[] = [];
+
+    if (commercetoolsProduct?.masterVariant) {
+      variants.push(this.commercetoolsProductVariantToVariant(commercetoolsProduct.masterVariant, locale));
+    }
+
+    for (let i = 0; i < commercetoolsProduct.variants.length; i++) {
+      variants.push(this.commercetoolsProductVariantToVariant(commercetoolsProduct.variants[i], locale));
+    }
+
+    return variants;
+  };
+  
   static commercetoolsProductVariantToVariant: (
     commercetoolsVariant: CommercetoolsProductVariant,
     locale: Locale,
     productPrice?: Price,
   ) => Variant = (commercetoolsVariant: CommercetoolsProductVariant, locale: Locale, productPrice?: Price) => {
-    const attributes = ProductMapper.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
-    const { price, discountedPrice, discounts } = ProductMapper.extractPriceAndDiscounts(commercetoolsVariant, locale);
+    const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
+    const { price, discountedPrice, discounts } = this.extractPriceAndDiscounts(commercetoolsVariant, locale);
     return {
       id: commercetoolsVariant.id?.toString(),
       sku: commercetoolsVariant.sku?.toString(),
@@ -52,7 +70,7 @@ export class ProductMapper extends BaseProductMaper {
       price: price,
       discountedPrice: discountedPrice,
       discounts: discounts,
-      availability: ProductMapper.getPriceChannelAvailability(commercetoolsVariant, productPrice),
+      availability: this.getPriceChannelAvailability(commercetoolsVariant, productPrice),
       isOnStock: commercetoolsVariant.availability?.isOnStock || undefined,
     } as Variant;
   };
