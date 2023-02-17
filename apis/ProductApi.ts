@@ -199,30 +199,9 @@ export class ProductApi extends BaseProductApi {
         .get(methodArgs)
         .execute()
         .then((response) => {
-          const categories = response.body.results;
-
-          const nodes = {};
-
-          for (let i = 0; i < categories.length; i++) {
-            (categories[i] as any).subCategories = [];
-            nodes[categories[i].id] = categories[i];
-          }
-
-          for (let i = 0; i < categories.length; i++) {
-            if (categories[i].parent) {
-              nodes[categories[i].parent.id].subCategories.push(categories[i]);
-            }
-          }
-          const nodesQueue = [categories];
-
-          while (nodesQueue.length > 0) {
-            const currentCategories = nodesQueue.pop();
-            currentCategories.sort((a, b) => +b.orderHint - +a.orderHint);
-            currentCategories.forEach((category) => nodesQueue.push(nodes[category.id].subCategories));
-          }
-
-          const items = categories.map((category) => ProductMapper.commercetoolsCategoryToCategory(category, locale));
-
+          const items = response.body.results.map((category) =>
+            ProductMapper.commercetoolsCategoryToCategory(category, locale),
+          );
           const result: Result = {
             total: response.body.total,
             items: items,
