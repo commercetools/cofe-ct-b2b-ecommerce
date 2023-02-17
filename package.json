@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/commercetools/cofe-ct-ecommerce#readme",
   "dependencies": {
+    "@b2bdemo/types": "https://github.com/commercetools/b2b-cofe-types",
     "@commercetools/frontend-domain-types": "^1.0.3",
     "@commercetools/platform-sdk": "^4.5.0",
     "@frontastic/extension-types": "^0.0.11",

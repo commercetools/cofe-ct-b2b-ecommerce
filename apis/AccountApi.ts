@@ -1,18 +1,15 @@
-
 import { AccountMapper } from 'cofe-ct-ecommerce/mappers/AccontMapper';
 import { CartResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
-import {AccountApi as CTAccountApi} from 'cofe-ct-ecommerce/apis/AccountApi'
+import { AccountApi as BaseAccountApi } from 'cofe-ct-ecommerce/apis/AccountApi';
 import { Account } from '@commercetools/frontend-domain-types/account/Account';
 import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
 
-export class AccountApi extends CTAccountApi {
-
+export class AccountApi extends BaseAccountApi {
   login: (account: Account, cart: Cart | undefined, reverify?: boolean) => Promise<Account> = async (
     account: Account,
     cart: Cart | undefined,
     reverify = false,
   ) => {
-    console.debug('LOGIN FROM B@B');
     try {
       const locale = await this.getCommercetoolsLocal();
 

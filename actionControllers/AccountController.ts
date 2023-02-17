@@ -6,7 +6,6 @@ import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
-import { NotificationApi } from '../apis/NotificationApi';
 import { assertIsAuthenticated } from 'cofe-ct-ecommerce/utils/assertIsAuthenticated';
 import { fetchAccountFromSession } from 'cofe-ct-ecommerce/utils/fetchAccountFromSession';
 import { AccountApi } from '../apis/AccountApi';
@@ -36,16 +35,13 @@ type AccountLoginBody = {
 async function loginAccount(request: Request, actionContext: ActionContext, account: Account, reverify = false) {
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
-  const notificationApi = new NotificationApi(actionContext.frontasticContext, getLocale(request));
 
   const cart = await CartFetcher.fetchCart(request, actionContext);
 
   try {
     const accountRes = await accountApi.login(account, cart, reverify);
     const organization = await businessUnitApi.getOrganization(accountRes.accountId);
-    const token = await notificationApi.getToken(account.email, account.password);
-
-    return { account: accountRes, organization, token };
+    return { account: accountRes, organization };
   } catch (e) {
     throw e;
   }
@@ -132,8 +128,7 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
   let response: Response;
 
   try {
-    const { account, organization, token } = await loginAccount(request, actionContext, loginInfo);
-    console.debug('set in session', token);
+    const { account, organization } = await loginAccount(request, actionContext, loginInfo);
     response = {
       statusCode: 200,
       body: JSON.stringify(account),
@@ -143,7 +138,6 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
         organization,
         // @ts-ignore
         rootCategoryId: organization.store?.custom?.fields?.[config?.rootCategoryCustomField]?.id,
-        notificationToken: token,
       },
     };
   } catch (e) {
