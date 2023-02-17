@@ -1126,7 +1126,7 @@ co@^4.6.0:
 
 "cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce":
   version "1.0.3"
-  resolved "https://github.com/commercetools/cofe-ct-ecommerce#22989246627c2e581a59ffcdbc87f4533830d0c0"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#3326ab5f7d4c54e5e4429d6a35924e6b6bd1a343"
   dependencies:
     "@commercetools/frontend-domain-types" "^1.0.3"
     "@commercetools/platform-sdk" "^4.5.0"

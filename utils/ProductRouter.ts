@@ -12,7 +12,7 @@ export class ProductRouter {
   }
 
   static generateUrlFor(item: Product | LineItem | WishlistItem) {
-    if (ProductRouter.isProduct(item)) {
+    if (this.isProduct(item)) {
       return `/${item.slug}/p/${item.variants?.[0]?.sku}`;
     }
     return `/slug/p/${item.variant?.sku}`;

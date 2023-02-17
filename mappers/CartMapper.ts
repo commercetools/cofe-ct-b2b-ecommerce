@@ -29,11 +29,11 @@ export class CartMapper extends BaseCartMapper {
         count: commercetoolsLineItem.quantity,
         price: ProductMapper.commercetoolsMoneyToMoney(commercetoolsLineItem.price?.value),
         discountedPrice: ProductMapper.commercetoolsMoneyToMoney(commercetoolsLineItem.price?.discounted?.value),
-        discountTexts: CartMapper.commercetoolsDiscountedPricesPerQuantityToDiscountTexts(
+        discountTexts: this.commercetoolsDiscountedPricesPerQuantityToDiscountTexts(
           commercetoolsLineItem.discountedPricePerQuantity,
           locale,
         ),
-        discounts: CartMapper.commercetoolsDiscountedPricesPerQuantityToDiscounts(
+        discounts: this.commercetoolsDiscountedPricesPerQuantityToDiscounts(
           commercetoolsLineItem.discountedPricePerQuantity,
           locale,
         ),
@@ -67,15 +67,15 @@ export class CartMapper extends BaseCartMapper {
       orderId: commercetoolsOrder.orderNumber,
       orderVersion: commercetoolsOrder.version.toString(),
       // createdAt:
-      lineItems: CartMapper.commercetoolsLineItemsToLineItems(commercetoolsOrder.lineItems, locale),
+      lineItems: this.commercetoolsLineItemsToLineItems(commercetoolsOrder.lineItems, locale),
       email: commercetoolsOrder?.customerEmail,
-      shippingAddress: CartMapper.commercetoolsAddressToAddress(commercetoolsOrder.shippingAddress),
-      billingAddress: CartMapper.commercetoolsAddressToAddress(commercetoolsOrder.billingAddress),
+      shippingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.shippingAddress),
+      billingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.billingAddress),
       sum: ProductMapper.commercetoolsMoneyToMoney(commercetoolsOrder.totalPrice),
       businessUnit: commercetoolsOrder.businessUnit?.key,
       createdAt: commercetoolsOrder.createdAt,
-      shippingInfo: CartMapper.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
-      returnInfo: CartMapper.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
+      shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
+      returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
       //sum: commercetoolsOrder.totalPrice.centAmount,
       // payments:
       // discountCodes:

@@ -17,8 +17,8 @@ export class ProductMapper extends BaseProductMaper {
     locale: Locale,
     productPrice?: Price,
   ) => Variant = (commercetoolsVariant: CommercetoolsProductVariant, locale: Locale, productPrice?: Price) => {
-    const attributes = ProductMapper.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
-    const { price, discountedPrice, discounts } = ProductMapper.extractPriceAndDiscounts(commercetoolsVariant, locale);
+    const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
+    const { price, discountedPrice, discounts } = this.extractPriceAndDiscounts(commercetoolsVariant, locale);
 
     return {
       id: commercetoolsVariant.id?.toString(),
@@ -32,7 +32,7 @@ export class ProductMapper extends BaseProductMaper {
       price: price,
       discountedPrice: discountedPrice,
       discounts: discounts,
-      availability: ProductMapper.getPriceChannelAvailability(commercetoolsVariant, productPrice),
+      availability: this.getPriceChannelAvailability(commercetoolsVariant, productPrice),
       isOnStock: commercetoolsVariant.availability?.isOnStock || undefined,
     } as Variant;
   };
@@ -68,7 +68,7 @@ export class ProductMapper extends BaseProductMaper {
       };
 
       if (commercetoolsCategory.obj) {
-        category = ProductMapper.commercetoolsCategoryToCategory(commercetoolsCategory.obj, locale);
+        category = this.commercetoolsCategoryToCategory(commercetoolsCategory.obj, locale);
       }
 
       categories.push(category);
