@@ -1,9 +1,7 @@
 import {
-  AttributeGroup,
   Category as CommercetoolsCategory,
   CategoryReference,
   Price,
-  ProductProjection as CommercetoolsProductProjection,
   ProductVariant as CommercetoolsProductVariant,
   ProductVariantAvailability,
 } from '@commercetools/platform-sdk';
@@ -11,53 +9,16 @@ import { Variant } from '@commercetools/frontend-domain-types/product/Variant';
 import { Category } from '@commercetools/frontend-domain-types/product/Category';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { ProductMapper as BaseProductMaper } from 'cofe-ct-ecommerce/mappers/ProductMapper';
-import { Product } from '@commercetools/frontend-domain-types/product/Product';
-import { ProductRouter } from '../utils/ProductRouter';
 
 export class ProductMapper extends BaseProductMaper {
-  static commercetoolsProductProjectionToProduct: (
-    commercetoolsProduct: CommercetoolsProductProjection,
-    locale: Locale,
-  ) => Product = (commercetoolsProduct: CommercetoolsProductProjection, locale: Locale) => {
-    const product: Product = {
-      productId: commercetoolsProduct.id,
-      version: commercetoolsProduct?.version?.toString(),
-      name: commercetoolsProduct?.name?.[locale.language],
-      slug: commercetoolsProduct?.slug?.[locale.language],
-      description: commercetoolsProduct?.description?.[locale.language],
-      categories: this.commercetoolsCategoryReferencesToCategories(commercetoolsProduct.categories, locale),
-      variants: this.commercetoolsProductProjectionToVariants(commercetoolsProduct, locale),
-    };
-
-    product._url = ProductRouter.generateUrlFor(product);
-
-    return product;
-  };
-
-  static commercetoolsProductProjectionToVariants: (
-    commercetoolsProduct: CommercetoolsProductProjection,
-    locale: Locale,
-  ) => Variant[] = (commercetoolsProduct: CommercetoolsProductProjection, locale: Locale) => {
-    const variants: Variant[] = [];
-
-    if (commercetoolsProduct?.masterVariant) {
-      variants.push(this.commercetoolsProductVariantToVariant(commercetoolsProduct.masterVariant, locale));
-    }
-
-    for (let i = 0; i < commercetoolsProduct.variants.length; i++) {
-      variants.push(this.commercetoolsProductVariantToVariant(commercetoolsProduct.variants[i], locale));
-    }
-
-    return variants;
-  };
-  
   static commercetoolsProductVariantToVariant: (
     commercetoolsVariant: CommercetoolsProductVariant,
     locale: Locale,
     productPrice?: Price,
   ) => Variant = (commercetoolsVariant: CommercetoolsProductVariant, locale: Locale, productPrice?: Price) => {
     const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
-    const { price, discountedPrice, discounts } = this.extractPriceAndDiscounts(commercetoolsVariant, locale);
+    const { price, discountedPrice, discounts } = ProductMapper.extractPriceAndDiscounts(commercetoolsVariant, locale);
+
     return {
       id: commercetoolsVariant.id?.toString(),
       sku: commercetoolsVariant.sku?.toString(),
@@ -86,12 +47,12 @@ export class ProductMapper extends BaseProductMaper {
       channelId = variant.scopedPrice?.channel?.id || variant.price?.channel?.id;
     }
     if (!channelId) {
-      return variant.availability;
+      return variant.availability!;
     }
     if (!variant.availability?.channels?.[channelId]) {
-      return variant.availability;
+      return variant.availability!;
     }
-    return variant.availability.channels[channelId];
+    return variant.availability.channels[channelId]!;
   };
 
   static commercetoolsCategoryReferencesToCategories: (
@@ -114,10 +75,6 @@ export class ProductMapper extends BaseProductMaper {
     categories.sort((a, b) => b.depth - a.depth);
     return categories;
   };
-
-  static commercetoolsAttributeGroupToString(body: AttributeGroup): string[] {
-    return body.attributes.map((attribute) => attribute.key);
-  }
 
   static commercetoolsCategoryToCategory: (commercetoolsCategory: CommercetoolsCategory, locale: Locale) => Category = (
     commercetoolsCategory: CommercetoolsCategory,
