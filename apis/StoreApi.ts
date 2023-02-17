@@ -37,7 +37,6 @@ export class StoreApi extends BaseApi {
 
   get: (key: string) => Promise<any> = async (key: string): Promise<Store> => {
     const locale = await this.getCommercetoolsLocal();
-    const config = this.frontasticContext?.project?.configuration?.preBuy;
 
     try {
       return this.getApiForProject()
@@ -46,7 +45,7 @@ export class StoreApi extends BaseApi {
         .get()
         .execute()
         .then((response) => {
-          return mapCommercetoolsStoreToStore(response.body, locale.language, config);
+          return mapCommercetoolsStoreToStore(response.body, locale.language);
         });
     } catch (e) {
       console.log(e);
@@ -57,8 +56,6 @@ export class StoreApi extends BaseApi {
 
   query: (where?: string) => Promise<Store[]> = async (where?: string): Promise<Store[]> => {
     const locale = await this.getCommercetoolsLocal();
-    const config = this.frontasticContext?.project?.configuration?.preBuy;
-
     const queryArgs = where
       ? {
           where,
@@ -73,7 +70,7 @@ export class StoreApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return response.body.results.map((store) => mapCommercetoolsStoreToStore(store, locale.language, config));
+          return response.body.results.map((store) => mapCommercetoolsStoreToStore(store, locale.language));
         });
     } catch (e) {
       console.log(e);
