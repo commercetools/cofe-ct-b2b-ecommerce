@@ -7,7 +7,7 @@ import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFil
 import { CategoryQuery } from '@commercetools/frontend-domain-types/query/CategoryQuery';
 import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
 import { ProductApi as BaseProductApi } from 'cofe-ct-ecommerce/apis/ProductApi';
-import { ProductMapper } from '../mappers/ProductMapper';
+import { ProductMapper as B2BProductMapper } from '../mappers/ProductMapper';
 
 export class ProductApi extends BaseProductApi {
   query: (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets?: object[]) => Promise<Result> =
@@ -23,7 +23,7 @@ export class ProductApi extends BaseProductApi {
         const sortAttributes: string[] = [];
 
         const facetDefinitions: FacetDefinition[] = [
-          ...ProductMapper.commercetoolsProductTypesToFacetDefinitions(await this.getProductTypes(), locale),
+          ...B2BProductMapper.commercetoolsProductTypesToFacetDefinitions(await this.getProductTypes(), locale),
           ...additionalFacets,
           // Include Scoped Price facet
           {
@@ -37,7 +37,7 @@ export class ProductApi extends BaseProductApi {
           },
         ];
 
-        const queryArgFacets = ProductMapper.facetDefinitionsToCommercetoolsQueryArgFacets(facetDefinitions, locale);
+        const queryArgFacets = B2BProductMapper.facetDefinitionsToCommercetoolsQueryArgFacets(facetDefinitions, locale);
 
         if (productQuery.productIds !== undefined && productQuery.productIds.length !== 0) {
           filterQuery.push(`id:"${productQuery.productIds.join('","')}"`);
@@ -79,7 +79,7 @@ export class ProductApi extends BaseProductApi {
 
         if (productQuery.facets !== undefined) {
           filterFacets.push(
-            ...ProductMapper.facetDefinitionsToFilterFacets(productQuery.facets, facetDefinitions, locale),
+            ...B2BProductMapper.facetDefinitionsToFilterFacets(productQuery.facets, facetDefinitions, locale),
           );
         }
 
@@ -116,16 +116,16 @@ export class ProductApi extends BaseProductApi {
           .execute()
           .then((response) => {
             const items = response.body.results.map((product) =>
-              ProductMapper.commercetoolsProductProjectionToProduct(product, locale),
+              B2BProductMapper.commercetoolsProductProjectionToProduct(product, locale),
             );
 
             const result: Result = {
               total: response.body.total,
               items: items,
               count: response.body.count,
-              facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.facets, productQuery, locale),
-              previousCursor: ProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
-              nextCursor: ProductMapper.calculateNextCursor(
+              facets: B2BProductMapper.commercetoolsFacetResultsToFacets(response.body.facets, productQuery, locale),
+              previousCursor: B2BProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
+              nextCursor: B2BProductMapper.calculateNextCursor(
                 response.body.offset,
                 response.body.count,
                 response.body.total,
@@ -162,7 +162,7 @@ export class ProductApi extends BaseProductApi {
     try {
       const { body } = await this.getApiForProject().attributeGroups().withKey({ key }).get().execute();
 
-      return ProductMapper.commercetoolsAttributeGroupToString(body);
+      return B2BProductMapper.commercetoolsAttributeGroupToString(body);
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`get attributeGroup failed. ${error}`);
@@ -200,14 +200,14 @@ export class ProductApi extends BaseProductApi {
         .execute()
         .then((response) => {
           const items = response.body.results.map((category) =>
-            ProductMapper.commercetoolsCategoryToCategory(category, locale),
+            B2BProductMapper.commercetoolsCategoryToCategory(category, locale),
           );
           const result: Result = {
             total: response.body.total,
             items: items,
             count: response.body.count,
-            previousCursor: ProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
-            nextCursor: ProductMapper.calculateNextCursor(
+            previousCursor: B2BProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
+            nextCursor: B2BProductMapper.calculateNextCursor(
               response.body.offset,
               response.body.count,
               response.body.total,
