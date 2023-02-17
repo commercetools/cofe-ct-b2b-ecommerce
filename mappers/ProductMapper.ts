@@ -12,7 +12,7 @@ import { Category } from '@commercetools/frontend-domain-types/product/Category'
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { ProductMapper as BaseProductMaper } from 'cofe-ct-ecommerce/mappers/ProductMapper';
 import { Product } from '@commercetools/frontend-domain-types/product/Product';
-import { ProductRouter } from 'utils/ProductRouter';
+import { ProductRouter } from '../utils/ProductRouter';
 
 export class ProductMapper extends BaseProductMaper {
   static commercetoolsProductProjectionToProduct: (
