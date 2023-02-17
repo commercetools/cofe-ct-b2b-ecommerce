@@ -12,6 +12,7 @@ export class AccountApi extends CTAccountApi {
     cart: Cart | undefined,
     reverify = false,
   ) => {
+    console.debug('LOGIN FROM B@B');
     try {
       const locale = await this.getCommercetoolsLocal();
 
