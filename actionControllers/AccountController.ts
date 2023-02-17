@@ -5,11 +5,11 @@ import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
-import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { assertIsAuthenticated } from 'cofe-ct-ecommerce/utils/assertIsAuthenticated';
 import { fetchAccountFromSession } from 'cofe-ct-ecommerce/utils/fetchAccountFromSession';
-import { AccountApi } from '../apis/AccountApi';
 import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
+import { AccountApi } from '../apis/AccountApi';
+import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 export type AccountRegisterBody = {

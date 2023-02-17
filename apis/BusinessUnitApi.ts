@@ -1,4 +1,5 @@
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
+import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
 import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '../interfaces/BusinessUnit';
 import {
   isUserAdminInBusinessUnit,
@@ -6,7 +7,6 @@ import {
   mapReferencedAssociates,
   mapStoreRefs,
 } from '../mappers/BusinessUnitMappers';
-import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
 import { StoreApi } from './StoreApi';
 
 const MAX_LIMIT = 50;

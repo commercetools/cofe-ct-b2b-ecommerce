@@ -2,11 +2,11 @@ import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AddressDraft } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
-import { CartApi } from '../apis/CartApi';
 import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { CartApi } from '../apis/CartApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 async function updateCartFromRequest(request: Request, actionContext: ActionContext): Promise<Cart> {

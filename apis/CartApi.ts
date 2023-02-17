@@ -3,7 +3,6 @@ import {
   CartDraft,
   CartSetLocaleAction,
 } from '@commercetools/platform-sdk';
-import { CartMapper } from '../mappers/CartMapper';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 import {
   CartAddLineItemAction,
@@ -16,6 +15,7 @@ import { Account } from '@commercetools/frontend-domain-types/account/Account';
 import { Organization } from '@b2bdemo/types/types/organization/organization';
 import { CartApi as BaseCartApi } from 'cofe-ct-ecommerce/apis/CartApi';
 import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { CartMapper } from '../mappers/CartMapper';
 export class CartApi extends BaseCartApi {
   getForUser: (account: Account, organization?: Organization) => Promise<Cart> = async (
     account: Account,

@@ -1,17 +1,15 @@
-import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
 import {
-  Cart as CommercetoolsCart,
   LineItem as CommercetoolsLineItem,
   Order as CommercetoolsOrder,
   ReturnInfo as CommercetoolsReturnInfo,
 } from '@commercetools/platform-sdk';
 import { ReturnInfo } from '@b2bdemo/types/types/cart/Order';
-import { ProductRouter } from '../utils/ProductRouter';
-import { ProductMapper } from './ProductMapper';
 import { CartMapper as BaseCartMapper } from 'cofe-ct-ecommerce/mappers/CartMapper';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { Order } from '@b2bdemo/types/types/cart/Order';
 import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
+import { ProductRouter } from '../utils/ProductRouter';
+import { ProductMapper } from './ProductMapper';
 
 // @ts-ignore
 export class CartMapper extends BaseCartMapper {

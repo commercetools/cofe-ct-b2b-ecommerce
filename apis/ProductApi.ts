@@ -1,5 +1,4 @@
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
-import { ProductMapper } from '../mappers/ProductMapper';
 import { ProductQuery } from '@commercetools/frontend-domain-types/query/ProductQuery';
 import { Product } from '@commercetools/frontend-domain-types/product/Product';
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
@@ -8,6 +7,7 @@ import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFil
 import { CategoryQuery } from '@commercetools/frontend-domain-types/query/CategoryQuery';
 import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
 import { ProductApi as BaseProductApi } from 'cofe-ct-ecommerce/apis/ProductApi';
+import { ProductMapper } from '../mappers/ProductMapper';
 
 export class ProductApi extends BaseProductApi {
   query: (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets?: object[]) => Promise<Result> =
