@@ -1124,9 +1124,9 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-"cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce#cart":
+"cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce":
   version "1.0.3"
-  resolved "https://github.com/commercetools/cofe-ct-ecommerce#90a763425001ed1de16a9884b018d4e4f0f3edff"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#0843a8cdb750f1ce64aa90e02fd31fb4fc551ae1"
   dependencies:
     "@b2bdemo/types" "https://github.com/commercetools/b2b-cofe-types"
     "@commercetools/frontend-domain-types" "^1.0.3"
