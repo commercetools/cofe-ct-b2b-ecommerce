@@ -34,12 +34,12 @@ export class ProductMapper extends BaseProductMaper {
       availability: this.getPriceChannelAvailability(commercetoolsVariant, productPrice),
       isOnStock: commercetoolsVariant.availability?.isOnStock || undefined,
     } as Variant;
-  };
+  }
 
-  static getPriceChannelAvailability: (
+  static getPriceChannelAvailability(
     variant: CommercetoolsProductVariant,
     productPrice?: Price,
-  ) => ProductVariantAvailability = (variant: CommercetoolsProductVariant, productPrice?: Price) => {
+  ): ProductVariantAvailability {
     let channelId = '';
     if (productPrice) {
       channelId = productPrice.channel?.id;
@@ -53,12 +53,12 @@ export class ProductMapper extends BaseProductMaper {
       return variant.availability!;
     }
     return variant.availability.channels[channelId]!;
-  };
+  }
 
-  static commercetoolsCategoryReferencesToCategories: (
+  static commercetoolsCategoryReferencesToCategories(
     commercetoolsCategoryReferences: CategoryReference[],
     locale: Locale,
-  ) => Category[] = (commercetoolsCategoryReferences: CategoryReference[], locale: Locale) => {
+  ): Category[] {
     const categories: Category[] = [];
 
     commercetoolsCategoryReferences.forEach((commercetoolsCategory) => {
@@ -74,12 +74,9 @@ export class ProductMapper extends BaseProductMaper {
     });
     categories.sort((a, b) => b.depth - a.depth);
     return categories;
-  };
+  }
 
-  static commercetoolsCategoryToCategory: (commercetoolsCategory: CommercetoolsCategory, locale: Locale) => Category = (
-    commercetoolsCategory: CommercetoolsCategory,
-    locale: Locale,
-  ) => {
+  static commercetoolsCategoryToCategory(commercetoolsCategory: CommercetoolsCategory, locale: Locale): Category {
     return {
       categoryId: commercetoolsCategory.id,
       parentId: commercetoolsCategory.parent?.id ? commercetoolsCategory.parent.id : undefined,
@@ -96,5 +93,5 @@ export class ProductMapper extends BaseProductMaper {
               .join('/')}/${commercetoolsCategory.id}`
           : `/${commercetoolsCategory.id}`,
     };
-  };
+  }
 }

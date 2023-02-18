@@ -13,10 +13,10 @@ import { ProductMapper } from './ProductMapper';
 
 // @ts-ignore
 export class CartMapper extends BaseCartMapper {
-  static commercetoolsLineItemsToLineItems: (
+  static commercetoolsLineItemsToLineItems(
     commercetoolsLineItems: CommercetoolsLineItem[],
     locale: Locale,
-  ) => LineItem[] = (commercetoolsLineItems: CommercetoolsLineItem[], locale: Locale) => {
+  ): LineItem[] {
     const lineItems: LineItem[] = [];
 
     commercetoolsLineItems?.forEach((commercetoolsLineItem) => {
@@ -52,13 +52,13 @@ export class CartMapper extends BaseCartMapper {
     });
 
     return lineItems;
-  };
+  }
 
-  static commercetoolsOrderToOrder: (
+  static commercetoolsOrderToOrder(
     commercetoolsOrder: CommercetoolsOrder,
     locale: Locale,
     config?: Record<string, string>,
-  ) => Order = (commercetoolsOrder: CommercetoolsOrder, locale: Locale, config?: Record<string, string>) => {
+  ): Order {
     return {
       cartId: commercetoolsOrder.id,
       orderState: commercetoolsOrder.orderState,
@@ -79,11 +79,9 @@ export class CartMapper extends BaseCartMapper {
       // discountCodes:
       // taxed:
     } as Order;
-  };
+  }
 
-  static commercetoolsReturnInfoToReturnInfo: (commercetoolsReturnInfo: CommercetoolsReturnInfo[]) => ReturnInfo[] = (
-    commercetoolsReturnInfo: CommercetoolsReturnInfo[],
-  ) => {
+  static commercetoolsReturnInfoToReturnInfo(commercetoolsReturnInfo: CommercetoolsReturnInfo[]): ReturnInfo[] {
     return commercetoolsReturnInfo.map((ctReturnInfo) => ({
       returnDate: ctReturnInfo.returnDate,
       returnTrackingId: ctReturnInfo.returnTrackingId,
@@ -97,5 +95,5 @@ export class CartMapper extends BaseCartMapper {
         shipmentState: item.shipmentState,
       })),
     }));
-  };
+  }
 }

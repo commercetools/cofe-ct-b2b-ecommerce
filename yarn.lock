@@ -1126,7 +1126,7 @@ co@^4.6.0:
 
 "cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce#cart":
   version "1.0.3"
-  resolved "https://github.com/commercetools/cofe-ct-ecommerce#90a763425001ed1de16a9884b018d4e4f0f3edff"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#df1f48a355a53fa7577a9577bda21e2b4d960ef5"
   dependencies:
     "@b2bdemo/types" "https://github.com/commercetools/b2b-cofe-types"
     "@commercetools/frontend-domain-types" "^1.0.3"
