@@ -2,7 +2,7 @@ import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AddressDraft } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
-import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
+import { CartFetcher } from '../utils/CartFetcher';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';

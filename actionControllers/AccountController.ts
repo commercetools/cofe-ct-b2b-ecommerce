@@ -2,7 +2,7 @@ import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AccountExtended as Account } from 'cofe-ct-ecommerce/interfaces/AccountExtended';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
-import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
+import { CartFetcher } from '../utils/CartFetcher';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
 import { assertIsAuthenticated } from 'cofe-ct-ecommerce/utils/assertIsAuthenticated';
