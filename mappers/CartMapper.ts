@@ -1,24 +1,45 @@
-import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { Cart } from '@b2bdemo/types/types/cart/Cart';
 import {
   Cart as CommercetoolsCart,
   LineItem as CommercetoolsLineItem,
   Order as CommercetoolsOrder,
   ReturnInfo as CommercetoolsReturnInfo,
 } from '@commercetools/platform-sdk';
-import { ReturnInfo } from '@b2bdemo/types/types/cart/Order';
+import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
+import { Order, ReturnInfo } from '@b2bdemo/types/types/cart/Order';
+import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
+import { CartMapper as BaseCartMapper } from 'cofe-ct-ecommerce/mappers/CartMapper';
 import { ProductRouter } from '../utils/ProductRouter';
 import { ProductMapper } from './ProductMapper';
-import { CartMapper as BaseCartMapper } from 'cofe-ct-ecommerce/mappers/CartMapper';
-import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
-import { Order } from '@b2bdemo/types/types/cart/Order';
-import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
 
-// @ts-ignore
 export class CartMapper extends BaseCartMapper {
-  static commercetoolsLineItemsToLineItems: (
+  static commercetoolsCartToCart(
+    commercetoolsCart: CommercetoolsCart,
+    locale: Locale,
+    config?: Record<string, string>,
+  ): Cart {
+    return {
+      cartId: commercetoolsCart.id,
+      cartVersion: commercetoolsCart.version.toString(),
+      lineItems: this.commercetoolsLineItemsToLineItems(commercetoolsCart.lineItems, locale),
+      email: commercetoolsCart?.customerEmail,
+      sum: ProductMapper.commercetoolsMoneyToMoney(commercetoolsCart.totalPrice),
+      shippingAddress: this.commercetoolsAddressToAddress(commercetoolsCart.shippingAddress),
+      billingAddress: this.commercetoolsAddressToAddress(commercetoolsCart.billingAddress),
+      shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsCart.shippingInfo, locale),
+      payments: this.commercetoolsPaymentInfoToPayments(commercetoolsCart.paymentInfo, locale),
+      discountCodes: this.commercetoolsDiscountCodesInfoToDiscountCodes(commercetoolsCart.discountCodes, locale),
+      directDiscounts: commercetoolsCart.directDiscounts?.length,
+      taxed: this.commercetoolsTaxedPriceToTaxed(commercetoolsCart.taxedPrice, locale),
+      itemShippingAddresses: commercetoolsCart.itemShippingAddresses,
+      origin: commercetoolsCart.origin,
+    };
+  }
+
+  static commercetoolsLineItemsToLineItems(
     commercetoolsLineItems: CommercetoolsLineItem[],
     locale: Locale,
-  ) => LineItem[] = (commercetoolsLineItems: CommercetoolsLineItem[], locale: Locale) => {
+  ): LineItem[] {
     const lineItems: LineItem[] = [];
 
     commercetoolsLineItems?.forEach((commercetoolsLineItem) => {
@@ -29,11 +50,11 @@ export class CartMapper extends BaseCartMapper {
         count: commercetoolsLineItem.quantity,
         price: ProductMapper.commercetoolsMoneyToMoney(commercetoolsLineItem.price?.value),
         discountedPrice: ProductMapper.commercetoolsMoneyToMoney(commercetoolsLineItem.price?.discounted?.value),
-        discountTexts: CartMapper.commercetoolsDiscountedPricesPerQuantityToDiscountTexts(
+        discountTexts: this.commercetoolsDiscountedPricesPerQuantityToDiscountTexts(
           commercetoolsLineItem.discountedPricePerQuantity,
           locale,
         ),
-        discounts: CartMapper.commercetoolsDiscountedPricesPerQuantityToDiscounts(
+        discounts: this.commercetoolsDiscountedPricesPerQuantityToDiscounts(
           commercetoolsLineItem.discountedPricePerQuantity,
           locale,
         ),
@@ -54,38 +75,36 @@ export class CartMapper extends BaseCartMapper {
     });
 
     return lineItems;
-  };
+  }
 
-  static commercetoolsOrderToOrder: (
+  static commercetoolsOrderToOrder(
     commercetoolsOrder: CommercetoolsOrder,
     locale: Locale,
     config?: Record<string, string>,
-  ) => Order = (commercetoolsOrder: CommercetoolsOrder, locale: Locale, config?: Record<string, string>) => {
+  ): Order {
     return {
       cartId: commercetoolsOrder.id,
       orderState: commercetoolsOrder.orderState,
       orderId: commercetoolsOrder.orderNumber,
       orderVersion: commercetoolsOrder.version.toString(),
       // createdAt:
-      lineItems: CartMapper.commercetoolsLineItemsToLineItems(commercetoolsOrder.lineItems, locale),
+      lineItems: this.commercetoolsLineItemsToLineItems(commercetoolsOrder.lineItems, locale),
       email: commercetoolsOrder?.customerEmail,
-      shippingAddress: CartMapper.commercetoolsAddressToAddress(commercetoolsOrder.shippingAddress),
-      billingAddress: CartMapper.commercetoolsAddressToAddress(commercetoolsOrder.billingAddress),
+      shippingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.shippingAddress),
+      billingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.billingAddress),
       sum: ProductMapper.commercetoolsMoneyToMoney(commercetoolsOrder.totalPrice),
       businessUnit: commercetoolsOrder.businessUnit?.key,
       createdAt: commercetoolsOrder.createdAt,
-      shippingInfo: CartMapper.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
-      returnInfo: CartMapper.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
+      shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
+      returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
       //sum: commercetoolsOrder.totalPrice.centAmount,
       // payments:
       // discountCodes:
       // taxed:
     } as Order;
-  };
+  }
 
-  static commercetoolsReturnInfoToReturnInfo: (commercetoolsReturnInfo: CommercetoolsReturnInfo[]) => ReturnInfo[] = (
-    commercetoolsReturnInfo: CommercetoolsReturnInfo[],
-  ) => {
+  static commercetoolsReturnInfoToReturnInfo(commercetoolsReturnInfo: CommercetoolsReturnInfo[]): ReturnInfo[] {
     return commercetoolsReturnInfo.map((ctReturnInfo) => ({
       returnDate: ctReturnInfo.returnDate,
       returnTrackingId: ctReturnInfo.returnTrackingId,
@@ -101,3 +120,9 @@ export class CartMapper extends BaseCartMapper {
     }));
   };
 }
+// Override the BaseMapper with new Mapper functions
+Object.getOwnPropertyNames(BaseCartMapper).forEach((key) => {
+  if (typeof BaseCartMapper[key] === 'function') {
+    BaseCartMapper[key] = CartMapper[key];
+  }
+});

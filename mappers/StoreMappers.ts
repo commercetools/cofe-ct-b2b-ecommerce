@@ -1,14 +1,13 @@
-import { Store as CommercetoolsStore, Store } from '@commercetools/platform-sdk';
+import { Store as CommercetoolsStore } from '@commercetools/platform-sdk';
+import { Store } from '@b2bdemo/types/types/store/store';
 
 export const mapCommercetoolsStoreToStore = (
   store: CommercetoolsStore,
   locale: string,
-  config: Record<string, string>,
+  config?: Record<string, string>,
 ): Store => {
   return {
     ...store,
-    // @ts-ignore
     name: store.name?.[locale],
-    isPreBuyStore: !!config ? store.custom?.fields?.[config.storeCustomField] : false,
   };
 };

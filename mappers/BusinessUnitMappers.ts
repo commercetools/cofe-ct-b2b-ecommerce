@@ -1,5 +1,6 @@
-import { BusinessUnit } from '../interfaces/BusinessUnit';
-import { BusinessUnit as CommercetoolsBusinessUnit, Store } from '@commercetools/platform-sdk';
+import { BusinessUnit } from '@b2bdemo/types/types/business-unit/BusinessUnit';
+import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
+import { Store } from '@b2bdemo/types/types/store/store';
 
 export const mapBusinessUnitToBusinessUnit = (
   businessUnit: CommercetoolsBusinessUnit,

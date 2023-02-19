@@ -1,49 +1,20 @@
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
+import { LineItem, LineItemReturnItemDraft } from '@b2bdemo/types/types/cart/LineItem';
+import { Address } from '@b2bdemo/types/types/account/Address';
+import { ShippingMethod } from '@b2bdemo/types/types/cart/ShippingMethod';
 import { AddressDraft } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartApi } from '../apis/CartApi';
-import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
-import { Address } from '@commercetools/frontend-domain-types/account/Address';
-import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { CartFetcher } from '../utils/CartFetcher';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
-async function updateCartFromRequest(request: Request, actionContext: ActionContext): Promise<Cart> {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-  let cart = await CartFetcher.fetchCart(request, actionContext);
-
-  if (request?.body === undefined || request?.body === '') {
-    return cart;
-  }
-
-  const body: {
-    account?: { email?: string };
-    shipping?: Address;
-    billing?: Address;
-  } = JSON.parse(request.body);
-
-  if (body?.account?.email !== undefined) {
-    cart = await cartApi.setEmail(cart, body.account.email);
-  }
-
-  if (body?.shipping !== undefined || body?.billing !== undefined) {
-    const shippingAddress = body?.shipping !== undefined ? body.shipping : body.billing;
-    const billingAddress = body?.billing !== undefined ? body.billing : body.shipping;
-
-    cart = await cartApi.setShippingAddress(cart, shippingAddress);
-    cart = await cartApi.setBillingAddress(cart, billingAddress);
-  }
-
-  return cart;
-}
 
 export const addToCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
 
   const body: {
     variant?: { sku?: string; count: number };
-    subscriptions?: { sku?: string; count?: number }[];
   } = JSON.parse(request.body);
 
   const lineItem: LineItem = {
@@ -78,7 +49,6 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
 
   const body: {
     list?: { sku?: string; count: number }[];
-    subscriptions?: { sku?: string; count?: number }[];
   } = JSON.parse(request.body);
 
   const lineItems: LineItem[] = body.list?.map((variant) => ({
@@ -108,61 +78,6 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
   return response;
 };
 
-export const checkout: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-
-  const cart = await updateCartFromRequest(request, actionContext);
-  const order = await cartApi.order(cart);
-
-  // Unset the cartId
-  const cartId = undefined;
-
-  const response: Response = {
-    statusCode: 200,
-    body: JSON.stringify(order),
-    sessionData: {
-      ...request.sessionData,
-      cartId,
-    },
-  };
-
-  return response;
-};
-
-export const getShippingMethods: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  try {
-    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-    const cart = await CartFetcher.fetchCart(request, actionContext);
-    const onlyMatching = request.query.onlyMatching === 'true';
-
-    const shippingMethods = await cartApi.getShippingMethods(onlyMatching);
-
-    const response: Response = {
-      statusCode: 200,
-      body: JSON.stringify(shippingMethods),
-      sessionData: {
-        ...request.sessionData,
-        cartId: cart.cartId,
-      },
-    };
-
-    return response;
-  } catch (e) {
-    const response: Response = {
-      statusCode: 400,
-      sessionData: {
-        ...request.sessionData,
-        cartId: null,
-      },
-      // @ts-ignore
-      error: e.message,
-      errorCode: 400,
-    };
-
-    return response;
-  }
-};
-
 export const returnItems: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
 
@@ -186,6 +101,28 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
       errorCode: 500,
     };
   }
+
+  return response;
+};
+
+export const setShippingMethod: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  let cart = await CartFetcher.fetchCart(request, actionContext);
+
+  const shippingMethod: ShippingMethod = {
+    shippingMethodId: request.query.shippingMethodId,
+  };
+
+  cart = await cartApi.setShippingMethod(cart, shippingMethod);
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
+    sessionData: {
+      ...request.sessionData,
+      cartId: cart.cartId,
+    },
+  };
 
   return response;
 };

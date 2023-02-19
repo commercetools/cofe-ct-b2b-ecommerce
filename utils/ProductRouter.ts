@@ -1,12 +1,13 @@
-import { Product } from '@commercetools/frontend-domain-types/product/Product';
+import { Product } from '@b2bdemo/types/types/product/Product';
 import { Context, Request } from '@frontastic/extension-types';
-import { ProductQuery } from '@commercetools/frontend-domain-types/query/ProductQuery';
+import { ProductQuery } from '@b2bdemo/types/types/query/ProductQuery';
+import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
+import { LineItem as WishlistItem } from '@b2bdemo/types/types/wishlist/LineItem';
+import { ProductRouter as BaseProductRouter } from 'cofe-ct-ecommerce/utils/ProductRouter';
 import { ProductApi } from '../apis/ProductApi';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
-import { LineItem as WishlistItem } from '@commercetools/frontend-domain-types/wishlist/LineItem';
-import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
+import { getPath, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 
-export class ProductRouter {
+export class ProductRouter extends BaseProductRouter {
   private static isProduct(product: Product | LineItem | WishlistItem): product is Product {
     return (product as Product).productId !== undefined;
   }
@@ -80,32 +81,5 @@ export class ProductRouter {
     }
 
     return null;
-  };
-
-  static getSubscriptionBundles = async (
-    request: Request,
-    frontasticContext: Context,
-    product: Product,
-  ): Promise<Product[]> => {
-    const urlMatches = getPath(request)?.match(/\/p\/([^\/]+)/);
-
-    const attributeNames = frontasticContext?.project?.configuration?.subscriptions
-      ?.subscriptionAttributeNameOnBundledProduct as string;
-    if (urlMatches && attributeNames) {
-      const sku = urlMatches[1];
-      const variant = product.variants.find((variant) => variant.sku === sku);
-      if (variant) {
-        const bundleAttributeNames = attributeNames.split(',');
-        const attributeKeys = Object.keys(variant.attributes).filter((attributeKey) =>
-          bundleAttributeNames.includes(attributeKey),
-        );
-        if (attributeKeys?.length) {
-          const productApi = new ProductApi(frontasticContext, getLocale(request));
-          const productIds = attributeKeys.map((attributeKey) => variant.attributes[attributeKey]?.id);
-          return productApi.query({ productIds }).then((result) => result.items as Product[]);
-        }
-      }
-    }
-    return [];
   };
 }

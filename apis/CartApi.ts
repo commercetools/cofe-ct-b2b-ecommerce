@@ -1,34 +1,30 @@
-import {
-  AddressDraft,
-  CartDraft,
-  CartSetLocaleAction,
-} from '@commercetools/platform-sdk';
-import { CartMapper } from '../mappers/CartMapper';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { Cart } from '@b2bdemo/types/types/cart/Cart';
+import { AddressDraft, CartDraft, CartSetLocaleAction } from '@commercetools/platform-sdk';
+import { LineItem, LineItemReturnItemDraft } from '@b2bdemo/types/types/cart/LineItem';
+import { Cart as CommercetoolsCart } from '@commercetools/platform-sdk';
 import {
   CartAddLineItemAction,
-  CartRemoveLineItemAction,
   CartSetCustomerIdAction,
   CartUpdate,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
-import { Order } from '@commercetools/frontend-domain-types/cart/Order';
-import { Account } from '@commercetools/frontend-domain-types/account/Account';
+import { Order } from '@b2bdemo/types/types/cart/Order';
+import { OrderFromCartDraft } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/order';
+import { Account } from '@b2bdemo/types/types/account/Account';
 import { Organization } from '@b2bdemo/types/types/organization/organization';
+import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { CartApi as BaseCartApi } from 'cofe-ct-ecommerce/apis/CartApi';
-import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { isReadyForCheckout } from 'cofe-ct-ecommerce/utils/Cart';
+import { CartMapper } from '../mappers/CartMapper';
+
+
+
 export class CartApi extends BaseCartApi {
-  getForUser: (account: Account, organization?: Organization) => Promise<Cart> = async (
+  getForUser: (account: Account, organization: Organization) => Promise<Cart> = async (
     account: Account,
-    organization?: Organization,
+    organization: Organization,
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-
-      const where = [`customerId="${account.accountId}"`, `cartState="Active"`];
-      if (organization) {
-        where.push(`businessUnit(key="${organization.businessUnit.key}")`);
-        where.push(`store(key="${organization.store.key}")`);
-      }
 
       const response = await this.getApiForProject()
         .carts()
@@ -40,7 +36,12 @@ export class CartApi extends BaseCartApi {
               'discountCodes[*].discountCode',
               'paymentInfo.payments[*]',
             ],
-            where,
+            where: [
+              `customerId="${account.accountId}"`,
+              `cartState="Active"`,
+              `businessUnit(key="${organization.businessUnit.key}")`,
+              `store(key="${organization.store.key}")`,
+            ],
             sort: 'createdAt desc',
           },
         })
@@ -102,10 +103,10 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string) => Promise<Cart> = async (
+  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel: string) => Promise<Cart> = async (
     cart: Cart,
     lineItem: LineItem,
-    distributionChannel?: string,
+    distributionChannel: string,
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -117,44 +118,11 @@ export class CartApi extends BaseCartApi {
             action: 'addLineItem',
             sku: lineItem.variant.sku,
             quantity: +lineItem.count,
+            distributionChannel: { id: distributionChannel, typeId: 'channel' },
           } as CartAddLineItemAction,
         ],
       };
 
-      if (distributionChannel) {
-        // @ts-ignore
-        cartUpdate.actions[0].distributionChannel = { id: distributionChannel, typeId: 'channel' };
-      }
-
-      const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
-
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
-    } catch (error) {
-      //TODO: better error, get status code etc...
-      throw new Error(`addToCart failed. ${error}`);
-    }
-  };
-
-  addSubscriptionsToCart: (cart: Cart, lineItems: LineItem[]) => Promise<Cart> = async (
-    cart: Cart,
-    lineItems: LineItem[],
-  ) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const cartUpdate = {
-        version: +cart.cartVersion,
-        actions: lineItems.map((subscription) => {
-          return {
-            action: 'addLineItem',
-            sku: subscription.variant.sku,
-            quantity: +subscription.count,
-            custom: subscription.custom,
-          } as CartAddLineItemAction;
-        }),
-      };
-
-      // TODO: make it into one api call
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
       return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
@@ -187,45 +155,6 @@ export class CartApi extends BaseCartApi {
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`addToCart failed. ${error}`);
-    }
-  };
-
-  removeLineItem: (cart: Cart, lineItem: LineItem) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const subscriptions = cart.lineItems.filter((lineitem) => {
-        return lineitem.parentId === lineItem.lineItemId;
-      });
-
-      const cartUpdate: CartUpdate = {
-        version: +cart.cartVersion,
-        actions: [
-          {
-            action: 'removeLineItem',
-            lineItemId: lineItem.lineItemId,
-          } as CartRemoveLineItemAction,
-        ],
-      };
-      if (subscriptions?.length) {
-        // @ts-ignore
-        cartUpdate.actions = cartUpdate.actions.concat(
-          subscriptions.map(
-            (bundledItem) =>
-              ({
-                action: 'removeLineItem',
-                lineItemId: bundledItem.lineItemId,
-              } as CartRemoveLineItemAction),
-          ),
-        );
-      }
-
-      const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
-
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
-    } catch (error) {
-      //TODO: better error, get status code etc...
-      throw new Error(`removeLineItem failed. ${error}`);
     }
   };
 
@@ -296,29 +225,43 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  getOrders: (account: Account) => Promise<Order[]> = async (account: Account) => {
+  order: (cart: Cart) => Promise<Order> = async (cart: Cart) => {
     try {
       const locale = await this.getCommercetoolsLocal();
+      const date = new Date();
+
+      const orderFromCartDraft: OrderFromCartDraft = {
+        id: cart.cartId,
+        version: +cart.cartVersion,
+        orderNumber: `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}-${String(Date.now()).slice(
+          -6,
+          -1,
+        )}`,
+        orderState: 'Confirmed',
+      };
+
+      if (!isReadyForCheckout(cart)) {
+        throw new Error('Cart not complete yet.');
+      }
 
       const response = await this.getApiForProject()
         .orders()
-        .get({
+        .post({
           queryArgs: {
             expand: [
               'lineItems[*].discountedPrice.includedDiscounts[*].discount',
               'discountCodes[*].discountCode',
               'paymentInfo.payments[*]',
             ],
-            where: `customerId="${account.accountId}"`,
-            sort: 'createdAt desc',
           },
+          body: orderFromCartDraft,
         })
         .execute();
 
-      return response.body.results.map((order) => CartMapper.commercetoolsOrderToOrder(order, locale));
+      return CartMapper.commercetoolsOrderToOrder(response.body, locale);
     } catch (error) {
       //TODO: better error, get status code etc...
-      throw new Error(`get orders failed. ${error}`);
+      throw new Error(`order failed. ${error}`);
     }
   };
 
@@ -503,6 +446,97 @@ export class CartApi extends BaseCartApi {
       //TODO: better error, get status code etc...
       throw new Error(`freeze error failed. ${error}`);
     }
+  };
+
+  protected recreate: (primaryCommercetoolsCart: CommercetoolsCart, locale: Locale) => Promise<Cart> = async (
+    primaryCommercetoolsCart: CommercetoolsCart,
+    locale: Locale,
+  ) => {
+    const primaryCartId = primaryCommercetoolsCart.id;
+    const cartVersion = primaryCommercetoolsCart.version;
+    const lineItems = primaryCommercetoolsCart.lineItems;
+
+    const cartDraft: CartDraft = {
+      currency: locale.currency,
+      country: locale.country,
+      locale: locale.language,
+    };
+
+    // TODO: implement a logic that hydrate cartDraft with commercetoolsCart
+    // for (const key of Object.keys(commercetoolsCart)) {
+    //   if (cartDraft.hasOwnProperty(key) && cartDraft[key] !== undefined) {
+    //     cartDraft[key] = commercetoolsCart[key];
+    //   }
+    // }
+
+    const propertyList = [
+      'customerId',
+      'customerEmail',
+      'customerGroup',
+      'anonymousId',
+      'store',
+      'inventoryMode',
+      'taxMode',
+      'taxRoundingMode',
+      'taxCalculationMode',
+      'shippingAddress',
+      'billingAddress',
+      'shippingMethod',
+      'externalTaxRateForShippingMethod',
+      'deleteDaysAfterLastModification',
+      'origin',
+      'shippingRateInput',
+      'itemShippingAddresses',
+    ];
+
+    for (const key of propertyList) {
+      if (primaryCommercetoolsCart.hasOwnProperty(key)) {
+        cartDraft[key] = primaryCommercetoolsCart[key];
+      }
+    }
+
+    let replicatedCommercetoolsCart = await this.getApiForProject()
+      .carts()
+      .post({
+        queryArgs: {
+          expand: [
+            'lineItems[*].discountedPrice.includedDiscounts[*].discount',
+            'discountCodes[*].discountCode',
+            'paymentInfo.payments[*]',
+          ],
+        },
+        body: cartDraft,
+      })
+      .execute()
+      .then((response) => {
+        return response.body;
+      });
+
+    // Add line items to the replicated cart one by one to handle the exception
+    // if an item is not available on the new currency.
+    for (const lineItem of lineItems) {
+      try {
+        const cartUpdate: CartUpdate = {
+          version: +replicatedCommercetoolsCart.version,
+          actions: [
+            {
+              action: 'addLineItem',
+              sku: lineItem.variant.sku,
+              quantity: +lineItem.quantity,
+            },
+          ],
+        };
+
+        replicatedCommercetoolsCart = await this.updateCart(replicatedCommercetoolsCart.id, cartUpdate, locale);
+      } catch (error) {
+        // Ignore that a line item could not be added due to missing price, etc
+      }
+    }
+
+    // Delete previous cart
+    await this.deleteCart(primaryCartId, cartVersion);
+
+    return CartMapper.commercetoolsCartToCart(replicatedCommercetoolsCart, locale);
   };
 
   deleteCart: (primaryCartId: string, cartVersion: number) => Promise<void> = async (

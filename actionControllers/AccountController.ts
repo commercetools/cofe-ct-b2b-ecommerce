@@ -1,15 +1,13 @@
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
-import { AccountExtended as Account } from 'cofe-ct-ecommerce/interfaces/AccountExtended';
-import { Address } from '@commercetools/frontend-domain-types/account/Address';
-import { CartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
-import { parseBirthday } from 'cofe-ct-ecommerce/utils/parseBirthday';
-import { BusinessUnitApi } from '../apis/BusinessUnitApi';
-import { assertIsAuthenticated } from 'cofe-ct-ecommerce/utils/assertIsAuthenticated';
-import { fetchAccountFromSession } from 'cofe-ct-ecommerce/utils/fetchAccountFromSession';
 import { AccountApi } from '../apis/AccountApi';
-import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
+import { Account } from '@b2bdemo/types/types/account/Account';
+import { Address } from '@b2bdemo/types/types/account/Address';
+import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { CartFetcher } from '../utils/CartFetcher';
+import { EmailApi } from '../apis/EmailApi';
+import { BusinessUnitApi } from '../apis/BusinessUnitApi';
+
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 export type AccountRegisterBody = {
@@ -41,17 +39,30 @@ async function loginAccount(request: Request, actionContext: ActionContext, acco
   try {
     const accountRes = await accountApi.login(account, cart, reverify);
     const organization = await businessUnitApi.getOrganization(accountRes.accountId);
+
     return { account: accountRes, organization };
   } catch (e) {
     throw e;
   }
 }
 
+function parseBirthday(accountRegisterBody: AccountRegisterBody): Date | undefined {
+  if (accountRegisterBody.birthdayYear) {
+    return new Date(
+      +accountRegisterBody.birthdayYear,
+      +accountRegisterBody?.birthdayMonth ?? 1,
+      +accountRegisterBody?.birthdayDay ?? 1,
+    );
+  }
+
+  return null;
+}
+
 function mapRequestToAccount(request: Request): Account {
   const accountRegisterBody: AccountRegisterBody = JSON.parse(request.body);
 
   const account: Account = {
-    email: accountRegisterBody?.email ?? '',
+    email: accountRegisterBody?.email,
     confirmed: accountRegisterBody?.confirmed,
     password: accountRegisterBody?.password,
     salutation: accountRegisterBody?.salutation,
@@ -66,25 +77,25 @@ function mapRequestToAccount(request: Request): Account {
     accountRegisterBody.billingAddress.isDefaultBillingAddress = true;
     accountRegisterBody.billingAddress.isDefaultShippingAddress = !(accountRegisterBody.shippingAddress !== undefined);
 
-    account.addresses!.push(accountRegisterBody.billingAddress);
+    account.addresses.push(accountRegisterBody.billingAddress);
   }
 
   if (accountRegisterBody.shippingAddress) {
     accountRegisterBody.shippingAddress.isDefaultShippingAddress = true;
     accountRegisterBody.shippingAddress.isDefaultBillingAddress = !(accountRegisterBody.billingAddress !== undefined);
 
-    account.addresses!.push(accountRegisterBody.shippingAddress);
+    account.addresses.push(accountRegisterBody.shippingAddress);
   }
 
   return account;
 }
 
 export const register: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const locale = getLocale(request);
-
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
 
   const accountData = mapRequestToAccount(request);
+  const host = JSON.parse(request.body).host;
 
   const cart = await CartFetcher.fetchCart(request, actionContext).catch(() => undefined);
 
@@ -93,11 +104,7 @@ export const register: ActionHook = async (request: Request, actionContext: Acti
   try {
     const account = await accountApi.create(accountData, cart);
 
-    if (EmailApi) {
-      const emailApi = new EmailApi(actionContext.frontasticContext, locale);
-      if (!account.confirmed) await emailApi.sendAccountVerificationEmail(account);
-    }
-
+    if (!account.confirmed) await emailApi.sendVerificationEmail(account, host);
     response = {
       statusCode: 200,
       body: JSON.stringify({ accountId: account.accountId }),
@@ -113,6 +120,25 @@ export const register: ActionHook = async (request: Request, actionContext: Acti
       errorCode: 500,
     };
   }
+  return response;
+};
+
+export const resendVerificationEmail: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const data = JSON.parse(request.body) as Account;
+  const host = JSON.parse(request.body).host;
+
+  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
+
+  const reverify = true; //Will not login the account instead will send a reverification email..
+
+  const { account } = await loginAccount(request, actionContext, data, reverify);
+
+  await emailApi.sendVerificationEmail(account, host);
+
+  const response: Response = {
+    statusCode: 200,
+  };
+
   return response;
 };
 
@@ -165,6 +191,39 @@ export const logout: ActionHook = async (request: Request, actionContext: Action
 };
 
 /**
+ * Request new reset token
+ */
+export const requestReset: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  type AccountRequestResetBody = {
+    email?: string;
+    host?: string;
+  };
+
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
+
+  const accountRequestResetBody: AccountRequestResetBody = JSON.parse(request.body);
+
+  const passwordResetToken = await accountApi.generatePasswordResetToken(accountRequestResetBody.email);
+
+  await emailApi.sendPasswordResetEmail(
+    passwordResetToken.confirmationToken,
+    accountRequestResetBody.email,
+    accountRequestResetBody.host,
+  );
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({}),
+    sessionData: {
+      ...request.sessionData,
+      // TODO: should we redirect to logout rather to unset the account?
+      account: undefined,
+    },
+  } as Response;
+};
+
+/**
  * Reset password
  */
 export const reset: ActionHook = async (request: Request, actionContext: ActionContext) => {
@@ -191,48 +250,6 @@ export const reset: ActionHook = async (request: Request, actionContext: ActionC
       ...request.sessionData,
       account,
       organization,
-    },
-  } as Response;
-};
-
-export const addAddress: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  assertIsAuthenticated(request);
-
-  let account = fetchAccountFromSession(request);
-
-  const address: Address = JSON.parse(request.body);
-
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-
-  account = await accountApi.addAddress(account, address);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(account),
-    sessionData: {
-      ...request.sessionData,
-      account,
-    },
-  } as Response;
-};
-
-export const updateAddress: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  assertIsAuthenticated(request);
-
-  let account = fetchAccountFromSession(request);
-
-  const address: Address = JSON.parse(request.body);
-
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-
-  account = await accountApi.updateAddress(account, address);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(account),
-    sessionData: {
-      ...request.sessionData,
-      account,
     },
   } as Response;
 };

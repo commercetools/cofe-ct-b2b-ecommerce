@@ -1,5 +1,5 @@
-import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
-import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '../interfaces/BusinessUnit';
+import { BaseApi } from './BaseApi';
+import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '@b2bdemo/types/types/business-unit/BusinessUnit';
 import {
   isUserAdminInBusinessUnit,
   mapBusinessUnitToBusinessUnit,
