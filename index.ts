@@ -27,7 +27,4 @@ export const CartAction: typeof CartController &
     CartController,
 );
 
-export const BusinessAction: typeof BusinessController & { [actionIdentifier: string]: ActionHandler } = extender(
-    {},
-    BusinessController,
-);
+export const BusinessAction = BusinessController;
