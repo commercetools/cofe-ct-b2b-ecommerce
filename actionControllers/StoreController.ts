@@ -88,7 +88,6 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
   };
 
   const cart = await cartApi.getForUser(request.sessionData?.account, organization);
-  const config = actionContext.frontasticContext?.project?.configuration?.storeContext;
 
   const cartId = cart.cartId;
 
@@ -99,7 +98,6 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
       ...request.sessionData,
       cartId,
       organization,
-      rootCategoryId: store?.custom?.fields?.[config?.rootCategoryCustomField]?.id,
     },
   };
 
@@ -133,7 +131,6 @@ async function mapRequestToStore(
   const key = storeBody.account.company.toLowerCase().replace(/ /g, '_');
   const parentBusinessUnit = storeBody.parentBusinessUnit;
   const rootCategoryId = storeBody.account.rootCategoryId;
-  const config = actionContext.frontasticContext?.project?.configuration?.storeContext;
 
   let supplyChannels: ChannelResourceIdentifier[] = [];
   let distributionChannels: ChannelResourceIdentifier[] = [];
@@ -169,22 +166,6 @@ async function mapRequestToStore(
     distributionChannels,
     supplyChannels,
   };
-
-  if (config?.storeCustomType && config?.rootCategoryCustomField && config?.defaultRootCategoryId) {
-    // @ts-ignore
-    store.custom = {
-      type: {
-        key: config.storeCustomType,
-        typeId: 'type',
-      },
-      fields: {
-        [config.rootCategoryCustomField]: {
-          typeId: 'category',
-          id: rootCategoryId ? rootCategoryId : config.defaultRootCategoryId,
-        },
-      },
-    };
-  }
 
   return store;
 }

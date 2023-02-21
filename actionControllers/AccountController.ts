@@ -144,7 +144,6 @@ export const resendVerificationEmail: ActionHook = async (request: Request, acti
 
 export const login: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const accountLoginBody: AccountLoginBody = JSON.parse(request.body);
-  const config = actionContext.frontasticContext?.project?.configuration?.storeContext;
 
   const loginInfo = {
     email: accountLoginBody.email,
@@ -162,8 +161,6 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
         ...request.sessionData,
         account,
         organization,
-        // @ts-ignore
-        rootCategoryId: organization.store?.custom?.fields?.[config?.rootCategoryCustomField]?.id,
       },
     };
   } catch (e) {

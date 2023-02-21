@@ -43,7 +43,6 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
   const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
   const data = JSON.parse(request.body);
-  const config = actionContext.frontasticContext?.project?.configuration?.storeContext;
 
   const businessUnit = await businessUnitApi.get(data.key, request.sessionData?.account?.accountId);
   const store = businessUnit.stores?.[0]?.key ? await storeApi.get(businessUnit.stores[0].key) : undefined;
@@ -54,7 +53,6 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
     sessionData: {
       ...request.sessionData,
       organization,
-      rootCategoryId: store?.custom?.fields?.[config?.rootCategoryCustomField]?.id,
     },
   };
 

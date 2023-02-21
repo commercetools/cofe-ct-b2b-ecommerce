@@ -46,7 +46,7 @@ export class StoreApi extends BaseApi {
         .get()
         .execute()
         .then((response) => {
-          return mapCommercetoolsStoreToStore(response.body, locale.language);
+          return StoreMappers.mapCommercetoolsStoreToStore(response.body, locale.language);
         });
     } catch (e) {
       console.log(e);
