@@ -1,10 +1,10 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import { CartApi } from '../apis/CartApi';
-import { QuoteApi } from '../apis/QuoteApi';
 import { QuoteRequest } from '@b2bdemo/types/types/quotes/QuoteRequest';
 import { Quote } from '@b2bdemo/types/types/quotes/Quote';
 import { StagedQuote } from '@b2bdemo/types/types/quotes/StagedQuote';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { CartApi } from '../apis/CartApi';
+import { QuoteApi } from '../apis/QuoteApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 

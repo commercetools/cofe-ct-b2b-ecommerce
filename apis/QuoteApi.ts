@@ -5,15 +5,13 @@ import {
   StagedQuote as CommercetoolsStagedQuote,
   QuoteState,
 } from '@commercetools/platform-sdk';
-import {
-  mapCommercetoolsQuote,
-  mapCommercetoolsQuoteRequest,
-  mapCommercetoolsStagedQuote,
-} from '../mappers/QuoteMappers';
-import { BaseApi } from './BaseApi';
 import { QuoteRequest } from '@b2bdemo/types/types/quotes/QuoteRequest';
 import { Quote } from '@b2bdemo/types/types/quotes/Quote';
 import { StagedQuote } from '@b2bdemo/types/types/quotes/StagedQuote';
+import {
+  QuoteMappers
+} from '../mappers/QuoteMappers';
+import { BaseApi } from './BaseApi';
 
 export class QuoteApi extends BaseApi {
   createQuoteRequest: (quoteRequest: QuoteRequestDraft) => Promise<CommercetoolsQuoteRequest> = async (
@@ -94,7 +92,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsQuoteRequest(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsQuoteRequest(response.body.results, locale);
         })
         .catch((error) => {
           throw error;
@@ -119,7 +117,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsStagedQuote(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsStagedQuote(response.body.results, locale);
         })
         .catch((error) => {
           throw error;
@@ -144,7 +142,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsQuote(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsQuote(response.body.results, locale);
         })
         .catch((error) => {
           throw error;
@@ -171,7 +169,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsQuoteRequest(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsQuoteRequest(response.body.results, locale);
         })
         .catch((error) => {
           throw error;
@@ -198,7 +196,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsStagedQuote(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsStagedQuote(response.body.results, locale);
         })
         .catch((error) => {
           throw error;
@@ -223,7 +221,7 @@ export class QuoteApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return mapCommercetoolsQuote(response.body.results, locale);
+          return QuoteMappers.mapCommercetoolsQuote(response.body.results, locale);
         })
         .catch((error) => {
           throw error;

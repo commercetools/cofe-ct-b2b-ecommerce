@@ -16,8 +16,6 @@ import { CartApi as BaseCartApi } from 'cofe-ct-ecommerce/apis/CartApi';
 import { isReadyForCheckout } from 'cofe-ct-ecommerce/utils/Cart';
 import { CartMapper } from '../mappers/CartMapper';
 
-
-
 export class CartApi extends BaseCartApi {
   getForUser: (account: Account, organization: Organization) => Promise<Cart> = async (
     account: Account,

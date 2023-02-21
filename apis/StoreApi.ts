@@ -1,7 +1,7 @@
 import { BaseApi } from './BaseApi';
 import { Store } from '@b2bdemo/types/types/store/store';
 import { StoreDraft } from '@commercetools/platform-sdk';
-import { mapCommercetoolsStoreToStore } from '../mappers/StoreMappers';
+import { StoreMappers } from '../mappers/StoreMappers';
 
 const convertStoreToBody = (store: StoreDraft, locale: string): StoreDraft => {
   return {
@@ -72,7 +72,7 @@ export class StoreApi extends BaseApi {
         })
         .execute()
         .then((response) => {
-          return response.body.results.map((store) => mapCommercetoolsStoreToStore(store, locale.language));
+          return response.body.results.map((store) => StoreMappers.mapCommercetoolsStoreToStore(store, locale.language));
         });
     } catch (e) {
       console.log(e);

@@ -1,11 +1,11 @@
 import { ChannelResourceIdentifier } from '@b2bdemo/types/types/channel/channel';
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { Store } from '@b2bdemo/types/types/store/store';
+import { StoreDraft } from '@commercetools/platform-sdk';
+import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { StoreApi } from '../apis/StoreApi';
 import { CartApi } from '../apis/CartApi';
-import { getLocale } from '../utils/Request';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
-import { StoreDraft } from '@commercetools/platform-sdk';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
