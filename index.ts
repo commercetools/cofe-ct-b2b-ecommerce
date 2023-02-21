@@ -3,6 +3,7 @@ import * as AccountControllerBase from 'cofe-ct-ecommerce/actionControllers/Acco
 import * as AccountController from './actionControllers/AccountController';
 import * as CartControllerBase from 'cofe-ct-ecommerce/actionControllers/CartController';
 import * as CartController from './actionControllers/CartController';
+import * as BusinessController from './actionControllers/BusinessUnitController';
 
 export const extender = (source: any, target: any) => {
   if (!target) {
@@ -25,3 +26,5 @@ export const CartAction: typeof CartController &
     CartControllerBase,
     CartController,
 );
+
+export const BusinessAction = BusinessController;

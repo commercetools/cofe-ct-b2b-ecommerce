@@ -1,12 +1,9 @@
 import { BaseApi } from './BaseApi';
 import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '@b2bdemo/types/types/business-unit/BusinessUnit';
-import {
-  isUserAdminInBusinessUnit,
-  mapBusinessUnitToBusinessUnit,
-  mapReferencedAssociates,
-  mapStoreRefs,
-} from '../mappers/BusinessUnitMappers';
 import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
+import {
+  BusinessUnitMappers
+} from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
 
 const MAX_LIMIT = 50;
@@ -145,13 +142,13 @@ export class BusinessUnitApi extends BaseApi {
       });
 
     return filterAdmin
-      ? justParents.filter((bu) => isUserAdminInBusinessUnit(bu, accountId, config.defaultAdminRoleKey))
+      ? justParents.filter((bu) => BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultAdminRoleKey))
       : justParents
           // sort by Admin first
           .sort((a, b) =>
-            isUserAdminInBusinessUnit(a, accountId, config.defaultAdminRoleKey)
+          BusinessUnitMappers.isUserAdminInBusinessUnit(a, accountId, config.defaultAdminRoleKey)
               ? -1
-              : isUserAdminInBusinessUnit(b, accountId, config.defaultAdminRoleKey)
+              : BusinessUnitMappers.isUserAdminInBusinessUnit(b, accountId, config.defaultAdminRoleKey)
               ? 1
               : 0,
           );
@@ -170,7 +167,7 @@ export class BusinessUnitApi extends BaseApi {
 
       if (highestNodes.length) {
         const bu = await this.setStoresByBusinessUnit(highestNodes[0] as CommercetoolsBusinessUnit);
-        return mapBusinessUnitToBusinessUnit(
+        return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
           bu as CommercetoolsBusinessUnit,
           allStores,
           accountId,
@@ -210,7 +207,7 @@ export class BusinessUnitApi extends BaseApi {
         .get()
         .execute()
         .then((res) => this.setStoresByBusinessUnit(res.body));
-      return mapBusinessUnitToBusinessUnit(
+      return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
         bu as CommercetoolsBusinessUnit,
         allStores,
         accountId,
@@ -282,6 +279,6 @@ export class BusinessUnitApi extends BaseApi {
       }
     }
 
-    return tree.map((bu) => mapStoreRefs(mapReferencedAssociates(bu as CommercetoolsBusinessUnit), allStores));
+    return tree.map((bu) => BusinessUnitMappers.mapStoreRefs(BusinessUnitMappers.mapReferencedAssociates(bu as CommercetoolsBusinessUnit), allStores));
   };
 }
