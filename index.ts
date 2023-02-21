@@ -7,6 +7,7 @@ import * as BusinessController from './actionControllers/BusinessUnitController'
 import * as CustomerController from './actionControllers/CustomerController';
 import * as DashboardController from './actionControllers/DashboardController';
 import * as StoreController from './actionControllers/StoreController';
+import * as QuoteController from './actionControllers/QuoteController';
 
 export const extender = (source: any, target: any) => {
   if (!target) {
@@ -34,3 +35,4 @@ export const BusinessAction = BusinessController;
 export const CustomerAction = CustomerController;
 export const DashboardAction = DashboardController;
 export const StoreAction = StoreController;
+export const QuoteAction = QuoteController;
