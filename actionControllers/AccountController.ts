@@ -250,3 +250,18 @@ export const reset: ActionHook = async (request: Request, actionContext: ActionC
     },
   } as Response;
 };
+
+export const getById: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+
+  const customer = await accountApi.getCustomerById(request.query['id']);
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(customer),
+    sessionData: request.sessionData,
+  };
+
+  return response;
+};
+

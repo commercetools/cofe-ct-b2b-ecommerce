@@ -1,12 +1,17 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import { BusinessUnit, BusinessUnitStatus, BusinessUnitType, StoreMode } from '@b2bdemo/types/types/business-unit/BusinessUnit';
+import {
+  BusinessUnit,
+  BusinessUnitStatus,
+  BusinessUnitType,
+  StoreMode,
+} from '@b2bdemo/types/types/business-unit/BusinessUnit';
 import { Store, StoreKeyReference } from '@b2bdemo/types/types/store/store';
 import { WithError } from '@b2bdemo/types/types/general/WithError';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
-import { CustomerApi } from '../apis/CustomerApi';
+import { AccountApi } from '../apis/AccountApi';
 import { StoreApi } from '../apis/StoreApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
@@ -117,10 +122,10 @@ export const create: ActionHook = async (request: Request, actionContext: Action
 
 export const addAssociate: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
-  const customerApi = new CustomerApi(actionContext.frontasticContext, getLocale(request));
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
   const addUserBody: { email: string; roles: string[] } = JSON.parse(request.body);
 
-  const account = await customerApi.get(addUserBody.email);
+  const account = await accountApi.getCustomerByEmail(addUserBody.email);
   if (!account) {
     return {
       statusCode: 400,

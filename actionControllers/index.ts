@@ -4,14 +4,12 @@ import * as CartActions from './CartController';
 import * as WishlistActions from './WishlistController';
 import * as StoreActions from './StoreController';
 import * as BusinessUnitActions from './BusinessUnitController';
-import * as CustomerActions from './CustomerController';
 import * as QuoteActions from './QuoteController';
 import * as DashboardActions from './DashboardController';
 
 export const actions = {
   account: AccountActions,
   cart: CartActions,
-  customer: CustomerActions,
   product: ProductActions,
   wishlist: WishlistActions,
   store: StoreActions,
