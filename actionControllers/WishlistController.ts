@@ -1,7 +1,6 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import { WishlistApi } from '../apis/WishlistApi';
 import { Account } from '@b2bdemo/types/types/account/Account';
-import { getLocale } from '../utils/Request';
+import { WishlistApi } from '../apis/WishlistApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -162,26 +161,7 @@ export const share: ActionHook = async (request, actionContext) => {
   }
 };
 
-export const addToWishlist: ActionHook = async (request, actionContext) => {
-  const wishlistApi = getWishlistApi(request, actionContext);
-  const wishlist = await fetchWishlist(request, wishlistApi);
 
-  const body: {
-    variant?: { sku?: string };
-    count?: number;
-  } = JSON.parse(request.body);
-
-  const updatedWishlist = await wishlistApi.addToWishlist(wishlist, {
-    sku: body?.variant?.sku || undefined,
-    count: body.count || 1,
-  });
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(updatedWishlist),
-    sessionData: request.sessionData,
-  };
-};
 
 export const removeLineItem: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
@@ -200,24 +180,4 @@ export const removeLineItem: ActionHook = async (request, actionContext) => {
   };
 };
 
-export const updateLineItemCount: ActionHook = async (request, actionContext) => {
-  const wishlistApi = getWishlistApi(request, actionContext);
-  const wishlist = await fetchWishlist(request, wishlistApi);
 
-  const body: {
-    lineItem?: { id?: string };
-    count?: number;
-  } = JSON.parse(request.body);
-
-  const updatedWishlist = await wishlistApi.updateLineItemCount(
-    wishlist,
-    body.lineItem?.id ?? undefined,
-    body.count || 1,
-  );
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(updatedWishlist),
-    sessionData: request.sessionData,
-  };
-};

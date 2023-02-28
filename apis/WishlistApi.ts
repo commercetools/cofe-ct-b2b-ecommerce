@@ -10,25 +10,6 @@ interface AddToWishlistRequest {
 }
 
 export class WishlistApi extends BaseWishlistApi {
-  getById = async (wishlistId: string) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-      const response = await this.getApiForProject()
-        .shoppingLists()
-        .withId({ ID: wishlistId })
-        .get({
-          queryArgs: {
-            expand: expandVariants,
-          },
-        })
-        .execute();
-
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale);
-    } catch (error) {
-      throw new Error(`Get wishlist by ID failed: ${error}`);
-    }
-  };
-
   getForAccount = async (accountId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -141,36 +122,6 @@ export class WishlistApi extends BaseWishlistApi {
     }
   };
 
-  addToWishlist = async (wishlist: Wishlist, request: AddToWishlistRequest) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const response = await this.getApiForProject()
-        .shoppingLists()
-        .withId({ ID: wishlist.wishlistId })
-        .post({
-          body: {
-            version: +wishlist.wishlistVersion,
-            actions: [
-              {
-                action: 'addLineItem',
-                sku: request.sku,
-                quantity: request.count,
-              },
-            ],
-          },
-          queryArgs: {
-            expand: expandVariants,
-          },
-        })
-        .execute();
-
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale);
-    } catch (error) {
-      throw new Error(`Add to wishlist failed: ${error}`);
-    }
-  };
-
   share = async (wishlist: Wishlist, businessUnitKey: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -213,65 +164,6 @@ export class WishlistApi extends BaseWishlistApi {
       return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale);
     } catch (error) {
       throw error;
-    }
-  };
-
-  removeLineItem = async (wishlist: Wishlist, lineItemId: string) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const response = await this.getApiForProject()
-        .shoppingLists()
-        .withId({ ID: wishlist.wishlistId })
-        .post({
-          body: {
-            version: +wishlist.wishlistVersion,
-            actions: [
-              {
-                action: 'removeLineItem',
-                lineItemId,
-              },
-            ],
-          },
-          queryArgs: {
-            expand: expandVariants,
-          },
-        })
-        .execute();
-
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale);
-    } catch (error) {
-      throw new Error(`Add to wishlist failed: ${error}`);
-    }
-  };
-
-  updateLineItemCount = async (wishlist: Wishlist, lineItemId: string, count: number) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const response = await this.getApiForProject()
-        .shoppingLists()
-        .withId({ ID: wishlist.wishlistId })
-        .post({
-          body: {
-            version: +wishlist.wishlistVersion,
-            actions: [
-              {
-                action: 'changeLineItemQuantity',
-                lineItemId,
-                quantity: count,
-              },
-            ],
-          },
-          queryArgs: {
-            expand: expandVariants,
-          },
-        })
-        .execute();
-
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale);
-    } catch (error) {
-      throw new Error(`Update line item count: ${error}`);
     }
   };
 }

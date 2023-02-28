@@ -5,6 +5,8 @@ import * as CartControllerBase from 'cofe-ct-ecommerce/actionControllers/CartCon
 import * as CartController from './actionControllers/CartController';
 import * as ProductControllerBase from 'cofe-ct-ecommerce/actionControllers/ProductController';
 import * as ProductController from './actionControllers/ProductController';
+import * as WishlistControllerBase from 'cofe-ct-ecommerce/actionControllers/WishlistController';
+import * as WishlistController from './actionControllers/WishlistController';
 import * as BusinessController from './actionControllers/BusinessUnitController';
 import * as CustomerController from './actionControllers/CustomerController';
 import * as DashboardController from './actionControllers/DashboardController';
@@ -37,6 +39,12 @@ export const ProductAction: typeof ProductController &
   typeof ProductControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
     ProductControllerBase,
     ProductController,
+);
+
+export const WishlistActionWishlistAction: typeof WishlistController &
+  typeof WishlistControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
+    WishlistControllerBase,
+    WishlistController,
 );
 
 export const BusinessAction = BusinessController;

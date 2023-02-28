@@ -80,3 +80,11 @@ export class WishlistMapper extends BaseWishlistMapper {
     };
   };
 }
+
+// Override the BaseMapper with new Mapper functions
+Object.getOwnPropertyNames(WishlistMapper).forEach((key) => {
+  if (typeof WishlistMapper[key] === 'function') {
+    BaseWishlistMapper[key] = WishlistMapper[key];
+  }
+});
+
