@@ -1,4 +1,4 @@
-import { BaseApi } from './BaseApi';
+import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '@b2bdemo/types/types/business-unit/BusinessUnit';
 import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
 import {

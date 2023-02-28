@@ -1,4 +1,4 @@
-import { BaseApi } from './BaseApi';
+import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { Account } from '@b2bdemo/types/types/account/Account';
 
 export class CustomerApi extends BaseApi {

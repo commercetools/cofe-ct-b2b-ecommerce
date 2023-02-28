@@ -8,10 +8,10 @@ import {
 import { QuoteRequest } from '@b2bdemo/types/types/quotes/QuoteRequest';
 import { Quote } from '@b2bdemo/types/types/quotes/Quote';
 import { StagedQuote } from '@b2bdemo/types/types/quotes/StagedQuote';
+import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import {
   QuoteMappers
 } from '../mappers/QuoteMappers';
-import { BaseApi } from './BaseApi';
 
 export class QuoteApi extends BaseApi {
   createQuoteRequest: (quoteRequest: QuoteRequestDraft) => Promise<CommercetoolsQuoteRequest> = async (
