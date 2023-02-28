@@ -5,7 +5,7 @@ import { Account } from '@b2bdemo/types/types/account/Account';
 import { Address } from '@b2bdemo/types/types/account/Address';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
-import { EmailApi } from '../apis/EmailApi';
+import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
@@ -92,10 +92,8 @@ function mapRequestToAccount(request: Request): Account {
 
 export const register: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
 
   const accountData = mapRequestToAccount(request);
-  const host = JSON.parse(request.body).host;
 
   const cart = await CartFetcher.fetchCart(request, actionContext).catch(() => undefined);
 
@@ -104,7 +102,14 @@ export const register: ActionHook = async (request: Request, actionContext: Acti
   try {
     const account = await accountApi.create(accountData, cart);
 
-    if (!account.confirmed) await emailApi.sendVerificationEmail(account, host);
+    if (EmailApi) {
+      const emailApi = EmailApi.getDefaultApi(actionContext.frontasticContext, locale);
+
+      emailApi.sendWelcomeCustomerEmail(account);
+
+      emailApi.sendAccountVerificationEmail(account);
+    }
+
     response = {
       statusCode: 200,
       body: JSON.stringify({ accountId: account.accountId }),
@@ -120,25 +125,6 @@ export const register: ActionHook = async (request: Request, actionContext: Acti
       errorCode: 500,
     };
   }
-  return response;
-};
-
-export const resendVerificationEmail: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const data = JSON.parse(request.body) as Account;
-  const host = JSON.parse(request.body).host;
-
-  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
-
-  const reverify = true; //Will not login the account instead will send a reverification email..
-
-  const { account } = await loginAccount(request, actionContext, data, reverify);
-
-  await emailApi.sendVerificationEmail(account, host);
-
-  const response: Response = {
-    statusCode: 200,
-  };
-
   return response;
 };
 
@@ -188,39 +174,6 @@ export const logout: ActionHook = async (request: Request, actionContext: Action
 };
 
 /**
- * Request new reset token
- */
-export const requestReset: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  type AccountRequestResetBody = {
-    email?: string;
-    host?: string;
-  };
-
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-  const emailApi = new EmailApi(actionContext.frontasticContext.project.configuration.smtp);
-
-  const accountRequestResetBody: AccountRequestResetBody = JSON.parse(request.body);
-
-  const passwordResetToken = await accountApi.generatePasswordResetToken(accountRequestResetBody.email);
-
-  await emailApi.sendPasswordResetEmail(
-    passwordResetToken.confirmationToken,
-    accountRequestResetBody.email,
-    accountRequestResetBody.host,
-  );
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify({}),
-    sessionData: {
-      ...request.sessionData,
-      // TODO: should we redirect to logout rather to unset the account?
-      account: undefined,
-    },
-  } as Response;
-};
-
-/**
  * Reset password
  */
 export const reset: ActionHook = async (request: Request, actionContext: ActionContext) => {
@@ -264,4 +217,3 @@ export const getById: ActionHook = async (request: Request, actionContext: Actio
 
   return response;
 };
-

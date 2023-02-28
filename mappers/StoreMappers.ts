@@ -5,7 +5,6 @@ export class StoreMappers {
   static mapCommercetoolsStoreToStore(
     store: CommercetoolsStore,
     locale: string,
-    config?: Record<string, string>,
   ): Store {
     return {
       ...store,

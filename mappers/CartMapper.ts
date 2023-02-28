@@ -16,7 +16,6 @@ export class CartMapper extends BaseCartMapper {
   static commercetoolsCartToCart(
     commercetoolsCart: CommercetoolsCart,
     locale: Locale,
-    config?: Record<string, string>,
   ): Cart {
     return {
       cartId: commercetoolsCart.id,
@@ -80,7 +79,6 @@ export class CartMapper extends BaseCartMapper {
   static commercetoolsOrderToOrder(
     commercetoolsOrder: CommercetoolsOrder,
     locale: Locale,
-    config?: Record<string, string>,
   ): Order {
     return {
       cartId: commercetoolsOrder.id,
