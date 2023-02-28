@@ -3,7 +3,7 @@ import { ProductQueryFactory } from './ProductQueryFactory';
 import { Result } from '@b2bdemo/types/types/product/Result';
 import { SearchRouter as BaseSearchRouter } from 'cofe-ct-ecommerce/utils/SearchRouter';
 import { ProductApi } from '../apis/ProductApi';
-import { getPath, getLocale } from './Request';
+import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 
 export class SearchRouter extends BaseSearchRouter {
   static identifyFrom(request: Request) {

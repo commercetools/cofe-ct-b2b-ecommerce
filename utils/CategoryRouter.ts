@@ -3,8 +3,8 @@ import { ProductApi } from '../apis/ProductApi';
 import { CategoryQuery } from '@b2bdemo/types/types/query/CategoryQuery';
 import { Category } from '@b2bdemo/types/types/product/Category';
 import { CategoryRouter as BaseCategoryRouter } from 'cofe-ct-ecommerce/utils/CategoryRouter';
-import { getLocale, getPath } from './Request';
 import { Result } from '@b2bdemo/types/types/product/Result';
+import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { ProductQueryFactory } from './ProductQueryFactory';
 
 export class CategoryRouter extends BaseCategoryRouter {
