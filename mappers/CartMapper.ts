@@ -118,11 +118,11 @@ export class CartMapper extends BaseCartMapper {
         shipmentState: item.shipmentState,
       })),
     }));
-  };
+  }
 }
 // Override the BaseMapper with new Mapper functions
-Object.getOwnPropertyNames(BaseCartMapper).forEach((key) => {
-  if (typeof BaseCartMapper[key] === 'function') {
+Object.getOwnPropertyNames(CartMapper).forEach((key) => {
+  if (typeof CartMapper[key] === 'function') {
     BaseCartMapper[key] = CartMapper[key];
   }
 });

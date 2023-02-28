@@ -150,7 +150,7 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
 
     let cart = await cartApi.getById(stagedQuote.quotationCart.id);
     cart = await cartApi.setEmail(cart, stagedQuote.customer.obj.email);
-    cart = await cartApi.setLocale(cart, 'en-US');
+    // cart = await cartApi.setLocale(cart, 'en-US');
     const commercetoolsCart = await cartApi.setCustomerId(cart, stagedQuote.customer.obj.id);
 
     sessionData.cartId = commercetoolsCart.cartId;

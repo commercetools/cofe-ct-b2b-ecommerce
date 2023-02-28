@@ -19,8 +19,8 @@ export class AccountMapper extends BaseAccountMapper {
 }
 
 // Override the BaseMapper with new Mapper functions
-Object.getOwnPropertyNames(BaseAccountMapper).forEach((key) => {
-  if (typeof BaseAccountMapper[key] === 'function') {
+Object.getOwnPropertyNames(AccountMapper).forEach((key) => {
+  if (typeof AccountMapper[key] === 'function') {
     BaseAccountMapper[key] = AccountMapper[key];
   }
 });

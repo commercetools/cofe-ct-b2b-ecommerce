@@ -25,8 +25,8 @@ export class CartFetcher extends BaseCartFetcher {
 }
 
 // Override the BaseMapper with new Mapper functions
-Object.getOwnPropertyNames(BaseCartFetcher).forEach((key) => {
-  if (typeof BaseCartFetcher[key] === 'function') {
+Object.getOwnPropertyNames(CartFetcher).forEach((key) => {
+  if (typeof CartFetcher[key] === 'function') {
     BaseCartFetcher[key] = CartFetcher[key];
   }
 });

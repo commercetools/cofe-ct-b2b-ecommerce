@@ -10,6 +10,13 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@b2bdemo/types@git+https://github.com/commercetools/b2b-cofe-types.git":
+  version "1.0.1"
+  uid "8ff9ade4bc916e22761a4070eaa80d506310d834"
+  resolved "git+https://github.com/commercetools/b2b-cofe-types.git#8ff9ade4bc916e22761a4070eaa80d506310d834"
+  dependencies:
+    typescript "^4.9.4"
+
 "@b2bdemo/types@https://github.com/commercetools/b2b-cofe-types":
   version "1.0.1"
   resolved "https://github.com/commercetools/b2b-cofe-types#8ff9ade4bc916e22761a4070eaa80d506310d834"
@@ -1131,10 +1138,12 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-"cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce":
-  version "1.0.3"
-  resolved "https://github.com/commercetools/cofe-ct-ecommerce#22989246627c2e581a59ffcdbc87f4533830d0c0"
+cofe-ct-ecommerce@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/cofe-ct-ecommerce/-/cofe-ct-ecommerce-1.0.4.tgz#cf869d699bad1f37671b639017c3f2c25a7f8bfd"
+  integrity sha512-04ou85SfsxUpv6OAX3HLMn43vVXDCGnj0JwasdlYa2Ojhqy44WhzrySrmO4KPODj/kWB0+XYdSGDgcGYCAQ63g==
   dependencies:
+    "@b2bdemo/types" "https://github.com/commercetools/b2b-cofe-types"
     "@commercetools/frontend-domain-types" "^1.0.3"
     "@commercetools/platform-sdk" "^4.5.0"
     "@frontastic/extension-types" "^0.0.11"

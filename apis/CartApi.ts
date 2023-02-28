@@ -200,29 +200,6 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  setLocale: (cart: Cart, localeCode: string) => Promise<Cart> = async (cart: Cart, localeCode: string) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
-
-      const cartUpdate: CartUpdate = {
-        version: +cart.cartVersion,
-        actions: [
-          {
-            action: 'setLocale',
-            locale: localeCode,
-          } as CartSetLocaleAction,
-        ],
-      };
-
-      const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
-
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
-    } catch (error) {
-      //TODO: better error, get status code etc...
-      throw new Error(`setLocale failed. ${error}`);
-    }
-  };
-
   order: (cart: Cart) => Promise<Order> = async (cart: Cart) => {
     try {
       const locale = await this.getCommercetoolsLocal();

@@ -2,7 +2,6 @@ import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { LineItem, LineItemReturnItemDraft } from '@b2bdemo/types/types/cart/LineItem';
 import { Address } from '@b2bdemo/types/types/account/Address';
-import { ShippingMethod } from '@b2bdemo/types/types/cart/ShippingMethod';
 import { AddressDraft } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartApi } from '../apis/CartApi';
@@ -101,28 +100,6 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
       errorCode: 500,
     };
   }
-
-  return response;
-};
-
-export const setShippingMethod: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-  let cart = await CartFetcher.fetchCart(request, actionContext);
-
-  const shippingMethod: ShippingMethod = {
-    shippingMethodId: request.query.shippingMethodId,
-  };
-
-  cart = await cartApi.setShippingMethod(cart, shippingMethod);
-
-  const response: Response = {
-    statusCode: 200,
-    body: JSON.stringify(cart),
-    sessionData: {
-      ...request.sessionData,
-      cartId: cart.cartId,
-    },
-  };
 
   return response;
 };
