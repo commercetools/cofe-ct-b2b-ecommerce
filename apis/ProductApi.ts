@@ -121,7 +121,7 @@ export class ProductApi extends BaseProductApi {
 
             const result: Result = {
               total: response.body.total,
-              items: items,
+              items,
               count: response.body.count,
               facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.facets, productQuery, locale),
               previousCursor: ProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
@@ -176,26 +176,6 @@ export class ProductApi extends BaseProductApi {
 
     categories = items.filter((item: Category) => !item.ancestors?.length);
 
-    const subCategories: Category[] = items
-      .filter((item: Category) => !!item.ancestors?.length)
-      .sort((a, b) => b.depth - a.depth);
-
-    while (subCategories.length) {
-      const [currentSubCategory] = subCategories.splice(0, 1);
-      const lastAncestor = currentSubCategory.ancestors[currentSubCategory.ancestors.length - 1];
-      const subCategoryIdx = subCategories.findIndex((item) => item.categoryId === lastAncestor.id);
-      if (subCategoryIdx !== -1) {
-        subCategories[subCategoryIdx].children = [
-          ...(subCategories[subCategoryIdx].children || []),
-          currentSubCategory,
-        ];
-      } else {
-        const categoryIdx = categories.findIndex((item) => item.categoryId === lastAncestor.id);
-        if (categoryIdx !== -1) {
-          categories[categoryIdx].children = [...(categories[categoryIdx].children || []), currentSubCategory];
-        }
-      }
-    }
     return categories as Category[];
   };
 }
