@@ -41,7 +41,7 @@ export const ProductAction: typeof ProductController &
     ProductController,
 );
 
-export const WishlistActionWishlistAction: typeof WishlistController &
+export const WishlistAction: typeof WishlistController &
   typeof WishlistControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
     WishlistControllerBase,
     WishlistController,
