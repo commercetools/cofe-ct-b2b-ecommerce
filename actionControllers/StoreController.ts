@@ -80,11 +80,14 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
 
   const organization = {
     ...request.sessionData?.organization,
-    store: {
-      typeId: 'store',
-      ...store,
-    },
     distributionChannel,
+  };
+
+  organization.store = {
+    id: store.id,
+    key: store.key,
+    name: store.name,
+    custom: store.custom,
   };
 
   const cart = await cartApi.getForUser(request.sessionData?.account, organization);
@@ -130,7 +133,6 @@ async function mapRequestToStore(
   const storeBody: AccountRegisterBody = JSON.parse(request.body);
   const key = storeBody.account.company.toLowerCase().replace(/ /g, '_');
   const parentBusinessUnit = storeBody.parentBusinessUnit;
-  const rootCategoryId = storeBody.account.rootCategoryId;
 
   let supplyChannels: ChannelResourceIdentifier[] = [];
   let distributionChannels: ChannelResourceIdentifier[] = [];

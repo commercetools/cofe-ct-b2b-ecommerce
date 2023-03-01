@@ -16,8 +16,12 @@ export class BusinessUnitApi extends BaseApi {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
       // @ts-ignore
       const store = await storeApi.get(businessUnit.stores?.[0].key);
-      // @ts-ignore
-      organization.store = store;
+      organization.store = {
+        id: store.id,
+        key: store.key,
+        name: store.name,
+        custom: store.custom,
+      };
       if (store?.distributionChannels?.length) {
         organization.distributionChannel = store.distributionChannels[0];
       }
