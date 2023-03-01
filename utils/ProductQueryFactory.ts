@@ -1,13 +1,14 @@
 import { DataSourceConfiguration, Request } from '@frontastic/extension-types';
-import { ProductQuery, SortAttributes, SortOrder } from '@b2bdemo/types/types/query/ProductQuery';
-import { Filter, FilterTypes } from '@b2bdemo/types/types/query/Filter';
-import { RangeFilter } from '@b2bdemo/types/types/query/RangeFilter';
-import { TermFilter } from '@b2bdemo/types/types/query/TermFilter';
-import { FilterFieldTypes } from '@b2bdemo/types/types/product/FilterField';
-import { Facet } from '@b2bdemo/types/types/query/Facet';
-import { TermFacet } from '@b2bdemo/types/types/query/TermFacet';
-import { RangeFacet } from '@b2bdemo/types/types/query/RangeFacet';
+import { SortAttributes, SortOrder } from '@commercetools/frontend-domain-types/query/ProductQuery';
+import { Filter, FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
+import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFilter';
+import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilter';
+import { FilterFieldTypes } from '@commercetools/frontend-domain-types/product/FilterField';
+import { Facet } from '@commercetools/frontend-domain-types/query/Facet';
+import { TermFacet } from '@commercetools/frontend-domain-types/query/TermFacet';
+import { RangeFacet } from '@commercetools/frontend-domain-types/query/RangeFacet';
 import { ProductQueryFactory as BaseProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
+import { ProductQuery } from '../types/query/ProductQuery';
 
 export class ProductQueryFactory extends BaseProductQueryFactory {
   static queryFromParams: (request: Request, config?: DataSourceConfiguration) => ProductQuery = (

@@ -1,11 +1,9 @@
-import { Wishlist, WishlistDraft } from '@b2bdemo/types/types/wishlist/Wishlist';
-import { CustomFields, ShoppingList, ShoppingListLineItem } from '@commercetools/platform-sdk';
+import { Wishlist, WishlistDraft } from '../types/wishlist/Wishlist';
+import { CustomFields, ShoppingList } from '@commercetools/platform-sdk';
 import { ShoppingListDraft } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/shopping-list';
-import { LineItem } from '@b2bdemo/types/types/wishlist/LineItem';
-import { Store, StoreKeyReference } from '@b2bdemo/types/types/store/store';
+import { Store, StoreKeyReference } from '../types/store/store';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { WishlistMapper as BaseWishlistMapper } from 'cofe-ct-ecommerce/mappers/WishlistMapper';
-import { ProductRouter } from '../utils/ProductRouter';
 
 export class WishlistMapper extends BaseWishlistMapper {
   static commercetoolsShoppingListToWishlist = (
@@ -47,30 +45,11 @@ export class WishlistMapper extends BaseWishlistMapper {
     };
   };
 
-  private static commercetoolsLineItemToLineItem = (
-    commercetoolsLineItem: ShoppingListLineItem,
-    locale: Locale,
-  ): LineItem => {
-    const lineItem: LineItem = {
-      lineItemId: commercetoolsLineItem.id,
-      name: commercetoolsLineItem.name[locale.language],
-      type: 'variant',
-      addedAt: new Date(commercetoolsLineItem.addedAt),
-      count: commercetoolsLineItem.quantity,
-      variant: {
-        sku: commercetoolsLineItem.variant.sku,
-        images: commercetoolsLineItem.variant?.images?.map((image) => image.url),
-      },
-    };
-    lineItem._url = ProductRouter.generateUrlFor(lineItem);
-    return lineItem;
-  };
-
   static wishlistToCommercetoolsShoppingListDraft = (
-    accountId: string,
-    storeKey: string,
     wishlist: WishlistDraft,
     locale: Locale,
+    accountId?: string,
+    storeKey?: string,
   ): ShoppingListDraft => {
     return {
       customer: !accountId ? undefined : { typeId: 'customer', id: accountId },
@@ -87,4 +66,3 @@ Object.getOwnPropertyNames(WishlistMapper).forEach((key) => {
     BaseWishlistMapper[key] = WishlistMapper[key];
   }
 });
-

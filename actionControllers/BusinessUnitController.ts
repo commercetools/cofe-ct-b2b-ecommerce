@@ -4,9 +4,8 @@ import {
   BusinessUnitStatus,
   BusinessUnitType,
   StoreMode,
-} from '@b2bdemo/types/types/business-unit/BusinessUnit';
-import { Store, StoreKeyReference } from '@b2bdemo/types/types/store/store';
-import { WithError } from '@b2bdemo/types/types/general/WithError';
+} from '../types/business-unit/BusinessUnit';
+import { Store, StoreKeyReference } from '../types/store/store';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
@@ -268,7 +267,7 @@ export const remove: ActionHook = async (request: Request, actionContext: Action
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
   const key = request.query?.['key'];
 
-  let response: WithError<Response>;
+  let response: Response;
 
   try {
     const businessUnit = await businessUnitApi.delete(key);

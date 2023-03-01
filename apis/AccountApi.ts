@@ -1,11 +1,11 @@
-import { Account } from '@b2bdemo/types/types/account/Account';
+import { Account } from '../types/account/Account';
 import {
   CustomerDraft,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
-import { Cart } from '@b2bdemo/types/types/cart/Cart';
 import { CartResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
 import { AccountApi as BaseAccountApi } from 'cofe-ct-ecommerce/apis/AccountApi';
 import { AccountMapper } from '../mappers/AccontMapper';
+import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
 
 export class AccountApi extends BaseAccountApi {
   create: (account: Account, cart: Cart | undefined) => Promise<Account> = async (
@@ -77,8 +77,7 @@ export class AccountApi extends BaseAccountApi {
       const token = await this.getConfirmationToken(account);
 
       if (token) {
-        account.confirmationToken = token.token;
-        account.tokenValidUntil = token.tokenValidUntil;
+        account.confirmationToken = token;
       }
 
       return account;
@@ -134,8 +133,7 @@ export class AccountApi extends BaseAccountApi {
 
       if (reverify) {
         const token = await this.getConfirmationToken(account);
-        account.confirmationToken = token.token;
-        account.tokenValidUntil = token.tokenValidUntil;
+        account.confirmationToken = token;
       } else if (!account.confirmed) {
         throw new Error(`Your account ${account.email} is not activated yet!`);
       }

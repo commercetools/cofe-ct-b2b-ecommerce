@@ -1,19 +1,19 @@
-import { Product } from '@b2bdemo/types/types/product/Product';
 import { Context, Request } from '@frontastic/extension-types';
-import { ProductQuery } from '@b2bdemo/types/types/query/ProductQuery';
-import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
-import { LineItem as WishlistItem } from '@b2bdemo/types/types/wishlist/LineItem';
+import { ProductQuery } from '../types/query/ProductQuery';
+import { LineItem as WishlistItem } from '@commercetools/frontend-domain-types/wishlist/LineItem';
 import { ProductRouter as BaseProductRouter } from 'cofe-ct-ecommerce/utils/ProductRouter';
 import { ProductApi } from '../apis/ProductApi';
 import { getPath, getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { Product } from '@commercetools/frontend-domain-types/product/Product';
 
 export class ProductRouter extends BaseProductRouter {
-  private static isProduct(product: Product | LineItem | WishlistItem): product is Product {
+  static isProduct(product: Product | LineItem | WishlistItem): product is Product {
     return (product as Product).productId !== undefined;
   }
 
   static generateUrlFor(item: Product | LineItem | WishlistItem) {
-    if (ProductRouter.isProduct(item)) {
+    if (this.isProduct(item)) {
       return `/${item.slug}/p/${item.variants?.[0]?.sku}`;
     }
     return `/slug/p/${item.variant?.sku}`;

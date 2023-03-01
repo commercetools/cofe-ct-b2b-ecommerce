@@ -1,5 +1,5 @@
+import { Account } from '@commercetools/frontend-domain-types/account/Account';
 import { Customer as commercetoolsCustomer } from '@commercetools/platform-sdk';
-import { Account } from '@b2bdemo/types/types/account/Account';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { AccountMapper as BaseAccountMapper } from 'cofe-ct-ecommerce/mappers/AccontMapper';
 

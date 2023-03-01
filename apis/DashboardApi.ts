@@ -1,5 +1,5 @@
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
-import { DashboardCustomObjectDraft, DashboardCustomObject } from '@b2bdemo/types/types/dashboard/Dashboard';
+import { DashboardCustomObjectDraft, DashboardCustomObject } from '../types/dashboard/Dashboard';
 
 export class DashboardApi extends BaseApi {
   create: (dashboard: DashboardCustomObjectDraft) => Promise<DashboardCustomObject> = async (

@@ -1,13 +1,8 @@
-import { Wishlist, WishlistDraft } from '@b2bdemo/types/types/wishlist/Wishlist';
+import { Wishlist, WishlistDraft } from '../types/wishlist/Wishlist';
 import { WishlistApi as BaseWishlistApi } from 'cofe-ct-ecommerce/apis/WishlistApi';
 import { WishlistMapper } from '../mappers/WishlistMapper';
 
 const expandVariants = ['lineItems[*].variant', 'store'];
-
-interface AddToWishlistRequest {
-  sku: string;
-  count: number;
-}
 
 export class WishlistApi extends BaseWishlistApi {
   getForAccount = async (accountId: string) => {
@@ -102,10 +97,11 @@ export class WishlistApi extends BaseWishlistApi {
     }
   };
 
+  // @ts-ignore
   create = async (accountId: string, storeKey: string, wishlist: WishlistDraft) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const body = WishlistMapper.wishlistToCommercetoolsShoppingListDraft(accountId, storeKey, wishlist, locale);
+      const body = WishlistMapper.wishlistToCommercetoolsShoppingListDraft(wishlist, locale, accountId, storeKey);
       const response = await this.getApiForProject()
         .shoppingLists()
         .post({

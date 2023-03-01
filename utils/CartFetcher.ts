@@ -1,5 +1,5 @@
 import { ActionContext, Request } from '@frontastic/extension-types';
-import { Cart } from '@b2bdemo/types/types/cart/Cart';
+import { Cart } from '../types/cart/Cart';
 import { CartFetcher as BaseCartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 import { CartApi } from '../apis/CartApi';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';

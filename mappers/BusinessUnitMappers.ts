@@ -1,6 +1,6 @@
-import { BusinessUnit } from '@b2bdemo/types/types/business-unit/BusinessUnit';
 import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
-import { Store } from '@b2bdemo/types/types/store/store';
+import { BusinessUnit } from '../types/business-unit/BusinessUnit';
+import { Store } from '../types/store/store';
 
 export class BusinessUnitMappers {
   static mapBusinessUnitToBusinessUnit(

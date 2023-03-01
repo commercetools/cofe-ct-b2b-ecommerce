@@ -1,11 +1,11 @@
+import { Category } from '@commercetools/frontend-domain-types/product/Category';
+import { Variant } from '@commercetools/frontend-domain-types/product/Variant';
 import {
   Category as CommercetoolsCategory,
   Price,
   ProductVariant as CommercetoolsProductVariant,
   ProductVariantAvailability,
 } from '@commercetools/platform-sdk';
-import { Variant } from '@b2bdemo/types/types/product/Variant';
-import { Category } from '@b2bdemo/types/types/product/Category';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { ProductMapper as BaseProductMapper } from 'cofe-ct-ecommerce/mappers/ProductMapper';
 

@@ -31,10 +31,10 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "isolatedModules": true,
-        "noEmit": false,
+        "noEmit": true,
     },
     "include": [
-        "./*",
+        "./index.ts",
     ],
     "exclude": [
         "node_modules/*",

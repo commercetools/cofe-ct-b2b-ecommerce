@@ -1,23 +1,24 @@
-import { Cart } from '@b2bdemo/types/types/cart/Cart';
-import { AddressDraft, CartDraft, CartSetLocaleAction } from '@commercetools/platform-sdk';
-import { LineItem, LineItemReturnItemDraft } from '@b2bdemo/types/types/cart/LineItem';
+import { AddressDraft, CartDraft } from '@commercetools/platform-sdk';
+import { LineItemReturnItemDraft } from '../types/cart/LineItem';
 import { Cart as CommercetoolsCart } from '@commercetools/platform-sdk';
 import {
   CartAddLineItemAction,
   CartSetCustomerIdAction,
   CartUpdate,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
-import { Order } from '@b2bdemo/types/types/cart/Order';
 import { OrderFromCartDraft } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/order';
-import { Account } from '@b2bdemo/types/types/account/Account';
-import { Organization } from '@b2bdemo/types/types/organization/organization';
+import { Organization } from '../types/organization/organization';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { CartApi as BaseCartApi } from 'cofe-ct-ecommerce/apis/CartApi';
 import { isReadyForCheckout } from 'cofe-ct-ecommerce/utils/Cart';
 import { CartMapper } from '../mappers/CartMapper';
+import { Account } from '@commercetools/frontend-domain-types/account/Account';
+import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { Order } from '../types/cart/Order';
+import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 
 export class CartApi extends BaseCartApi {
-  getForUser: (account: Account, organization: Organization) => Promise<Cart> = async (
+  getForUser: (account: Account, organization?: Organization) => Promise<Cart> = async (
     account: Account,
     organization: Organization,
   ) => {
@@ -101,7 +102,7 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel: string) => Promise<Cart> = async (
+  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string) => Promise<Cart> = async (
     cart: Cart,
     lineItem: LineItem,
     distributionChannel: string,
@@ -200,6 +201,7 @@ export class CartApi extends BaseCartApi {
     }
   };
 
+  // @ts-ignore
   order: (cart: Cart) => Promise<Order> = async (cart: Cart) => {
     try {
       const locale = await this.getCommercetoolsLocal();

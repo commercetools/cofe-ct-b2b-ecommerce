@@ -1,13 +1,12 @@
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AccountApi } from '../apis/AccountApi';
-import { Account } from '@b2bdemo/types/types/account/Account';
-import { Address } from '@b2bdemo/types/types/account/Address';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
 import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
-
+import { Address } from '@commercetools/frontend-domain-types/account/Address';
+import { Account } from '../types/account/Account';
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 export type AccountRegisterBody = {
@@ -103,7 +102,7 @@ export const register: ActionHook = async (request: Request, actionContext: Acti
     const account = await accountApi.create(accountData, cart);
 
     if (EmailApi) {
-      const emailApi = EmailApi.getDefaultApi(actionContext.frontasticContext, locale);
+      const emailApi = EmailApi.getDefaultApi(actionContext.frontasticContext, getLocale(request));
 
       emailApi.sendWelcomeCustomerEmail(account);
 

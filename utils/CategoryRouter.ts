@@ -1,11 +1,11 @@
 import { Context, Request } from '@frontastic/extension-types';
 import { ProductApi } from '../apis/ProductApi';
-import { CategoryQuery } from '@b2bdemo/types/types/query/CategoryQuery';
-import { Category } from '@b2bdemo/types/types/product/Category';
 import { CategoryRouter as BaseCategoryRouter } from 'cofe-ct-ecommerce/utils/CategoryRouter';
-import { Result } from '@b2bdemo/types/types/product/Result';
 import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { ProductQueryFactory } from './ProductQueryFactory';
+import { CategoryQuery } from '@commercetools/frontend-domain-types/query/CategoryQuery';
+import { Result } from '@commercetools/frontend-domain-types/product/Result';
+import { Category } from '@commercetools/frontend-domain-types/product/Category';
 
 export class CategoryRouter extends BaseCategoryRouter {
   static identifyPreviewFrom(request: Request) {
@@ -23,7 +23,7 @@ export class CategoryRouter extends BaseCategoryRouter {
     return false;
   }
 
-  static loadFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
+  static loadFor = async (request: Request, frontasticContext: Context): Promise<Result | null> => {
     const productApi = new ProductApi(frontasticContext, getLocale(request));
     const urlMatches = getPath(request)?.match(/[^\/]+/);
 
@@ -65,7 +65,7 @@ export class CategoryRouter extends BaseCategoryRouter {
     return null;
   };
 
-  static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
+  static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Result | null> => {
     const productApi = new ProductApi(frontasticContext, getLocale(request));
     const urlMatches = getPath(request)?.match(/\/preview\/(.+)/);
 

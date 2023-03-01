@@ -1,14 +1,13 @@
-import { Result } from '@b2bdemo/types/types/product/Result';
-import { ProductQuery } from '@b2bdemo/types/types/query/ProductQuery';
-import { Product } from '@b2bdemo/types/types/product/Product';
-import { FilterTypes } from '@b2bdemo/types/types/query/Filter';
-import { TermFilter } from '@b2bdemo/types/types/query/TermFilter';
-import { RangeFilter } from '@b2bdemo/types/types/query/RangeFilter';
-import { Category } from '@b2bdemo/types/types/product/Category';
-import { FacetDefinition } from '@b2bdemo/types/types/product/FacetDefinition';
 import { ProductApi as BaseProductApi } from 'cofe-ct-ecommerce/apis/ProductApi';
 import { ProductMapper } from '../mappers/ProductMapper';
-
+import { Result } from '@commercetools/frontend-domain-types/product/Result';
+import { ProductQuery } from '@commercetools/frontend-domain-types/query/ProductQuery';
+import { Product } from '@commercetools/frontend-domain-types/product/Product';
+import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
+import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
+import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilter';
+import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFilter';
+import { Category } from '../types/product/Category';
 export class ProductApi extends BaseProductApi {
   query: (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets?: object[]) => Promise<Result> =
     async (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets: object[] = []) => {

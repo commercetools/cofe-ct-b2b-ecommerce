@@ -1,8 +1,8 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import { QuoteRequest } from '@b2bdemo/types/types/quotes/QuoteRequest';
-import { Quote } from '@b2bdemo/types/types/quotes/Quote';
-import { StagedQuote } from '@b2bdemo/types/types/quotes/StagedQuote';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { QuoteRequest } from '../types/quotes/QuoteRequest';
+import { Quote } from '../types/quotes/Quote';
+import { StagedQuote } from '../types/quotes/StagedQuote';
 import { CartApi } from '../apis/CartApi';
 import { QuoteApi } from '../apis/QuoteApi';
 

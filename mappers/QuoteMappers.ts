@@ -6,11 +6,11 @@ import {
   Quote as CommercetoolsQuote,
   CartReference,
 } from '@commercetools/platform-sdk';
-import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
-import { CartMapper } from './CartMapper';
-import { QuoteRequest } from '@b2bdemo/types/types/quotes/QuoteRequest';
-import { Cart } from '@b2bdemo/types/types/cart/Cart';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
+import { CartMapper } from './CartMapper';
+import { QuoteRequest } from '../types/quotes/QuoteRequest';
+import { Cart } from '../types/cart/Cart';
+import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 
 export class QuoteMappers {
   static mapCommercetoolsQuoteRequest(results: CommercetoolsQuoteRequest[], locale: Locale): QuoteRequest[] {

@@ -1,22 +1,20 @@
-import { Cart } from '@b2bdemo/types/types/cart/Cart';
 import {
   Cart as CommercetoolsCart,
   LineItem as CommercetoolsLineItem,
   Order as CommercetoolsOrder,
   ReturnInfo as CommercetoolsReturnInfo,
 } from '@commercetools/platform-sdk';
-import { LineItem } from '@b2bdemo/types/types/cart/LineItem';
-import { Order, ReturnInfo } from '@b2bdemo/types/types/cart/Order';
+import { Order, ReturnInfo } from '../types/cart/Order';
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { CartMapper as BaseCartMapper } from 'cofe-ct-ecommerce/mappers/CartMapper';
 import { ProductRouter } from '../utils/ProductRouter';
 import { ProductMapper } from './ProductMapper';
+import { Cart } from '../types/cart/Cart';
+import { LineItem } from '../types/cart/LineItem';
 
+// @ts-ignore
 export class CartMapper extends BaseCartMapper {
-  static commercetoolsCartToCart(
-    commercetoolsCart: CommercetoolsCart,
-    locale: Locale,
-  ): Cart {
+  static commercetoolsCartToCart(commercetoolsCart: CommercetoolsCart, locale: Locale): Cart {
     return {
       cartId: commercetoolsCart.id,
       cartVersion: commercetoolsCart.version.toString(),
@@ -59,7 +57,6 @@ export class CartMapper extends BaseCartMapper {
         ),
         totalPrice: ProductMapper.commercetoolsMoneyToMoney(commercetoolsLineItem.totalPrice),
         custom: commercetoolsLineItem.custom,
-        parentId: commercetoolsLineItem.custom?.fields?.parentId,
         variant: ProductMapper.commercetoolsProductVariantToVariant(
           commercetoolsLineItem.variant,
           locale,
@@ -76,16 +73,12 @@ export class CartMapper extends BaseCartMapper {
     return lineItems;
   }
 
-  static commercetoolsOrderToOrder(
-    commercetoolsOrder: CommercetoolsOrder,
-    locale: Locale,
-  ): Order {
+  static commercetoolsOrderToOrder(commercetoolsOrder: CommercetoolsOrder, locale: Locale): Order {
     return {
       cartId: commercetoolsOrder.id,
       orderState: commercetoolsOrder.orderState,
       orderId: commercetoolsOrder.orderNumber,
       orderVersion: commercetoolsOrder.version.toString(),
-      // createdAt:
       lineItems: this.commercetoolsLineItemsToLineItems(commercetoolsOrder.lineItems, locale),
       email: commercetoolsOrder?.customerEmail,
       shippingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.shippingAddress),
@@ -95,11 +88,7 @@ export class CartMapper extends BaseCartMapper {
       createdAt: commercetoolsOrder.createdAt,
       shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
       returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
-      //sum: commercetoolsOrder.totalPrice.centAmount,
-      // payments:
-      // discountCodes:
-      // taxed:
-    } as Order;
+    };
   }
 
   static commercetoolsReturnInfoToReturnInfo(commercetoolsReturnInfo: CommercetoolsReturnInfo[]): ReturnInfo[] {
