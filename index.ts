@@ -16,10 +16,28 @@ export const extender = (source: any, target: any) => {
   if (!target) {
     return source;
   }
-  return {
-    ...source,
-    ...target,
-  };
+  const merged = {};
+
+  // Merge properties from module A
+  for (const key in source) {
+    if (target.hasOwnProperty(key)) {
+      // If the property exists in both A and B, use the one from B
+      merged[key] = target[key];
+    } else {
+      // Otherwise, use the one from A
+      merged[key] = source[key];
+    }
+  }
+
+  // Merge properties from module B
+  for (const key in target) {
+    if (!target.hasOwnProperty(key)) {
+      // If the property exists only in B, use it
+      merged[key] = target[key];
+    }
+  }
+
+  return merged;
 };
 
 export const AccountAction: typeof AccountController &
