@@ -6,6 +6,7 @@ import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartApi } from '../apis/CartApi';
 import { CartFetcher } from '../utils/CartFetcher';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { Cart } from '../types/cart/Cart';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -27,7 +28,7 @@ export const addToCart: ActionHook = async (request: Request, actionContext: Act
   const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = await cartApi.addToCart(cart, lineItem, distributionChannel);
+  cart = (await cartApi.addToCart(cart, lineItem, distributionChannel)) as Cart;
 
   const cartId = cart.cartId;
 
@@ -61,7 +62,7 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
   const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = await cartApi.addItemsToCart(cart, lineItems, distributionChannel);
+  cart = (await cartApi.addItemsToCart(cart, lineItems, distributionChannel)) as Cart;
 
   const cartId = cart.cartId;
 

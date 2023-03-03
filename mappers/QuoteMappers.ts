@@ -10,7 +10,7 @@ import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { CartMapper } from './CartMapper';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
 import { Cart } from '../types/cart/Cart';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { LineItem } from '../types/cart/LineItem';
 
 export class QuoteMappers {
   static mapCommercetoolsQuoteRequest(results: CommercetoolsQuoteRequest[], locale: Locale): QuoteRequest[] {
