@@ -2,7 +2,7 @@ import { ProductApi as BaseProductApi } from 'cofe-ct-ecommerce/apis/ProductApi'
 import { ProductMapper } from '../mappers/ProductMapper';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { ProductQuery } from '@commercetools/frontend-domain-types/query/ProductQuery';
-import { Product } from '@commercetools/frontend-domain-types/product/Product';
+import { Product } from '../types/product/Product';
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
 import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
 import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilter';

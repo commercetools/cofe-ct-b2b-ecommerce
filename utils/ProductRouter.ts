@@ -5,7 +5,7 @@ import { ProductRouter as BaseProductRouter } from 'cofe-ct-ecommerce/utils/Prod
 import { ProductApi } from '../apis/ProductApi';
 import { getPath, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
-import { Product } from '@commercetools/frontend-domain-types/product/Product';
+import { Product } from '../types/product/Product';
 
 export class ProductRouter extends BaseProductRouter {
   static isProduct(product: Product | LineItem | WishlistItem): product is Product {

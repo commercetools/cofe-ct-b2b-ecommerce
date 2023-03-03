@@ -1,5 +1,5 @@
 import { Category } from '@commercetools/frontend-domain-types/product/Category';
-import { Variant } from '@commercetools/frontend-domain-types/product/Variant';
+import { Variant } from '../types/product/Variant';
 import {
   Category as CommercetoolsCategory,
   Price,
