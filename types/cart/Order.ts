@@ -1,5 +1,5 @@
 import { LineItemReturnItemDraft } from './LineItem';
-import { Order as DomainOrder } from '@commercetools/frontend-domain-types/cart/Order';
+import { Cart } from './Cart';
 
 export interface ReturnInfoItem extends LineItemReturnItemDraft {
   createdAt?: string;
@@ -12,8 +12,10 @@ export interface ReturnInfo {
   returnTrackingId?: string;
 }
 
-// @ts-ignore
-export interface Order extends DomainOrder {
+export interface Order extends Cart {
+  orderId?: string;
+  orderVersion?: string;
+  orderState?: string;
   createdAt?: string;
   businessUnit?: string;
   returnInfo?: ReturnInfo[];
