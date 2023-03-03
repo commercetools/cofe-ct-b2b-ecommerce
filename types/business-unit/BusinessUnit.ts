@@ -33,7 +33,7 @@ export interface BusinessUnit {
   unitType?: BusinessUnitType | string;
   name: string;
   contactEmail?: string;
-  addresses?: Address[];
+  addresses?: (Address & { id?: string })[];
   shippingAddresses?: number[];
   defaultShipingAddress?: number;
   billingAddresses?: number[];
