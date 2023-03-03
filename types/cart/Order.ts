@@ -14,7 +14,7 @@ export interface ReturnInfo {
 
 // @ts-ignore
 export interface Order extends DomainOrder {
-  createdAt: string;
+  createdAt?: string;
   businessUnit?: string;
   returnInfo?: ReturnInfo[];
 }
