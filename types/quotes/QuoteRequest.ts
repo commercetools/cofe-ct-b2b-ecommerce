@@ -3,7 +3,7 @@ import { Quote } from './Quote';
 import { CustomerReference } from '../account/Account';
 import { StoreKeyReference } from '../store/store';
 import { BusinessUnitResourceIdentifier } from '../business-unit/BusinessUnit';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { LineItem } from '../cart/LineItem';
 import { Money } from '@commercetools/frontend-domain-types/product/Money';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 

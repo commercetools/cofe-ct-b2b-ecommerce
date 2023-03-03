@@ -9,12 +9,12 @@ export class CartFetcher extends BaseCartFetcher {
     const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
 
     if (request.sessionData?.account !== undefined) {
-      return await cartApi.getForUser(request.sessionData.account, request.sessionData.organization);
+      return (await cartApi.getForUser(request.sessionData.account, request.sessionData.organization) as Cart);
     }
 
     if (request.sessionData?.cartId !== undefined) {
       try {
-        return await cartApi.getById(request.sessionData.cartId);
+        return (await cartApi.getById(request.sessionData.cartId) as Cart);
       } catch (error) {
         console.info(`Error fetching the cart ${request.sessionData.cartId}, creating a new one. ${error}`);
       }

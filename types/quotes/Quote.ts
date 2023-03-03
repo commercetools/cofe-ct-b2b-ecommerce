@@ -1,5 +1,5 @@
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { LineItem } from '../cart/LineItem';
 import { Money } from '@commercetools/frontend-domain-types/product/Money';
 import { CustomerReference } from '../account/Account';
 import { BusinessUnitResourceIdentifier } from '../business-unit/BusinessUnit';

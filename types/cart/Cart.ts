@@ -10,7 +10,7 @@ export interface CartReference {
 }
 
 export interface Cart extends DomainCart {
-  lineItems: LineItem[];
+  lineItems?: LineItem[];
   directDiscounts?: number | undefined;
   taxed?: Tax;
   origin?: string;
