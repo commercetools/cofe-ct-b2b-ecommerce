@@ -8,7 +8,6 @@ import * as ProductController from './actionControllers/ProductController';
 import * as WishlistControllerBase from 'cofe-ct-ecommerce/actionControllers/WishlistController';
 import * as WishlistController from './actionControllers/WishlistController';
 import * as BusinessController from './actionControllers/BusinessUnitController';
-import * as DashboardController from './actionControllers/DashboardController';
 import * as StoreController from './actionControllers/StoreController';
 import * as QuoteController from './actionControllers/QuoteController';
 
@@ -47,6 +46,5 @@ export const WishlistAction: typeof WishlistController &
 );
 
 export const BusinessAction = BusinessController;
-export const DashboardAction = DashboardController;
 export const StoreAction = StoreController;
 export const QuoteAction = QuoteController;
