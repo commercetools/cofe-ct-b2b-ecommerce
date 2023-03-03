@@ -16,5 +16,5 @@ export interface ReturnInfo {
 export interface Order extends DomainOrder {
   createdAt: string;
   businessUnit?: string;
-  returnInfo: ReturnInfo[];
+  returnInfo?: ReturnInfo[];
 }
