@@ -4,17 +4,11 @@ import { Filter, FilterTypes } from '@commercetools/frontend-domain-types/query/
 import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFilter';
 import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilter';
 import { FilterFieldTypes } from '@commercetools/frontend-domain-types/product/FilterField';
-import { Facet } from '@commercetools/frontend-domain-types/query/Facet';
-import { TermFacet } from '@commercetools/frontend-domain-types/query/TermFacet';
-import { RangeFacet } from '@commercetools/frontend-domain-types/query/RangeFacet';
 import { ProductQueryFactory as BaseProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
 import { ProductQuery } from '../types/query/ProductQuery';
 
 export class ProductQueryFactory extends BaseProductQueryFactory {
-  static queryFromParams: (request: Request, config?: DataSourceConfiguration) => ProductQuery = (
-    request: Request,
-    config?: DataSourceConfiguration,
-  ) => {
+  static queryFromParams(request: Request, config?: DataSourceConfiguration): ProductQuery {
     let queryParams;
     const filters: Filter[] = [];
     const productQuery: ProductQuery = {
@@ -83,9 +77,9 @@ export class ProductQueryFactory extends BaseProductQueryFactory {
      * Since filters and values might be returned in separated arrays we are using
      * the following method to merge both, filters and values, in a single array.
      */
-    const configFiltersData = [];
-    configFiltersData.push(...ProductQueryFactory.mergeProductFiltersAndValues(queryParams));
-    configFiltersData.push(...ProductQueryFactory.mergeCategoryFiltersAndValues(queryParams));
+    const configFiltersData: any[] = [];
+    configFiltersData.push(...this.mergeProductFiltersAndValues(queryParams));
+    configFiltersData.push(...this.mergeCategoryFiltersAndValues(queryParams));
 
     let key: any;
     let configFilterData: any;
@@ -136,7 +130,7 @@ export class ProductQueryFactory extends BaseProductQueryFactory {
      * Map facets
      */
     if (queryParams.facets) {
-      productQuery.facets = ProductQueryFactory.queryParamsToFacets(queryParams);
+      productQuery.facets = this.queryParamsToFacets(queryParams);
     }
 
     /**
@@ -164,101 +158,5 @@ export class ProductQueryFactory extends BaseProductQueryFactory {
     productQuery.cursor = queryParams?.cursor || undefined;
 
     return productQuery;
-  };
-
-  private static queryParamsToFacets(queryParams: any) {
-    const facets: Facet[] = [];
-    let key: any;
-    let facetData: any;
-
-    for ([key, facetData] of Object.entries(queryParams.facets)) {
-      // Force terms as an array if exist
-      if (facetData?.terms && !Array.isArray(facetData.terms)) {
-        facetData.terms = Object.values(facetData.terms);
-      }
-
-      switch (true) {
-        case facetData.min !== undefined && facetData.max !== undefined:
-          facets.push({
-            type: FilterTypes.RANGE,
-            identifier: key,
-            min: +facetData.min,
-            max: +facetData.max,
-          } as RangeFacet);
-          break;
-        case facetData.terms !== undefined:
-          facets.push({
-            type: FilterTypes.TERM,
-            identifier: key,
-            terms: facetData.terms.map((facetValueData: string) => facetValueData),
-          } as TermFacet);
-          break;
-        case facetData.boolean !== undefined:
-          facets.push({
-            type: FilterTypes.BOOLEAN,
-            identifier: key,
-            terms: [facetData.boolean],
-          } as TermFacet);
-          break;
-        default:
-          break;
-      }
-    }
-
-    return facets;
-  }
-
-  private static mergeProductFiltersAndValues(queryParams: any) {
-    const filtersData: any[] = [];
-
-    if (queryParams?.productFilters?.filters === undefined) {
-      return filtersData;
-    }
-
-    if (queryParams?.productFilters?.values === undefined) {
-      return queryParams.productFilters.filters;
-    }
-
-    queryParams.productFilters.filters.forEach((filter: any) => {
-      if (filter?.field) {
-        const filterValues =
-          // TODO: to be adapted when Studio returned multiple values
-          [queryParams.productFilters?.values[filter.field]] || [];
-
-        const filterData = {
-          ...filter,
-          values: filterValues,
-        };
-        filtersData.push(filterData);
-      }
-    });
-
-    return filtersData;
-  }
-
-  private static mergeCategoryFiltersAndValues(queryParams: any) {
-    const filtersData: any[] = [];
-
-    if (queryParams?.categoryFilters?.filters === undefined) {
-      return filtersData;
-    }
-
-    if (queryParams?.categoryFilters?.values === undefined) {
-      return queryParams.categoryFilters.filters;
-    }
-
-    queryParams.categoryFilters.filters.forEach((filter: any) => {
-      if (filter?.field) {
-        const filterValues = [queryParams.categoryFilters.values[filter.field]] || [];
-
-        const filterData = {
-          ...filter,
-          values: filterValues,
-        };
-        filtersData.push(filterData);
-      }
-    });
-
-    return filtersData;
   }
 }
