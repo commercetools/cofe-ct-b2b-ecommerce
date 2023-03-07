@@ -7,8 +7,61 @@ import { CartApi } from '../apis/CartApi';
 import { CartFetcher } from '../utils/CartFetcher';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 import { Cart } from '../types/cart/Cart';
+import { Address } from '@commercetools/frontend-domain-types/account/Address';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
+
+async function updateCartFromRequest(request: Request, actionContext: ActionContext): Promise<Cart> {
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  let cart = await CartFetcher.fetchCart(request, actionContext);
+
+  if (request?.body === undefined || request?.body === '') {
+    return cart;
+  }
+
+  const body: {
+    account?: { email?: string };
+    shipping?: Address;
+    billing?: Address;
+  } = JSON.parse(request.body);
+
+  if (body?.account?.email !== undefined) {
+    cart = await cartApi.setEmail(cart, body.account.email) as Cart;
+  }
+
+  if (body?.shipping !== undefined || body?.billing !== undefined) {
+    const shippingAddress = body?.shipping !== undefined ? body.shipping : body.billing;
+    const billingAddress = body?.billing !== undefined ? body.billing : body.shipping;
+
+    cart = await cartApi.setShippingAddress(cart, shippingAddress) as Cart;
+    cart = await cartApi.setBillingAddress(cart, billingAddress) as Cart;
+  }
+
+  return cart;
+}
+
+export const checkout: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+
+  const body: { payload: any } = JSON.parse(request.body);
+
+  const cart = await updateCartFromRequest(request, actionContext);
+  const order = await cartApi.order(cart, body.payload);
+
+  // Unset the cartId
+  const cartId: string = undefined;
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(order),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
 
 export const addToCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));

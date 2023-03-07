@@ -19,4 +19,5 @@ export interface Order extends Cart {
   createdAt?: string;
   businessUnit?: string;
   returnInfo?: ReturnInfo[];
+  purchaseOrderNumber?: string;
 }

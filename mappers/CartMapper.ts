@@ -88,6 +88,7 @@ export class CartMapper extends BaseCartMapper {
       createdAt: commercetoolsOrder.createdAt,
       shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
       returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
+      purchaseOrderNumber: commercetoolsOrder.purchaseOrderNumber
     };
   }
 

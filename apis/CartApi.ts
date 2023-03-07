@@ -202,7 +202,7 @@ export class CartApi extends BaseCartApi {
   };
 
   // @ts-ignore
-  order: (cart: Cart) => Promise<Order> = async (cart: Cart) => {
+  order: (cart: Cart, payload?: any) => Promise<Order> = async (cart: Cart, payload?: any) => {
     try {
       const locale = await this.getCommercetoolsLocal();
       const date = new Date();
@@ -216,6 +216,10 @@ export class CartApi extends BaseCartApi {
         )}`,
         orderState: 'Confirmed',
       };
+      if (typeof payload === 'object' && payload?.poNumber) {
+        // @ts-ignore
+        orderFromCartDraft.purchaseOrderNumber = payload.poNumber;
+      }
 
       if (!isReadyForCheckout(cart)) {
         throw new Error('Cart not complete yet.');
