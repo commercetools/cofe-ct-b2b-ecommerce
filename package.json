@@ -1,6 +1,6 @@
 {
   "name": "cofe-ct-b2b-ecommerce",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/commercetools/cofe-ct-ecommerce.git"
+    "url": "git+https://github.com/commercetools/cofe-ct-b2b-ecommerce.git"
   },
   "author": "Commercetools",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/commercetools/cofe-ct-ecommerce/issues"
+    "url": "https://github.com/commercetools/cofe-ct-b2b-ecommerce/issues"
   },
-  "homepage": "https://github.com/commercetools/cofe-ct-ecommerce#readme",
+  "homepage": "https://github.com/commercetools/cofe-ct-b2b-ecommerce#readme",
   "dependencies": {
     "@commercetools/frontend-domain-types": "^1.0.3",
     "@commercetools/platform-sdk": "^4.5.0",
