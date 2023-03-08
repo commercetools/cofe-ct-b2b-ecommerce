@@ -1,4 +1,5 @@
 import { Account } from '../types/account/Account';
+import { Customer } from '@commercetools/platform-sdk';
 import {
   CustomerDraft,
 } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
@@ -145,7 +146,7 @@ export class AccountApi extends BaseAccountApi {
     }
   };
 
-  getCustomerByEmail: (email: string) => Promise<Account | null> = async (email: string) => {
+  getCustomerByEmail: (email: string) => Promise<Customer | null> = async (email: string) => {
     const {
       body: { results },
     } = await this.getApiForProject()

@@ -139,7 +139,6 @@ export const addAssociate: ActionHook = async (request: Request, actionContext: 
       associate: {
         customer: {
           typeId: 'customer',
-          // @ts-ignore
           id: account.id,
         },
         associateRoleAssignments: addUserBody.roles.map((role) => ({
