@@ -25,6 +25,17 @@ export class CartApi extends BaseCartApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
+      const where = [
+        `customerId="${account.accountId}"`,
+        `cartState="Active"`,
+        `businessUnit(key="${organization.businessUnit.key}")`,
+        `store(key="${organization.store.key}")`,
+      ];
+
+      if (organization.superUserBusinessUnitKey) {
+        where.push('origin="Merchant"')
+      }
+
       const response = await this.getApiForProject()
         .carts()
         .get({
@@ -35,12 +46,7 @@ export class CartApi extends BaseCartApi {
               'discountCodes[*].discountCode',
               'paymentInfo.payments[*]',
             ],
-            where: [
-              `customerId="${account.accountId}"`,
-              `cartState="Active"`,
-              `businessUnit(key="${organization.businessUnit.key}")`,
-              `store(key="${organization.store.key}")`,
-            ],
+            where,
             sort: 'createdAt desc',
           },
         })
@@ -69,7 +75,6 @@ export class CartApi extends BaseCartApi {
         country: locale.country,
         locale: locale.language,
         customerId,
-        // @ts-ignore
         businessUnit: {
           key: organization.businessUnit.key,
           typeId: 'business-unit',
@@ -79,6 +84,7 @@ export class CartApi extends BaseCartApi {
           typeId: 'store',
         },
         inventoryMode: 'ReserveOnOrder',
+        origin: organization.superUserBusinessUnitKey ? 'Merchant': 'Customer'
       };
 
       const commercetoolsCart = await this.getApiForProject()

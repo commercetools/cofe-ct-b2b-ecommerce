@@ -28,12 +28,19 @@ export class BusinessUnitApi extends BaseApi {
     return organization;
   };
 
-  getOrganization: (accountId: string) => Promise<Record<string, object>> = async (
+  getOrganization: (accountId: string, businessUnitKey?: string) => Promise<Record<string, object>> = async (
     accountId: string,
+    businessUnitKey?: string,
   ): Promise<Record<string, object>> => {
     const organization: Record<string, object> = {};
     if (accountId) {
-      const businessUnit: BusinessUnit = await this.getMe(accountId);
+      let businessUnit: BusinessUnit;
+
+      if (businessUnitKey) {
+        businessUnit = await this.get(businessUnitKey, accountId);
+      } else {
+        businessUnit = await this.getMe(accountId);
+      }
       if (businessUnit?.key) {
         return this.getOrganizationByBusinessUnit(businessUnit);
       }
@@ -162,12 +169,20 @@ export class BusinessUnitApi extends BaseApi {
     try {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
       const config = this.frontasticContext?.project?.configuration?.associateRoles;
-      if (!config?.defaultAdminRoleKey) {
+      if (!config?.defaultAdminRoleKey || !config?.defaultSuperUserRoleKey) {
         throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
       }
       const allStores = await storeApi.query();
       const results = await this.getAssociatedBusinessUnits(accountId);
       const highestNodes = this.getHighestNodesWithAssociation(results, accountId);
+
+      const superUserList = highestNodes.filter((bu) =>
+        BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultSuperUserRoleKey),
+      );
+
+      if (superUserList.length > 1) {
+        throw new Error('superuser');
+      }
 
       if (highestNodes.length) {
         const bu = await this.setStoresByBusinessUnit(highestNodes[0] as CommercetoolsBusinessUnit);

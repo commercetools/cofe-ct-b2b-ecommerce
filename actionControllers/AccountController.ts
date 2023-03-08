@@ -27,9 +27,16 @@ export type AccountRegisterBody = {
 type AccountLoginBody = {
   email?: string;
   password?: string;
+  businessUnitKey?: string;
 };
 
-async function loginAccount(request: Request, actionContext: ActionContext, account: Account, reverify = false) {
+async function loginAccount(
+  request: Request,
+  actionContext: ActionContext,
+  account: Account,
+  reverify = false,
+  businessUnitKey = '',
+) {
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
 
@@ -37,7 +44,7 @@ async function loginAccount(request: Request, actionContext: ActionContext, acco
 
   try {
     const accountRes = await accountApi.login(account, cart, reverify);
-    const organization = await businessUnitApi.getOrganization(accountRes.accountId);
+    const organization = await businessUnitApi.getOrganization(accountRes.accountId, businessUnitKey);
 
     return { account: accountRes, organization };
   } catch (e) {
@@ -138,14 +145,23 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
   let response: Response;
 
   try {
-    const { account, organization } = await loginAccount(request, actionContext, loginInfo);
+    const { account, organization } = await loginAccount(
+      request,
+      actionContext,
+      loginInfo,
+      false,
+      accountLoginBody.businessUnitKey,
+    );
     response = {
       statusCode: 200,
       body: JSON.stringify(account),
       sessionData: {
         ...request.sessionData,
         account,
-        organization,
+        organization: {
+          ...organization,
+          superUserBusinessUnitKey: accountLoginBody.businessUnitKey,
+        },
       },
     };
   } catch (e) {

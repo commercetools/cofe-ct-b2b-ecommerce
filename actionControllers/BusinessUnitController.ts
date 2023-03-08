@@ -7,6 +7,7 @@ import {
 } from '../types/business-unit/BusinessUnit';
 import { Store, StoreKeyReference } from '../types/store/store';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
@@ -75,6 +76,35 @@ export const getMyOrganization: ActionHook = async (request: Request, actionCont
   };
 
   return response;
+};
+
+export const getSuperUserBusinessUnits: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const config = actionContext.frontasticContext?.project?.configuration?.associateRoles;
+  if (!config?.defaultSuperUserRoleKey) {
+    throw new Error('Configuration error. No "defaultSuperUserRoleKey" exists');
+  }
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const customerAccount = await accountApi.getCustomerByEmail(request.query.email);
+  if (customerAccount) {
+    const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+    const results = await businessUnitApi.getAssociatedBusinessUnits(customerAccount.id);
+    const highestNodes = businessUnitApi.getHighestNodesWithAssociation(results, customerAccount.id);
+
+    const businessUnitsWithSuperUser = highestNodes.filter((bu) =>
+      BusinessUnitMappers.isUserAdminInBusinessUnit(bu, customerAccount.id, config.defaultSuperUserRoleKey),
+    );
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(businessUnitsWithSuperUser),
+    };
+  } else {
+    return {
+      statusCode: 400,
+      errorCode: 400,
+      error: 'Customer not found',
+    };
+  }
 };
 
 export const getBusinessUnitOrders: ActionHook = async (request: Request, actionContext: ActionContext) => {

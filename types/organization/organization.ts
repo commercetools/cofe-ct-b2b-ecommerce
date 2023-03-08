@@ -6,4 +6,5 @@ export interface Organization {
   businessUnit: BusinessUnit;
   distributionChannel: ChannelResourceIdentifier;
   store: Store;
+  superUserBusinessUnitKey?: string;
 }
