@@ -158,7 +158,7 @@ export class BusinessUnitApi extends BaseApi {
           );
   };
 
-  getMe: (accountId: string) => Promise<any> = async (accountId: string) => {
+  getMe: (accountId: string) => Promise<BusinessUnit> = async (accountId: string) => {
     try {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
       const config = this.frontasticContext?.project?.configuration?.associateRoles;
@@ -178,7 +178,7 @@ export class BusinessUnitApi extends BaseApi {
           config.defaultAdminRoleKey,
         );
       }
-      return results;
+      return results?.[0];
     } catch (e) {
       throw e;
     }
