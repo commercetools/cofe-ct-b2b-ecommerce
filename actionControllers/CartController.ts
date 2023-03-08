@@ -227,3 +227,22 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
 
   return response;
 };
+
+export const reassignCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cart = await CartFetcher.fetchCart(request, actionContext);
+  const cartId = cart.cartId;
+
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  cartApi.setCustomerId(cart, request.query?.customerId);
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
