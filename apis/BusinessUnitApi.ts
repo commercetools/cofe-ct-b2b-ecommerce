@@ -1,9 +1,7 @@
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '../types/business-unit/BusinessUnit';
 import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
-import {
-  BusinessUnitMappers
-} from '../mappers/BusinessUnitMappers';
+import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
 
 const MAX_LIMIT = 50;
@@ -134,9 +132,9 @@ export class BusinessUnitApi extends BaseApi {
       throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
     }
 
-    const rootNode = businessUnits.find((bu) => !bu.parentUnit);
-    if (rootNode) {
-      return [rootNode];
+    const rootNode = businessUnits.filter((bu) => !bu.parentUnit);
+    if (rootNode.length) {
+      return rootNode;
     }
 
     const justParents = businessUnits
@@ -146,11 +144,13 @@ export class BusinessUnitApi extends BaseApi {
       });
 
     return filterAdmin
-      ? justParents.filter((bu) => BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultAdminRoleKey))
+      ? justParents.filter((bu) =>
+          BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultAdminRoleKey),
+        )
       : justParents
           // sort by Admin first
           .sort((a, b) =>
-          BusinessUnitMappers.isUserAdminInBusinessUnit(a, accountId, config.defaultAdminRoleKey)
+            BusinessUnitMappers.isUserAdminInBusinessUnit(a, accountId, config.defaultAdminRoleKey)
               ? -1
               : BusinessUnitMappers.isUserAdminInBusinessUnit(b, accountId, config.defaultAdminRoleKey)
               ? 1
@@ -283,6 +283,11 @@ export class BusinessUnitApi extends BaseApi {
       }
     }
 
-    return tree.map((bu) => BusinessUnitMappers.mapStoreRefs(BusinessUnitMappers.mapReferencedAssociates(bu as CommercetoolsBusinessUnit), allStores));
+    return tree.map((bu) =>
+      BusinessUnitMappers.mapStoreRefs(
+        BusinessUnitMappers.mapReferencedAssociates(bu as CommercetoolsBusinessUnit),
+        allStores,
+      ),
+    );
   };
 }
