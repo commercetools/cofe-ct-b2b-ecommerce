@@ -1,3 +1,5 @@
+# 1.0.18
+- updating peer dependency
 # 1.0.17
 - Add SuperUser Capabilities
 - Update README.md
