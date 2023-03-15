@@ -314,12 +314,12 @@
     "@commercetools/sdk-middleware-logger" "^3.0.0"
     querystring "^0.2.1"
 
-"@commercetools/platform-sdk@^4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@commercetools/platform-sdk/-/platform-sdk-4.5.0.tgz#19fe79542755b6b127c2e56df231a5b2c48b7f71"
-  integrity sha512-WbvK/FxbYp5FMK7oRdXrMBxX1vGmpZHws9MG/l2g2q7qwGBdqSUxc0hPODJBISNh1LGkzW95MJAcC1ihV0ys7g==
+"@commercetools/platform-sdk@^4.6.0-alpha-associate-roles":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@commercetools/platform-sdk/-/platform-sdk-4.6.0.tgz#a2e291a43186fcb74f847eaf2ec1403939aa7a00"
+  integrity sha512-l/GmTLLiKRUPUbafPUP4JxssD396DEX6/maAxKuTKq3Og16wNoRMlcMjcIfNQOUeGImtMD5gGRKtnQreRtk0LA==
   dependencies:
-    "@commercetools/sdk-client-v2" "^2.1.2"
+    "@commercetools/sdk-client-v2" "^2.1.4"
     "@commercetools/sdk-middleware-auth" "^7.0.0"
     "@commercetools/sdk-middleware-http" "^7.0.0"
     "@commercetools/sdk-middleware-logger" "^3.0.0"
@@ -329,6 +329,15 @@
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@commercetools/sdk-client-v2/-/sdk-client-v2-2.1.2.tgz#aef8f2adc3ff631c8e29c16a68220dafee1ce667"
   integrity sha512-MmZdhnzp7MHZYr4z36mhZYtcHKDU2NHU8LMyneUvHjyycHzV014OcrGKSYZerCm6ltCH5ajJilfvBuHq6+XoWg==
+  dependencies:
+    buffer "^6.0.3"
+    node-fetch "^2.6.1"
+    querystring "^0.2.1"
+
+"@commercetools/sdk-client-v2@^2.1.4":
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/@commercetools/sdk-client-v2/-/sdk-client-v2-2.1.4.tgz#fcae737b472083c228633dbdd225776795e18bc6"
+  integrity sha512-wqRB8jp0+mYtPgx0i9v2M93dSxEtI9c3ik7GCz/HdL6+6THQg/Aybprq32XI1mQCFhzEhsciPP82GG6QlOqu+A==
   dependencies:
     buffer "^6.0.3"
     node-fetch "^2.6.1"
@@ -1166,13 +1175,12 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-cofe-ct-ecommerce@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/cofe-ct-ecommerce/-/cofe-ct-ecommerce-1.0.10.tgz#372d2ca4751f311660be9c944687512ebf978b9d"
-  integrity sha512-olKC/FOq65RDKR2qP24fLpIKgvKA/F/895SiePI+mA3iOn0FAnvZxiTXg3eFsjxTMdaQILZ01lyC2H9RNscSyg==
+"cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce#session":
+  version "1.0.11"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#2b4991cd811fd0222a19ea7af752d4c0a14747c3"
   dependencies:
     "@commercetools/frontend-domain-types" "^1.0.3"
-    "@commercetools/platform-sdk" "^4.5.0"
+    "@commercetools/platform-sdk" "^4.6.0-alpha-associate-roles"
     "@frontastic/extension-types" "^0.0.11"
     "@sendgrid/mail" "^7.7.0"
     "@types/node" "^18.13.0"
