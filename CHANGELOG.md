@@ -1,3 +1,8 @@
+# 1.0.19
+- fix typings in BusinessUnitApi
+- refactor BusinessUnitMapper to work like other Mappers 
+- use StoreMappers to reduce store's data in session
+
 # 1.0.18
 - updating peer dependency
 # 1.0.17

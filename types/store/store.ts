@@ -6,7 +6,6 @@ export interface Store {
   id?: string;
   distributionChannels?: ChannelResourceIdentifier[];
   supplyChannels?: ChannelResourceIdentifier[];
-  isPreBuyStore?: boolean;
 }
 
 export interface StoreKeyReference {

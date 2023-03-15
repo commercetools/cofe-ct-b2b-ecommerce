@@ -3,23 +3,20 @@ import { BusinessUnit, StoreMode } from '../types/business-unit/BusinessUnit';
 import { BusinessUnit as CommercetoolsBusinessUnit, BusinessUnitPagedQueryResponse } from '@commercetools/platform-sdk';
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
+import { StoreMappers } from '../mappers/StoreMappers';
 
 const MAX_LIMIT = 50;
 
 export class BusinessUnitApi extends BaseApi {
   getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Record<string, object>> => {
     const organization: Record<string, object> = {};
+    const locale = await this.getCommercetoolsLocal();
+
     organization.businessUnit = businessUnit;
     if (businessUnit.stores?.[0]) {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
-      // @ts-ignore
       const store = await storeApi.get(businessUnit.stores?.[0].key);
-      organization.store = {
-        id: store.id,
-        key: store.key,
-        name: store.name,
-        custom: store.custom,
-      };
+      organization.store = StoreMappers.mapStoreToSmallerStore(store, locale.language);
       if (store?.distributionChannels?.length) {
         organization.distributionChannel = store.distributionChannels[0];
       }
