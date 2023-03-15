@@ -26,16 +26,12 @@ export interface BusinessUnitRequestBody {
 }
 
 export const getMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  let organization = request.sessionData?.organization;
+  const organization = request.sessionData?.organization;
   let businessUnit = organization?.businessUnit;
 
   if (request.sessionData?.account?.accountId && !businessUnit) {
     const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
     businessUnit = await businessUnitApi.getMe(request.sessionData?.account?.accountId);
-
-    if (businessUnit) {
-      organization = await businessUnitApi.getOrganizationByBusinessUnit(businessUnit);
-    }
   }
 
   return {
