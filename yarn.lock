@@ -303,10 +303,10 @@
   resolved "https://registry.yarnpkg.com/@commercetools/frontend-domain-types/-/frontend-domain-types-1.0.3.tgz#8eae385ad672e8acdffb65c63b6a2af110567327"
   integrity sha512-ENsvOvUyY6jdjgdUWn33Jvig+hcLxFaZN/6FNrnA9rz4nGClLhzJE9DT/NlOBryqSLxuw00FJC8NGRnnNzZ8Dg==
 
-"@commercetools/platform-sdk@^4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@commercetools/platform-sdk/-/platform-sdk-4.5.0.tgz#19fe79542755b6b127c2e56df231a5b2c48b7f71"
-  integrity sha512-WbvK/FxbYp5FMK7oRdXrMBxX1vGmpZHws9MG/l2g2q7qwGBdqSUxc0hPODJBISNh1LGkzW95MJAcC1ihV0ys7g==
+"@commercetools/platform-sdk@4.6.0-alpha-associate-roles":
+  version "4.6.0-alpha-associate-roles"
+  resolved "https://registry.yarnpkg.com/@commercetools/platform-sdk/-/platform-sdk-4.6.0-alpha-associate-roles.tgz#9443def633dc787fc8fd64dc0369b9fb93399843"
+  integrity sha512-IXTmUy1mesKWLsXZce70UPJ3L+ttJT2VaPYrOojSXbQOMx3UHtfZak7Iq72JMy9u9Vo4WtVpccFBXXRREIQkUQ==
   dependencies:
     "@commercetools/sdk-client-v2" "^2.1.2"
     "@commercetools/sdk-middleware-auth" "^7.0.0"
@@ -1155,13 +1155,12 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-cofe-ct-ecommerce@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/cofe-ct-ecommerce/-/cofe-ct-ecommerce-1.0.9.tgz#6a8aeaeda08925720e097306ff5993ef5f2a3404"
-  integrity sha512-zfH5I3lxwiFd9kMzOLFPgIGR+wvAYbCB9o/mwLADbERlyx7YA7QKcYFtrFZMH82+l5X20qxFm5IvYr9N1NVReQ==
+"cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce#session":
+  version "1.0.11"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#c432ad383fbc8a90fea69c15fcdac45b065f83c7"
   dependencies:
     "@commercetools/frontend-domain-types" "^1.0.3"
-    "@commercetools/platform-sdk" "^4.5.0"
+    "@commercetools/platform-sdk" "4.6.0-alpha-associate-roles"
     "@frontastic/extension-types" "^0.0.11"
     "@sendgrid/mail" "^7.7.0"
     "@types/node" "^18.13.0"

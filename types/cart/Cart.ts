@@ -15,6 +15,5 @@ export interface Cart extends DomainCart {
   taxed?: Tax;
   origin?: string;
   businessUnit?: string;
-  isPreBuyCart?: boolean;
   itemShippingAddresses?: Address[];
 }

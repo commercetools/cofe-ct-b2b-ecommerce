@@ -6,6 +6,7 @@ import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { StoreApi } from '../apis/StoreApi';
 import { CartApi } from '../apis/CartApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
+import { StoreMappers } from '../mappers/StoreMappers';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -83,12 +84,7 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
     distributionChannel,
   };
 
-  organization.store = {
-    id: store.id,
-    key: store.key,
-    name: store.name,
-    custom: store.custom,
-  };
+  organization.store = StoreMappers.mapStoreToSmallerStore(store);
 
   const cart = await cartApi.getForUser(request.sessionData?.account, organization);
 

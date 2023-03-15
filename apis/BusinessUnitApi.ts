@@ -1,25 +1,22 @@
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
-import { BusinessUnit, BusinessUnitPagedQueryResponse, StoreMode } from '../types/business-unit/BusinessUnit';
-import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
+import { BusinessUnit, StoreMode } from '../types/business-unit/BusinessUnit';
+import { BusinessUnit as CommercetoolsBusinessUnit, BusinessUnitPagedQueryResponse } from '@commercetools/platform-sdk';
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
+import { StoreMappers } from '../mappers/StoreMappers';
+import { Organization } from '../types/organization/organization';
 
 const MAX_LIMIT = 50;
 
 export class BusinessUnitApi extends BaseApi {
-  getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Record<string, object>> => {
-    const organization: Record<string, object> = {};
+  getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Organization> => {
+    const organization: Organization = {} as Organization;
+
     organization.businessUnit = businessUnit;
     if (businessUnit.stores?.[0]) {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
-      // @ts-ignore
       const store = await storeApi.get(businessUnit.stores?.[0].key);
-      organization.store = {
-        id: store.id,
-        key: store.key,
-        name: store.name,
-        custom: store.custom,
-      };
+      organization.store = StoreMappers.mapStoreToSmallerStore(store);
       if (store?.distributionChannels?.length) {
         organization.distributionChannel = store.distributionChannels[0];
       }
@@ -28,11 +25,11 @@ export class BusinessUnitApi extends BaseApi {
     return organization;
   };
 
-  getOrganization: (accountId: string, businessUnitKey?: string) => Promise<Record<string, object>> = async (
+  getOrganization: (accountId: string, businessUnitKey?: string) => Promise<Organization> = async (
     accountId: string,
     businessUnitKey?: string,
-  ): Promise<Record<string, object>> => {
-    const organization: Record<string, object> = {};
+  ): Promise<Organization> => {
+    const organization: Organization = {} as Organization;
     if (accountId) {
       let businessUnit: BusinessUnit;
 
@@ -49,7 +46,7 @@ export class BusinessUnitApi extends BaseApi {
     return organization;
   };
 
-  create: (data: any) => Promise<any> = async (data: any) => {
+  create: (data: any) => Promise<CommercetoolsBusinessUnit> = async (data: any) => {
     try {
       return this.getApiForProject()
         .businessUnits()
@@ -57,7 +54,7 @@ export class BusinessUnitApi extends BaseApi {
           body: data,
         })
         .execute()
-        .then((res) => res.body);
+        .then((res) => res.body as CommercetoolsBusinessUnit);
     } catch (e) {
       throw e;
     }
@@ -119,17 +116,21 @@ export class BusinessUnitApi extends BaseApi {
           },
         })
         .execute()
-        .then((res) => res.body);
+        .then((res) => res.body as BusinessUnitPagedQueryResponse);
     } catch (e) {
       throw e;
     }
   };
 
   getHighestNodesWithAssociation: (
-    businessUnits: BusinessUnit[],
+    businessUnits: CommercetoolsBusinessUnit[],
     accountId: string,
     filterAdmin?: boolean,
-  ) => BusinessUnit[] = (businessUnits: BusinessUnit[], accountId: string, filterAdmin?: boolean) => {
+  ) => CommercetoolsBusinessUnit[] = (
+    businessUnits: CommercetoolsBusinessUnit[],
+    accountId: string,
+    filterAdmin?: boolean,
+  ) => {
     if (!businessUnits.length) {
       return [];
     }
@@ -199,19 +200,6 @@ export class BusinessUnitApi extends BaseApi {
     }
   };
 
-  getByKey: (key: string) => Promise<CommercetoolsBusinessUnit> = async (key: string) => {
-    try {
-      return this.getApiForProject()
-        .businessUnits()
-        .withKey({ key })
-        .get()
-        .execute()
-        .then((res) => res.body);
-    } catch (e) {
-      throw e;
-    }
-  };
-
   get: (key: string, accountId?: string) => Promise<BusinessUnit> = async (key: string, accountId?: string) => {
     const config = this.frontasticContext?.project?.configuration?.associateRoles;
     if (!config?.defaultAdminRoleKey) {
@@ -225,13 +213,26 @@ export class BusinessUnitApi extends BaseApi {
         .withKey({ key })
         .get()
         .execute()
-        .then((res) => this.setStoresByBusinessUnit(res.body));
+        .then((res) => this.setStoresByBusinessUnit(res.body as CommercetoolsBusinessUnit));
       return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
         bu as CommercetoolsBusinessUnit,
         allStores,
         accountId,
         config.defaultAdminRoleKey,
       );
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  getByKey: (key: string) => Promise<CommercetoolsBusinessUnit> = async (key: string) => {
+    try {
+      return this.getApiForProject()
+        .businessUnits()
+        .withKey({ key })
+        .get()
+        .execute()
+        .then((res) => res.body as CommercetoolsBusinessUnit);
     } catch (e) {
       throw e;
     }
@@ -250,7 +251,7 @@ export class BusinessUnitApi extends BaseApi {
         .withKey({ key: parentBU.parentUnit.key })
         .get()
         .execute();
-      parentBU = body;
+      parentBU = body as CommercetoolsBusinessUnit;
     }
     if (parentBU.storeMode === StoreMode.Explicit) {
       return {
@@ -261,13 +262,15 @@ export class BusinessUnitApi extends BaseApi {
     return businessUnit;
   };
 
-  getAssociatedBusinessUnits: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
+  getAssociatedBusinessUnits: (accoundId: string) => Promise<CommercetoolsBusinessUnit[]> = async (
+    accountId: string,
+  ) => {
     const response = await this.query(`associates(customer(id="${accountId}"))`, 'associates[*].customer');
     return response.results;
   };
 
   getTree: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
-    let tree: BusinessUnit[] = [];
+    let tree: CommercetoolsBusinessUnit[] = [];
     const storeApi = new StoreApi(this.frontasticContext, this.locale);
     const allStores = await storeApi.query();
     if (accountId) {
@@ -298,11 +301,6 @@ export class BusinessUnitApi extends BaseApi {
       }
     }
 
-    return tree.map((bu) =>
-      BusinessUnitMappers.mapStoreRefs(
-        BusinessUnitMappers.mapReferencedAssociates(bu as CommercetoolsBusinessUnit),
-        allStores,
-      ),
-    );
+    return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores));
   };
 }

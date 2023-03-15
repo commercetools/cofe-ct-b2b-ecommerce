@@ -1,3 +1,11 @@
+# 1.0.19
+- trim businessUnit stored in session
+- trim store stored in session
+- fix typings in BusinessUnitApi
+- refactor BusinessUnitMapper to work like other Mappers 
+- use StoreMappers to reduce store's data in session
+- use sepcific mapper for GetTree
+- update platform-sdk dependency to 4.6.0-alpha-associate-roles
 # 1.0.18
 - updating peer dependency
 # 1.0.17

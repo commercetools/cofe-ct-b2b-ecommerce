@@ -1,10 +1,5 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import {
-  BusinessUnit,
-  BusinessUnitStatus,
-  BusinessUnitType,
-  StoreMode,
-} from '../types/business-unit/BusinessUnit';
+import { BusinessUnit, BusinessUnitStatus, BusinessUnitType, StoreMode } from '../types/business-unit/BusinessUnit';
 import { Store, StoreKeyReference } from '../types/store/store';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
@@ -12,7 +7,6 @@ import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
 import { AccountApi } from '../apis/AccountApi';
-import { StoreApi } from '../apis/StoreApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -26,16 +20,12 @@ export interface BusinessUnitRequestBody {
 }
 
 export const getMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  let organization = request.sessionData?.organization;
+  const organization = request.sessionData?.organization;
   let businessUnit = organization?.businessUnit;
 
   if (request.sessionData?.account?.accountId && !businessUnit) {
     const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
     businessUnit = await businessUnitApi.getMe(request.sessionData?.account?.accountId);
-
-    if (businessUnit) {
-      organization = await businessUnitApi.getOrganizationByBusinessUnit(businessUnit);
-    }
   }
 
   return {
@@ -46,18 +36,22 @@ export const getMe: ActionHook = async (request: Request, actionContext: ActionC
 
 export const setMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
-  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
   const data = JSON.parse(request.body);
 
   const businessUnit = await businessUnitApi.get(data.key, request.sessionData?.account?.accountId);
-  const store = businessUnit.stores?.[0]?.key ? await storeApi.get(businessUnit.stores[0].key) : undefined;
   const organization = await businessUnitApi.getOrganizationByBusinessUnit(businessUnit);
   const response: Response = {
     statusCode: 200,
     body: JSON.stringify(businessUnit),
     sessionData: {
       ...request.sessionData,
-      organization,
+      organization: {
+        ...organization,
+        businessUnit: BusinessUnitMappers.trimBusinessUnit(
+          organization.businessUnit,
+          request.sessionData?.account?.accountId,
+        ),
+      },
     },
   };
 

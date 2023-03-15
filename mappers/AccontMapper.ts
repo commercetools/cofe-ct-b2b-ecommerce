@@ -16,6 +16,17 @@ export class AccountMapper extends BaseAccountMapper {
       addresses: this.commercetoolsCustomerToAddresses(commercetoolsCustomer, locale),
     } as Account;
   }
+
+  static commercetoolsCustomerToSmallerAccount(commercetoolsCustomer: commercetoolsCustomer): Account {
+    return {
+      accountId: commercetoolsCustomer.id,
+      email: commercetoolsCustomer.email,
+      salutation: commercetoolsCustomer?.salutation,
+      firstName: commercetoolsCustomer?.firstName,
+      lastName: commercetoolsCustomer?.lastName,
+      confirmed: commercetoolsCustomer.isEmailVerified,
+    };
+  }
 }
 
 // Override the BaseMapper with new Mapper functions
