@@ -35,7 +35,11 @@ export class BusinessUnitMappers {
       storeMode: businessUnit.storeMode,
       stores: this.mapReferencedStoresToStores(businessUnit, allStores),
       associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+      contactEmail: businessUnit.contactEmail,
+      unitType: businessUnit.unitType,
       custom: businessUnit.custom,
+      status: businessUnit.status,
+      addresses: businessUnit.addresses,
     };
   }
 
