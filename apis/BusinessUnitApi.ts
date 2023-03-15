@@ -10,13 +10,12 @@ const MAX_LIMIT = 50;
 export class BusinessUnitApi extends BaseApi {
   getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Record<string, object>> => {
     const organization: Record<string, object> = {};
-    const locale = await this.getCommercetoolsLocal();
 
     organization.businessUnit = businessUnit;
     if (businessUnit.stores?.[0]) {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
       const store = await storeApi.get(businessUnit.stores?.[0].key);
-      organization.store = StoreMappers.mapStoreToSmallerStore(store, locale.language);
+      organization.store = StoreMappers.mapStoreToSmallerStore(store);
       if (store?.distributionChannels?.length) {
         organization.distributionChannel = store.distributionChannels[0];
       }

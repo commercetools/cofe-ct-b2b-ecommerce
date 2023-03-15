@@ -15,11 +15,10 @@ export class StoreMappers {
     };
   }
   static mapStoreToSmallerStore(
-    store: CommercetoolsStore,
-    locale: string,
+    store: Store,
   ): Store {
     return {
-      name: store.name?.[locale],
+      name: store.name,
       id: store.id,
       key: store.key,
     };

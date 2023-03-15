@@ -84,7 +84,7 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
     distributionChannel,
   };
 
-  organization.store = StoreMappers.mapStoreToSmallerStore(store, getLocale(request));
+  organization.store = StoreMappers.mapStoreToSmallerStore(store);
 
   const cart = await cartApi.getForUser(request.sessionData?.account, organization);
 
