@@ -38,15 +38,18 @@ export class BusinessUnitMappers {
     };
   }
 
-  static trimBusinessUnit(businessUnit: BusinessUnit): BusinessUnit {
+  static trimBusinessUnit(businessUnit: BusinessUnit, accountId: string): BusinessUnit {
     return {
       ...businessUnit,
-      associates: businessUnit.associates?.map((associate) => ({
-        associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
-          associateRole: { key: role.associateRole.key },
+      stores: businessUnit.stores.map((store) => ({ key: store.key, typeId: 'store' })),
+      associates: businessUnit.associates
+        ?.filter((associate) => associate.customer.id === accountId)
+        ?.map((associate) => ({
+          associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
+            associateRole: { key: role.associateRole.key },
+          })),
+          customer: { id: associate.customer.id },
         })),
-        customer: { id: associate.customer.id },
-      })),
     };
   }
 

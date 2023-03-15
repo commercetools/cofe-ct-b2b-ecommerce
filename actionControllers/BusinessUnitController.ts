@@ -47,7 +47,10 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
       ...request.sessionData,
       organization: {
         ...organization,
-        businessUnit: BusinessUnitMappers.trimBusinessUnit(organization.businessUnit),
+        businessUnit: BusinessUnitMappers.trimBusinessUnit(
+          organization.businessUnit,
+          request.sessionData?.account?.accountId,
+        ),
       },
     },
   };
