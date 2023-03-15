@@ -35,6 +35,7 @@ export class BusinessUnitMappers {
       storeMode: businessUnit.storeMode,
       stores: this.mapReferencedStoresToStores(businessUnit, allStores),
       associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+      custom: businessUnit.custom,
     };
   }
 
