@@ -1,10 +1,5 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import {
-  BusinessUnit,
-  BusinessUnitStatus,
-  BusinessUnitType,
-  StoreMode,
-} from '../types/business-unit/BusinessUnit';
+import { BusinessUnit, BusinessUnitStatus, BusinessUnitType, StoreMode } from '../types/business-unit/BusinessUnit';
 import { Store, StoreKeyReference } from '../types/store/store';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
@@ -12,7 +7,6 @@ import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
 import { AccountApi } from '../apis/AccountApi';
-import { StoreApi } from '../apis/StoreApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -51,7 +45,10 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
     body: JSON.stringify(businessUnit),
     sessionData: {
       ...request.sessionData,
-      organization,
+      organization: {
+        ...organization,
+        businessUnit: BusinessUnitMappers.trimBusinessUnit(organization.businessUnit),
+      },
     },
   };
 
