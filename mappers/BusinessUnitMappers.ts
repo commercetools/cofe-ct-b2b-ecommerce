@@ -1,6 +1,7 @@
-import { BusinessUnit as CommercetoolsBusinessUnit } from '@commercetools/platform-sdk';
+import { BusinessUnit as CommercetoolsBusinessUnit, StoreKeyReference } from '@commercetools/platform-sdk';
 import { BusinessUnit } from '../types/business-unit/BusinessUnit';
 import { Store } from '../types/store/store';
+import { Associate } from '../types/associate/Associate';
 
 export class BusinessUnitMappers {
   static mapBusinessUnitToBusinessUnit(
@@ -9,15 +10,32 @@ export class BusinessUnitMappers {
     accountId: string,
     adminRoleKey: string,
   ): BusinessUnit {
-    const businessUnitWithAssociates = this.mapReferencedAssociates(businessUnit);
-
-    const businessUnitWithStores = this.mapStoreRefs(businessUnitWithAssociates, allStores);
-
-    const businessUnitWithFlags = accountId
-      ? this.addBUsinessUnitAdminFlags(businessUnitWithStores, accountId, adminRoleKey)
-      : businessUnitWithStores;
-
-    return this.trimBusinessUnit(businessUnitWithFlags);
+    return {
+      topLevelUnit: businessUnit.topLevelUnit,
+      key: businessUnit.key,
+      name: businessUnit.name,
+      parentUnit: businessUnit.parentUnit,
+      storeMode: businessUnit.storeMode,
+      stores: this.mapReferencedStoresToStores(businessUnit, allStores),
+      associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+      isAdmin: this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
+      isRootAdmin: this.isUserRootAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
+    };
+  }
+  
+  static mapBusinessUnitToBusinessUnitTreeItem(
+    businessUnit: CommercetoolsBusinessUnit,
+    allStores: Store[],
+  ): BusinessUnit {
+    return {
+      topLevelUnit: businessUnit.topLevelUnit,
+      key: businessUnit.key,
+      name: businessUnit.name,
+      parentUnit: businessUnit.parentUnit,
+      storeMode: businessUnit.storeMode,
+      stores: this.mapReferencedStoresToStores(businessUnit, allStores),
+      associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+    };
   }
 
   static trimBusinessUnit(businessUnit: BusinessUnit): BusinessUnit {
@@ -57,42 +75,36 @@ export class BusinessUnitMappers {
     return businessUnit;
   }
 
-  static mapReferencedAssociates(businessUnit: CommercetoolsBusinessUnit): BusinessUnit {
-    return {
-      ...businessUnit,
-      associates: businessUnit.associates?.map((associate) => {
-        if (associate.customer?.obj) {
-          return {
-            // @ts-ignore
-            associateRoleAssignments: associate.associateRoleAssignments,
-            customer: {
-              id: associate.customer.id,
-              typeId: 'customer',
-              firstName: associate.customer?.obj?.firstName,
-              lastName: associate.customer?.obj?.lastName,
-              email: associate.customer?.obj?.email,
-            },
-          };
-        }
-        return associate;
-      }),
-    };
+  static mapReferencedAssociatesToAssociate(businessUnit: CommercetoolsBusinessUnit): Associate[] {
+    return businessUnit.associates?.map((associate) => {
+      if (associate.customer?.obj) {
+        return {
+          // @ts-ignore
+          associateRoleAssignments: associate.associateRoleAssignments,
+          customer: {
+            id: associate.customer.id,
+            typeId: 'customer',
+            firstName: associate.customer?.obj?.firstName,
+            lastName: associate.customer?.obj?.lastName,
+            email: associate.customer?.obj?.email,
+          },
+        };
+      }
+      return associate;
+    });
   }
 
-  static mapStoreRefs(businessUnit: BusinessUnit, allStores: Store[]): BusinessUnit {
-    return {
-      ...businessUnit,
-      stores: businessUnit.stores?.map((store) => {
-        const storeObj = allStores.find((s) => s.key === store.key);
-        return storeObj
-          ? {
-              name: storeObj.name,
-              key: storeObj.key,
-              typeId: 'store',
-              id: storeObj.id,
-            }
-          : store;
-      }),
-    };
+  static mapReferencedStoresToStores(businessUnit: BusinessUnit, allStores: Store[]): StoreKeyReference[] {
+    return businessUnit.stores?.map((store) => {
+      const storeObj = allStores.find((s) => s.key === store.key);
+      return storeObj
+        ? {
+            name: storeObj.name,
+            key: storeObj.key,
+            typeId: 'store',
+            id: storeObj.id,
+          }
+        : (store as StoreKeyReference);
+    });
   }
 }
