@@ -4,7 +4,7 @@ import { BusinessUnit as CommercetoolsBusinessUnit, BusinessUnitPagedQueryRespon
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
 import { StoreMappers } from '../mappers/StoreMappers';
-import { Organization } from 'types/organization/organization';
+import { Organization } from '../types/organization/organization';
 
 const MAX_LIMIT = 50;
 
