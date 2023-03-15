@@ -6,7 +6,7 @@ import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { StoreApi } from '../apis/StoreApi';
 import { CartApi } from '../apis/CartApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
-import { StoreMappers } from 'mappers/StoreMappers';
+import { StoreMappers } from '../mappers/StoreMappers';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 

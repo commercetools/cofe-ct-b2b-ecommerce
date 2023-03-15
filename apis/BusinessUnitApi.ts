@@ -4,12 +4,13 @@ import { BusinessUnit as CommercetoolsBusinessUnit, BusinessUnitPagedQueryRespon
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
 import { StoreMappers } from '../mappers/StoreMappers';
+import { Organization } from 'types/organization/organization';
 
 const MAX_LIMIT = 50;
 
 export class BusinessUnitApi extends BaseApi {
-  getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Record<string, object>> => {
-    const organization: Record<string, object> = {};
+  getOrganizationByBusinessUnit = async (businessUnit: BusinessUnit): Promise<Organization> => {
+    const organization: Organization = {} as Organization;
 
     organization.businessUnit = businessUnit;
     if (businessUnit.stores?.[0]) {
@@ -24,11 +25,11 @@ export class BusinessUnitApi extends BaseApi {
     return organization;
   };
 
-  getOrganization: (accountId: string, businessUnitKey?: string) => Promise<Record<string, object>> = async (
+  getOrganization: (accountId: string, businessUnitKey?: string) => Promise<Organization> = async (
     accountId: string,
     businessUnitKey?: string,
-  ): Promise<Record<string, object>> => {
-    const organization: Record<string, object> = {};
+  ): Promise<Organization> => {
+    const organization: Organization = {} as Organization;
     if (accountId) {
       let businessUnit: BusinessUnit;
 
