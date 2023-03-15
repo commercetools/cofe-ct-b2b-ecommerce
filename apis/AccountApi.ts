@@ -1,8 +1,6 @@
 import { Account } from '../types/account/Account';
 import { Customer } from '@commercetools/platform-sdk';
-import {
-  CustomerDraft,
-} from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
+import { CustomerDraft } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import { CartResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
 import { AccountApi as BaseAccountApi } from 'cofe-ct-ecommerce/apis/AccountApi';
 import { AccountMapper } from '../mappers/AccontMapper';
@@ -94,8 +92,6 @@ export class AccountApi extends BaseAccountApi {
     reverify = false,
   ) => {
     try {
-      const locale = await this.getCommercetoolsLocal();
-
       account = await this.getApiForProject()
         .login()
         .post({
@@ -113,7 +109,7 @@ export class AccountApi extends BaseAccountApi {
         })
         .execute()
         .then((response) => {
-          return AccountMapper.commercetoolsCustomerToAccount(response.body.customer, locale);
+          return AccountMapper.commercetoolsCustomerToSmallerAccount(response.body.customer);
         })
         .catch((error) => {
           if (error.code && error.code === 400) {
