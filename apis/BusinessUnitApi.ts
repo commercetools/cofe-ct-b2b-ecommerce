@@ -54,7 +54,7 @@ export class BusinessUnitApi extends BaseApi {
           body: data,
         })
         .execute()
-        .then((res) => res.body);
+        .then((res) => res.body as CommercetoolsBusinessUnit);
     } catch (e) {
       throw e;
     }
@@ -116,7 +116,7 @@ export class BusinessUnitApi extends BaseApi {
           },
         })
         .execute()
-        .then((res) => res.body);
+        .then((res) => res.body as BusinessUnitPagedQueryResponse);
     } catch (e) {
       throw e;
     }
@@ -213,7 +213,7 @@ export class BusinessUnitApi extends BaseApi {
         .withKey({ key })
         .get()
         .execute()
-        .then((res) => this.setStoresByBusinessUnit(res.body));
+        .then((res) => this.setStoresByBusinessUnit(res.body as CommercetoolsBusinessUnit));
       return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
         bu as CommercetoolsBusinessUnit,
         allStores,
@@ -232,7 +232,7 @@ export class BusinessUnitApi extends BaseApi {
         .withKey({ key })
         .get()
         .execute()
-        .then((res) => res.body);
+        .then((res) => res.body as CommercetoolsBusinessUnit);
     } catch (e) {
       throw e;
     }
@@ -251,7 +251,7 @@ export class BusinessUnitApi extends BaseApi {
         .withKey({ key: parentBU.parentUnit.key })
         .get()
         .execute();
-      parentBU = body;
+      parentBU = body as CommercetoolsBusinessUnit;
     }
     if (parentBU.storeMode === StoreMode.Explicit) {
       return {

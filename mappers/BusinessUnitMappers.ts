@@ -22,7 +22,7 @@ export class BusinessUnitMappers {
       isRootAdmin: this.isUserRootAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
     };
   }
-  
+
   static mapBusinessUnitToBusinessUnitTreeItem(
     businessUnit: CommercetoolsBusinessUnit,
     allStores: Store[],
@@ -38,48 +38,30 @@ export class BusinessUnitMappers {
     };
   }
 
-  static trimBusinessUnit(businessUnit: BusinessUnit): BusinessUnit {
-    return {
-      topLevelUnit: businessUnit.topLevelUnit,
-      key: businessUnit.key,
-      stores: businessUnit.stores,
-      name: businessUnit.name,
-      isRootAdmin: businessUnit.isRootAdmin,
-      isAdmin: businessUnit.isAdmin,
-      parentUnit: businessUnit.parentUnit,
-      storeMode: businessUnit.storeMode,
-      associates: businessUnit.associates?.map((associate) => ({
-        associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
-          associateRole: { key: role.associateRole.key },
-        })),
-        customer: { id: associate.customer.id },
-      })),
-    };
-  }
-
-  static isUserAdminInBusinessUnit(businessUnit: BusinessUnit, accountId: string, adminRoleKey: string): boolean {
+  static isUserAdminInBusinessUnit(
+    businessUnit: CommercetoolsBusinessUnit,
+    accountId: string,
+    adminRoleKey: string,
+  ): boolean {
     const currentUserAssociate = businessUnit.associates?.find((associate) => associate.customer.id === accountId);
     return currentUserAssociate?.associateRoleAssignments.some((role) => role.associateRole.key === adminRoleKey);
   }
 
-  static isUserRootAdminInBusinessUnit(businessUnit: BusinessUnit, accountId: string, adminRoleKey: string): boolean {
+  static isUserRootAdminInBusinessUnit(
+    businessUnit: CommercetoolsBusinessUnit,
+    accountId: string,
+    adminRoleKey: string,
+  ): boolean {
     if (this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey)) {
       return !businessUnit.parentUnit;
     }
     return false;
   }
 
-  static addBUsinessUnitAdminFlags(businessUnit: BusinessUnit, accountId = '', adminRoleKey: string): BusinessUnit {
-    businessUnit.isAdmin = this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey);
-    businessUnit.isRootAdmin = this.isUserRootAdminInBusinessUnit(businessUnit, accountId, adminRoleKey);
-    return businessUnit;
-  }
-
   static mapReferencedAssociatesToAssociate(businessUnit: CommercetoolsBusinessUnit): Associate[] {
     return businessUnit.associates?.map((associate) => {
       if (associate.customer?.obj) {
         return {
-          // @ts-ignore
           associateRoleAssignments: associate.associateRoleAssignments,
           customer: {
             id: associate.customer.id,
@@ -94,7 +76,7 @@ export class BusinessUnitMappers {
     });
   }
 
-  static mapReferencedStoresToStores(businessUnit: BusinessUnit, allStores: Store[]): StoreKeyReference[] {
+  static mapReferencedStoresToStores(businessUnit: CommercetoolsBusinessUnit, allStores: Store[]): StoreKeyReference[] {
     return businessUnit.stores?.map((store) => {
       const storeObj = allStores.find((s) => s.key === store.key);
       return storeObj
