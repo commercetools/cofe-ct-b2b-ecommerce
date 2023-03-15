@@ -38,6 +38,18 @@ export class BusinessUnitMappers {
     };
   }
 
+  static trimBusinessUnit(businessUnit: BusinessUnit): BusinessUnit {
+    return {
+      ...businessUnit,
+      associates: businessUnit.associates?.map((associate) => ({
+        associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
+          associateRole: { key: role.associateRole.key },
+        })),
+        customer: { id: associate.customer.id },
+      })),
+    };
+  }
+
   static isUserAdminInBusinessUnit(
     businessUnit: CommercetoolsBusinessUnit,
     accountId: string,
