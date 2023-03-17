@@ -26,15 +26,15 @@ async function updateCartFromRequest(request: Request, actionContext: ActionCont
   } = JSON.parse(request.body);
 
   if (body?.account?.email !== undefined) {
-    cart = await cartApi.setEmail(cart, body.account.email) as Cart;
+    cart = (await cartApi.setEmail(cart, body.account.email)) as Cart;
   }
 
   if (body?.shipping !== undefined || body?.billing !== undefined) {
     const shippingAddress = body?.shipping !== undefined ? body.shipping : body.billing;
     const billingAddress = body?.billing !== undefined ? body.billing : body.shipping;
 
-    cart = await cartApi.setShippingAddress(cart, shippingAddress) as Cart;
-    cart = await cartApi.setBillingAddress(cart, billingAddress) as Cart;
+    cart = (await cartApi.setShippingAddress(cart, shippingAddress)) as Cart;
+    cart = (await cartApi.setBillingAddress(cart, billingAddress)) as Cart;
   }
 
   return cart;
@@ -116,6 +116,35 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
   cart = (await cartApi.addItemsToCart(cart, lineItems, distributionChannel)) as Cart;
+
+  const cartId = cart.cartId;
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
+
+export const updateLineItem: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+
+  const body: {
+    lineItem?: { id?: string; count: number };
+  } = JSON.parse(request.body);
+
+  const lineItem: LineItem = {
+    lineItemId: body.lineItem?.id,
+    count: +body.lineItem?.count || 1,
+  };
+
+  let cart = await CartFetcher.fetchCart(request, actionContext);
+  cart = (await cartApi.updateLineItem(cart, lineItem)) as Cart;
 
   const cartId = cart.cartId;
 

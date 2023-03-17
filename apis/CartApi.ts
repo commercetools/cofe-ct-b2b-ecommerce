@@ -1,4 +1,4 @@
-import { AddressDraft, CartDraft } from '@commercetools/platform-sdk';
+import { AddressDraft, CartDraft, CartUpdateAction } from '@commercetools/platform-sdk';
 import { LineItemReturnItemDraft } from '../types/cart/LineItem';
 import { Cart as CommercetoolsCart } from '@commercetools/platform-sdk';
 import {
@@ -33,7 +33,7 @@ export class CartApi extends BaseCartApi {
       ];
 
       if (organization.superUserBusinessUnitKey) {
-        where.push('origin="Merchant"')
+        where.push('origin="Merchant"');
       }
 
       const response = await this.getApiForProject()
@@ -84,7 +84,7 @@ export class CartApi extends BaseCartApi {
           typeId: 'store',
         },
         inventoryMode: 'ReserveOnOrder',
-        origin: organization.superUserBusinessUnitKey ? 'Merchant': 'Customer'
+        origin: organization.superUserBusinessUnitKey ? 'Merchant' : 'Customer',
       };
 
       const commercetoolsCart = await this.getApiForProject()
@@ -128,6 +128,15 @@ export class CartApi extends BaseCartApi {
         ],
       };
 
+      const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
+      if (oldLineItem) {
+        cartUpdate.actions.push({
+          action: 'setLineItemShippingDetails',
+          lineItemId: oldLineItem.lineItemId,
+          shippingDetails: null,
+        });
+      }
+
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
       return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
@@ -144,14 +153,27 @@ export class CartApi extends BaseCartApi {
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const cartUpdate: CartUpdate = {
-        version: +cart.cartVersion,
-        actions: lineItems.map((lineItem) => ({
+
+      const actions: CartUpdateAction[] = [];
+      lineItems.forEach((lineItem) => {
+        actions.push({
           action: 'addLineItem',
           sku: lineItem.variant.sku,
           quantity: +lineItem.count,
           distributionChannel: { id: distributionChannel, typeId: 'channel' },
-        })),
+        });
+        const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
+        if (oldLineItem) {
+          actions.push({
+            action: 'setLineItemShippingDetails',
+            lineItemId: oldLineItem.lineItemId,
+            shippingDetails: null,
+          });
+        }
+      });
+      const cartUpdate: CartUpdate = {
+        version: +cart.cartVersion,
+        actions,
       };
 
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
@@ -161,6 +183,34 @@ export class CartApi extends BaseCartApi {
       //TODO: better error, get status code etc...
       throw new Error(`addToCart failed. ${error}`);
     }
+  };
+
+  updateLineItem: (cart: Cart, lineItem: LineItem) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
+    const locale = await this.getCommercetoolsLocal();
+
+    const cartUpdate: CartUpdate = {
+      version: +cart.cartVersion,
+      actions: [
+        {
+          action: 'changeLineItemQuantity',
+          lineItemId: lineItem.lineItemId,
+          quantity: +lineItem.count,
+        },
+      ],
+    };
+
+    const oldLineItem = cart.lineItems?.find((li) => li.lineItemId === lineItem.lineItemId);
+    if (oldLineItem) {
+      cartUpdate.actions.push({
+        action: 'setLineItemShippingDetails',
+        lineItemId: oldLineItem.lineItemId,
+        shippingDetails: null,
+      });
+    }
+
+    const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
+
+    return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
   };
 
   removeAllLineItems: (cart: Cart) => Promise<Cart> = async (cart: Cart) => {
@@ -595,13 +645,14 @@ export class CartApi extends BaseCartApi {
   updateLineItemShippingDetails: (
     cartId: string,
     lineItemId: string,
-    targets: { addressKey: string; quantity: number }[],
-  ) => Promise<any> = async (
+    targets?: { addressKey: string; quantity: number }[],
+  ) => Promise<Cart> = async (
     cartId: string,
     lineItemId: string,
-    targets: { addressKey: string; quantity: number }[],
+    targets?: { addressKey: string; quantity: number }[],
   ) => {
-    return this.getById(cartId).then((cart) => {
+    const locale = await this.getCommercetoolsLocal();
+    const { body: commercetoolsCart } = await this.getById(cartId).then((cart) => {
       return this.getApiForProject()
         .carts()
         .withId({
@@ -614,14 +665,13 @@ export class CartApi extends BaseCartApi {
               {
                 action: 'setLineItemShippingDetails',
                 lineItemId,
-                shippingDetails: {
-                  targets,
-                },
+                shippingDetails: targets?.length ? { targets } : null,
               },
             ],
           },
         })
         .execute();
     });
+    return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
   };
 }

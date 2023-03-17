@@ -1,3 +1,5 @@
+# 1.0.20
+- remove LineItemShippingDetails on updating/adding to cart
 # 1.0.19
 - trim businessUnit stored in session
 - trim store stored in session
