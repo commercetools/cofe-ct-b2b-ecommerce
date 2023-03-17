@@ -15,10 +15,18 @@ export const extender = (source: any, target: any) => {
   if (!target) {
     return source;
   }
-  return {
-    ...source,
-    ...target,
-  };
+  const mergedModule = {};
+
+  Object.assign(mergedModule, source);
+
+  Object.keys(target).forEach((key) => {
+    const func = target[key];
+
+    if (typeof func === 'function') {
+      mergedModule[key] = func;
+    }
+  });
+  return mergedModule;
 };
 
 export const AccountAction: typeof AccountController &
@@ -29,20 +37,20 @@ export const AccountAction: typeof AccountController &
 
 export const CartAction: typeof CartController &
   typeof CartControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
-    CartControllerBase,
-    CartController,
+  CartControllerBase,
+  CartController,
 );
 
 export const ProductAction: typeof ProductController &
   typeof ProductControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
-    ProductControllerBase,
-    ProductController,
+  ProductControllerBase,
+  ProductController,
 );
 
 export const WishlistAction: typeof WishlistController &
   typeof WishlistControllerBase & { [actionIdentifier: string]: ActionHandler } = extender(
-    WishlistControllerBase,
-    WishlistController,
+  WishlistControllerBase,
+  WishlistController,
 );
 
 export const BusinessAction = BusinessController;
