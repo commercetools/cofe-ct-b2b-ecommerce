@@ -1,3 +1,5 @@
+# 1.0.21
+- accepted quote-cart belogns to the one accept it
 # 1.0.20
 - remove LineItemShippingDetails on updating/adding to cart
 # 1.0.19
