@@ -1,3 +1,6 @@
+# 1.0.22
+- add UpdateLineItemQuantity to Wishlist controller
+- trim unwanted sessionData while login
 # 1.0.21
 - accepted quote-cart belogns to the one accept it
 # 1.0.20

@@ -7,6 +7,7 @@ import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { Account } from '../types/account/Account';
+import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 export type AccountRegisterBody = {
@@ -160,6 +161,7 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
         account,
         organization: {
           ...organization,
+          businessUnit: BusinessUnitMappers.trimBusinessUnit(organization.businessUnit, account.accountId),
           superUserBusinessUnitKey: accountLoginBody.businessUnitKey,
         },
       },

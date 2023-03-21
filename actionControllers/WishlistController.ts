@@ -162,8 +162,6 @@ export const share: ActionHook = async (request, actionContext) => {
   }
 };
 
-
-
 export const removeLineItem: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
   const wishlist = await fetchWishlist(request, wishlistApi);
@@ -181,4 +179,27 @@ export const removeLineItem: ActionHook = async (request, actionContext) => {
   };
 };
 
+export const updateLineItemCount: ActionHook = async (request, actionContext) => {
+  const wishlistApi = getWishlistApi(request, actionContext);
+  const wishlist = await fetchWishlist(request, wishlistApi);
 
+  const body: {
+    lineItem?: { id?: string };
+    count?: number;
+  } = JSON.parse(request.body);
+
+  const updatedWishlist = await wishlistApi.updateLineItemCount(
+    wishlist,
+    body.lineItem?.id ?? undefined,
+    +body.count || 1,
+  );
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(updatedWishlist),
+    sessionData: {
+      ...request.sessionData,
+      wishlistId: updatedWishlist.wishlistId,
+    },
+  };
+};
