@@ -1,3 +1,6 @@
+# 1.0.23
+- add rename and delete endpoint to wishlist controller
+- refactor store spercific wishlist apis to use inStoreKeyWithStoreKeyValue
 # 1.0.22
 - add UpdateLineItemQuantity to Wishlist controller
 - trim unwanted sessionData while login

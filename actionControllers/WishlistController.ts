@@ -136,6 +136,30 @@ export const createWishlist: ActionHook = async (request, actionContext) => {
   };
 };
 
+export const addToWishlist: ActionHook = async (request, actionContext) => {
+  const wishlistApi = getWishlistApi(request, actionContext);
+  const wishlist = await fetchWishlist(request, wishlistApi);
+
+  const body: {
+    variant?: { sku?: string };
+    count?: number;
+  } = JSON.parse(request.body);
+
+  const updatedWishlist = await wishlistApi.addToWishlist(wishlist, {
+    sku: body?.variant?.sku || undefined,
+    count: body.count || 1,
+  });
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(updatedWishlist),
+    sessionData: {
+      ...request.sessionData,
+      wishlistId: updatedWishlist.wishlistId,
+    },
+  };
+};
+
 export const share: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
   const config = actionContext.frontasticContext?.project?.configuration?.wishlistSharing;
@@ -160,6 +184,35 @@ export const share: ActionHook = async (request, actionContext) => {
   } catch (error) {
     throw error;
   }
+};
+
+export const deleteWishlist: ActionHook = async (request, actionContext) => {
+  const wishlistApi = getWishlistApi(request, actionContext);
+  const wishlist = await fetchWishlist(request, wishlistApi);
+  const storeKey = fetchStoreFromSession(request);
+
+  const deletedWishlist = await wishlistApi.delete(wishlist, storeKey);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(deletedWishlist),
+    sessionData: request.sessionData,
+  };
+};
+
+export const renameWishlist: ActionHook = async (request, actionContext) => {
+  const wishlistApi = getWishlistApi(request, actionContext);
+  let wishlist = await fetchWishlist(request, wishlistApi);
+
+  const { name } = JSON.parse(request.body);
+
+  wishlist = await wishlistApi.rename(wishlist, name);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(wishlist),
+    sessionData: request.sessionData,
+  };
 };
 
 export const removeLineItem: ActionHook = async (request, actionContext) => {
