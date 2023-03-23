@@ -5,6 +5,7 @@ import * as WishlistActions from './WishlistController';
 import * as StoreActions from './StoreController';
 import * as BusinessUnitActions from './BusinessUnitController';
 import * as QuoteActions from './QuoteController';
+import * as AssociateActions from './AssociateController';
 
 export const actions = {
   account: AccountActions,
@@ -14,4 +15,5 @@ export const actions = {
   store: StoreActions,
   quote: QuoteActions,
   'business-unit': BusinessUnitActions,
+  'associate': AssociateActions,
 };
