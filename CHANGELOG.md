@@ -1,3 +1,5 @@
+# 1.0.24
+- add associate controller
 # 1.0.23
 - add rename and delete endpoint to wishlist controller
 - refactor store spercific wishlist apis to use inStoreKeyWithStoreKeyValue
