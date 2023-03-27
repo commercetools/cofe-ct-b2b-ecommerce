@@ -40,6 +40,95 @@ async function updateCartFromRequest(request: Request, actionContext: ActionCont
   return cart;
 }
 
+export const getCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cart = await CartFetcher.fetchCart(request, actionContext);
+  const cartId = cart.cartId;
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
+
+export const getCartById: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  let response: Response;
+  try {
+    const id = request.query?.id;
+    const cart = await cartApi.getById(id);
+    const cartId = cart.cartId;
+
+    response = {
+      statusCode: 200,
+      body: JSON.stringify(cart),
+      sessionData: {
+        ...request.sessionData,
+        cartId,
+      },
+    };
+  } catch (e) {
+    response = {
+      statusCode: 400,
+      sessionData: request.sessionData,
+      // @ts-ignore
+      error: e?.message,
+      errorCode: 500,
+    };
+  }
+
+  return response;
+};
+
+export const getAllSuperUserCarts: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  let carts: Cart[] = [];
+
+  if (request.sessionData?.organization?.superUserBusinessUnitKey) {
+    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+    carts = (await cartApi.getAllForSuperUser(
+      request.sessionData?.account,
+      request.sessionData?.organization,
+    )) as Cart[];
+  }
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(carts),
+  };
+
+  return response;
+};
+
+export const createCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  let cart: Cart;
+  let cartId = request.sessionData?.cartId;
+
+  if (request.sessionData?.organization?.superUserBusinessUnitKey) {
+    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+    cart = (await cartApi.createCart(
+      request.sessionData?.account?.accountId,
+      request.sessionData?.organization,
+    )) as Cart;
+    cartId = cart.cartId;
+  }
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
+
 export const checkout: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
 

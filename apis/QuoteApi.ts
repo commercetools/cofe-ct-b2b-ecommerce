@@ -9,17 +9,28 @@ import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
 import { Quote } from '../types/quotes/Quote';
 import { StagedQuote } from '../types/quotes/StagedQuote';
-import {
-  QuoteMappers
-} from '../mappers/QuoteMappers';
+import { QuoteMappers } from '../mappers/QuoteMappers';
+import { Organization } from '../types/organization/organization';
 
 export class QuoteApi extends BaseApi {
-  createQuoteRequest: (quoteRequest: QuoteRequestDraft) => Promise<CommercetoolsQuoteRequest> = async (
+  createQuoteRequest: (
     quoteRequest: QuoteRequestDraft,
+    accountId?: string,
+    organization?: Organization,
+  ) => Promise<CommercetoolsQuoteRequest> = async (
+    quoteRequest: QuoteRequestDraft,
+    accountId?: string,
+    organization?: Organization,
   ) => {
     try {
-      return this.getApiForProject()
-        .quoteRequests()
+      const endpoint = organization?.superUserBusinessUnitKey
+        ? this.getApiForProject()
+            .asAssociate()
+            .withAssociateIdValue({ associateId: accountId })
+            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization?.businessUnit?.key })
+            .quoteRequests()
+        : this.getApiForProject().quoteRequests();
+      return endpoint
         .post({
           body: {
             ...quoteRequest,

@@ -13,9 +13,11 @@ import { CartApi as BaseCartApi } from 'cofe-ct-ecommerce/apis/CartApi';
 import { isReadyForCheckout } from 'cofe-ct-ecommerce/utils/Cart';
 import { CartMapper } from '../mappers/CartMapper';
 import { Account } from '@commercetools/frontend-domain-types/account/Account';
-import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
+import { Cart } from '../types/cart/Cart';
 import { Order } from '../types/cart/Order';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 export class CartApi extends BaseCartApi {
   getForUser: (account: Account, organization?: Organization) => Promise<Cart> = async (
@@ -24,23 +26,47 @@ export class CartApi extends BaseCartApi {
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-
-      const where = [
-        `customerId="${account.accountId}"`,
-        `cartState="Active"`,
-        `businessUnit(key="${organization.businessUnit.key}")`,
-        `store(key="${organization.store.key}")`,
-      ];
-
-      if (organization.superUserBusinessUnitKey) {
-        where.push('origin="Merchant"');
+      const allCarts = await this.getAllCarts(account, organization);
+      if (allCarts.length >= 1) {
+        const cart = (await this.buildCartWithAvailableShippingMethods(allCarts[0], locale)) as Cart;
+        if (this.assertCartOrganization(cart, organization)) {
+            return cart;
+        }
       }
 
-      const response = await this.getApiForProject()
-        .carts()
+      return (await this.createCart(account.accountId, organization)) as Cart;
+    } catch (error) {
+      //TODO: better error, get status code etc...
+      throw new Error(`getForUser failed. ${error}`);
+    }
+  };
+
+  getAllCarts: (account: Account, organization?: Organization) => Promise<CommercetoolsCart[]> = async (
+    account: Account,
+    organization: Organization,
+  ) => {
+    try {
+      const where = [`cartState="Active"`];
+
+      if (!organization.superUserBusinessUnitKey) {
+        where.push(`customerId="${account.accountId}"`);
+        where.push(`businessUnit(key="${organization.businessUnit.key}")`);
+      } else {
+        where.push(`store(key="${organization.store?.key}")`);
+      }
+
+      const cartEndpoint = !organization.superUserBusinessUnitKey
+        ? this.getApiForProject().inStoreKeyWithStoreKeyValue({ storeKey: organization.store?.key }).carts()
+        : this.getApiForProject()
+            .asAssociate()
+            .withAssociateIdValue({ associateId: account.accountId })
+            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+            .carts();
+
+      const response = await cartEndpoint
         .get({
           queryArgs: {
-            limit: 1,
+            limit: 15,
             expand: [
               'lineItems[*].discountedPrice.includedDiscounts[*].discount',
               'discountCodes[*].discountCode',
@@ -53,14 +79,25 @@ export class CartApi extends BaseCartApi {
         .execute();
 
       if (response.body.count >= 1) {
-        return this.buildCartWithAvailableShippingMethods(response.body.results[0], locale);
+        return response.body.results;
       }
-
-      return this.createCart(account.accountId, organization);
+      return [];
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`getForUser failed. ${error}`);
     }
+  };
+
+  getAllForSuperUser: (account: Account, organization?: Organization) => Promise<Cart[]> = async (
+    account: Account,
+    organization: Organization,
+  ) => {
+    const locale = await this.getCommercetoolsLocal();
+    const allCarts = await this.getAllCarts(account, organization);
+    if (allCarts.length >= 1) {
+      return allCarts.map((cart) => CartMapper.commercetoolsCartToCart(cart, locale));
+    }
+    return [];
   };
 
   createCart: (customerId: string, organization: Organization) => Promise<Cart> = async (
@@ -70,25 +107,37 @@ export class CartApi extends BaseCartApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
-      const cartDraft: CartDraft = {
+      const cartDraft: Writeable<CartDraft> = {
         currency: locale.currency,
         country: locale.country,
         locale: locale.language,
-        customerId,
-        businessUnit: {
-          key: organization.businessUnit.key,
-          typeId: 'business-unit',
-        },
-        store: {
-          key: organization.store.key,
-          typeId: 'store',
-        },
+
         inventoryMode: 'ReserveOnOrder',
-        origin: organization.superUserBusinessUnitKey ? 'Merchant' : 'Customer',
       };
 
-      const commercetoolsCart = await this.getApiForProject()
-        .carts()
+      if (!organization.superUserBusinessUnitKey) {
+        cartDraft.customerId = customerId;
+        cartDraft.businessUnit = {
+          key: organization.businessUnit.key,
+          typeId: 'business-unit',
+        };
+      } else {
+        cartDraft.store = {
+          key: organization.store?.key,
+          typeId: 'store',
+        };
+        cartDraft.origin = 'Merchant';
+      }
+
+      const cartEndpoint = !organization.superUserBusinessUnitKey
+        ? this.getApiForProject().inStoreKeyWithStoreKeyValue({ storeKey: organization.store?.key }).carts()
+        : this.getApiForProject()
+            .asAssociate()
+            .withAssociateIdValue({ associateId: customerId })
+            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+            .carts();
+
+      const commercetoolsCart = await cartEndpoint
         .post({
           queryArgs: {
             expand: [
@@ -101,13 +150,14 @@ export class CartApi extends BaseCartApi {
         })
         .execute();
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart.body, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart.body, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw error;
     }
   };
 
+  // @ts-ignore
   addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string) => Promise<Cart> = async (
     cart: Cart,
     lineItem: LineItem,
@@ -139,13 +189,14 @@ export class CartApi extends BaseCartApi {
 
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`addToCart failed. ${error}`);
     }
   };
 
+  // @ts-ignore
   addItemsToCart: (cart: Cart, lineItems: LineItem[], distributionChannel: string) => Promise<Cart> = async (
     cart: Cart,
     lineItems: LineItem[],
@@ -185,6 +236,7 @@ export class CartApi extends BaseCartApi {
     }
   };
 
+  // @ts-ignore
   updateLineItem: (cart: Cart, lineItem: LineItem) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
     const locale = await this.getCommercetoolsLocal();
 
@@ -210,9 +262,10 @@ export class CartApi extends BaseCartApi {
 
     const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-    return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+    return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
   };
 
+  // @ts-ignore
   removeAllLineItems: (cart: Cart) => Promise<Cart> = async (cart: Cart) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -234,6 +287,7 @@ export class CartApi extends BaseCartApi {
     }
   };
 
+  // @ts-ignore
   setCustomerId: (cart: Cart, customerId: string) => Promise<Cart> = async (cart: Cart, customerId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -402,7 +456,7 @@ export class CartApi extends BaseCartApi {
 
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`freeze error failed. ${error}`);
@@ -423,7 +477,7 @@ export class CartApi extends BaseCartApi {
       };
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`freeze error failed. ${error}`);
@@ -448,7 +502,7 @@ export class CartApi extends BaseCartApi {
       };
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`freeze error failed. ${error}`);
@@ -478,7 +532,7 @@ export class CartApi extends BaseCartApi {
       };
       const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
 
-      return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`freeze error failed. ${error}`);
@@ -608,7 +662,7 @@ export class CartApi extends BaseCartApi {
           },
         })
         .execute();
-      return this.buildCartWithAvailableShippingMethods(response.body, locale);
+      return (await this.buildCartWithAvailableShippingMethods(response.body, locale)) as Cart;
     } catch (e) {
       throw `cannot replicate ${e}`;
     }
@@ -672,6 +726,13 @@ export class CartApi extends BaseCartApi {
         })
         .execute();
     });
-    return this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale);
+    return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
+  };
+
+  assertCartOrganization: (cart: Cart, organization: Organization) => boolean = (
+    cart: Cart,
+    organization: Organization,
+  ) => {
+    return !!cart.businessUnit && !!cart.store && cart.businessUnit === organization.businessUnit?.key && cart.store === organization.store?.key;
   };
 }

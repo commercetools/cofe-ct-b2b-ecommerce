@@ -1,3 +1,9 @@
+# 1.0.25
+- use as-associate endpoints to fetch cart
+- use as-associate endpoints to create quote-request
+- cart/order will reflect customerId
+- CartFetcher prioritizes session cart over searching for cart
+- cartController exposes getCartById, getAllSuperUserCarts and createCart actions
 # 1.0.24
 - add associate controller
 # 1.0.23
