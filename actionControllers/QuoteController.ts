@@ -5,6 +5,7 @@ import { Quote } from '../types/quotes/Quote';
 import { StagedQuote } from '../types/quotes/StagedQuote';
 import { CartApi } from '../apis/CartApi';
 import { QuoteApi } from '../apis/QuoteApi';
+import { Cart } from '../types/cart/Cart';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -45,14 +46,18 @@ export const createQuoteRequest: ActionHook = async (request: Request, actionCon
 
   const cart = await cartApi.getById(cartId);
   const cartVersion = parseInt(cart.cartVersion, 10);
-  const quoteRequest = await quoteApi.createQuoteRequest({
-    cart: {
-      typeId: 'cart',
-      id: cartId,
+  const quoteRequest = await quoteApi.createQuoteRequest(
+    {
+      cart: {
+        typeId: 'cart',
+        id: cartId,
+      },
+      cartVersion,
+      comment: quoteBody.comment,
     },
-    cartVersion,
-    comment: quoteBody.comment,
-  });
+    request.sessionData?.account?.accountId,
+    request.sessionData?.organization,
+  );
 
   await cartApi.deleteCart(cartId, cartVersion);
 
@@ -150,7 +155,7 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
 
     let cart = await cartApi.getById(stagedQuote.quotationCart.id);
     cart = await cartApi.setEmail(cart, stagedQuote.customer.obj.email);
-    const commercetoolsCart = await cartApi.setCustomerId(cart, sessionData?.account?.accountId);
+    const commercetoolsCart = await cartApi.setCustomerId(cart as Cart, sessionData?.account?.accountId);
 
     sessionData.cartId = commercetoolsCart.cartId;
   }

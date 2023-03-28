@@ -17,6 +17,7 @@ export class CartMapper extends BaseCartMapper {
   static commercetoolsCartToCart(commercetoolsCart: CommercetoolsCart, locale: Locale): Cart {
     return {
       cartId: commercetoolsCart.id,
+      customerId: commercetoolsCart.customerId,
       cartVersion: commercetoolsCart.version.toString(),
       lineItems: this.commercetoolsLineItemsToLineItems(commercetoolsCart.lineItems, locale),
       email: commercetoolsCart?.customerEmail,
@@ -30,6 +31,8 @@ export class CartMapper extends BaseCartMapper {
       taxed: this.commercetoolsTaxedPriceToTaxed(commercetoolsCart.taxedPrice, locale),
       itemShippingAddresses: commercetoolsCart.itemShippingAddresses,
       origin: commercetoolsCart.origin,
+      store:commercetoolsCart.store?.key,
+      businessUnit: commercetoolsCart.businessUnit?.key
     };
   }
 
@@ -76,6 +79,7 @@ export class CartMapper extends BaseCartMapper {
   static commercetoolsOrderToOrder(commercetoolsOrder: CommercetoolsOrder, locale: Locale): Order {
     return {
       cartId: commercetoolsOrder.id,
+      customerId: commercetoolsOrder.customerId,
       origin: commercetoolsOrder.origin,
       orderState: commercetoolsOrder.orderState,
       orderId: commercetoolsOrder.orderNumber,
@@ -89,7 +93,7 @@ export class CartMapper extends BaseCartMapper {
       createdAt: commercetoolsOrder.createdAt,
       shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
       returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
-      purchaseOrderNumber: commercetoolsOrder.purchaseOrderNumber
+      purchaseOrderNumber: commercetoolsOrder.purchaseOrderNumber,
     };
   }
 
