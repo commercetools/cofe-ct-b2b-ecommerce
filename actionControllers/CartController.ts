@@ -357,11 +357,12 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
 };
 
 export const reassignCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cart = await CartFetcher.fetchCart(request, actionContext);
+  let cart = await CartFetcher.fetchCart(request, actionContext);
   const cartId = cart.cartId;
 
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-  cartApi.setCustomerId(cart, request.query?.customerId);
+  cart = await cartApi.setCustomerId(cart, request.query?.customerId);
+  cart = await cartApi.setEmail(cart, request.query?.email) as Cart;
 
   const response: Response = {
     statusCode: 200,

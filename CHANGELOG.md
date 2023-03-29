@@ -1,3 +1,5 @@
+# 1.0.27
+- cart reassign should update cart email
 # 1.0.26
 - cart search/creation always use as-associate apis
 # 1.0.25
