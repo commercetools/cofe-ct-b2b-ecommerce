@@ -68,6 +68,7 @@ export const query: ActionHook = async (request: Request, actionContext: ActionC
 export const setMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
   const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  let cartId = request.sessionData?.cartId;
 
   const data = JSON.parse(request.body);
 
@@ -86,9 +87,12 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
 
   organization.store = StoreMappers.mapStoreToSmallerStore(store);
 
-  const cart = await cartApi.getForUser(request.sessionData?.account, organization);
-
-  const cartId = cart.cartId;
+  try {
+    const cart = await cartApi.getForUser(request.sessionData?.account, organization);
+    cartId = cart.cartId;
+  } catch {
+    console.error('Cannot get cart');
+  }
 
   const response: Response = {
     statusCode: 200,

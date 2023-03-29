@@ -30,7 +30,7 @@ export class CartApi extends BaseCartApi {
       if (allCarts.length >= 1) {
         const cart = (await this.buildCartWithAvailableShippingMethods(allCarts[0], locale)) as Cart;
         if (this.assertCartOrganization(cart, organization)) {
-            return cart;
+          return cart;
         }
       }
 
@@ -46,24 +46,17 @@ export class CartApi extends BaseCartApi {
     organization: Organization,
   ) => {
     try {
-      const where = [`cartState="Active"`];
+      const where = [`cartState="Active"`, `store(key="${organization.store?.key}")`];
 
       if (!organization.superUserBusinessUnitKey) {
         where.push(`customerId="${account.accountId}"`);
-        where.push(`businessUnit(key="${organization.businessUnit.key}")`);
-      } else {
-        where.push(`store(key="${organization.store?.key}")`);
       }
 
-      const cartEndpoint = !organization.superUserBusinessUnitKey
-        ? this.getApiForProject().inStoreKeyWithStoreKeyValue({ storeKey: organization.store?.key }).carts()
-        : this.getApiForProject()
-            .asAssociate()
-            .withAssociateIdValue({ associateId: account.accountId })
-            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
-            .carts();
-
-      const response = await cartEndpoint
+      const response = await this.getApiForProject()
+        .asAssociate()
+        .withAssociateIdValue({ associateId: account.accountId })
+        .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+        .carts()
         .get({
           queryArgs: {
             limit: 15,
@@ -111,33 +104,24 @@ export class CartApi extends BaseCartApi {
         currency: locale.currency,
         country: locale.country,
         locale: locale.language,
-
+        store: {
+          key: organization.store?.key,
+          typeId: 'store',
+        },
         inventoryMode: 'ReserveOnOrder',
       };
 
       if (!organization.superUserBusinessUnitKey) {
         cartDraft.customerId = customerId;
-        cartDraft.businessUnit = {
-          key: organization.businessUnit.key,
-          typeId: 'business-unit',
-        };
       } else {
-        cartDraft.store = {
-          key: organization.store?.key,
-          typeId: 'store',
-        };
         cartDraft.origin = 'Merchant';
       }
 
-      const cartEndpoint = !organization.superUserBusinessUnitKey
-        ? this.getApiForProject().inStoreKeyWithStoreKeyValue({ storeKey: organization.store?.key }).carts()
-        : this.getApiForProject()
-            .asAssociate()
-            .withAssociateIdValue({ associateId: customerId })
-            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
-            .carts();
-
-      const commercetoolsCart = await cartEndpoint
+      const commercetoolsCart = await this.getApiForProject()
+        .asAssociate()
+        .withAssociateIdValue({ associateId: customerId })
+        .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+        .carts()
         .post({
           queryArgs: {
             expand: [
@@ -733,6 +717,11 @@ export class CartApi extends BaseCartApi {
     cart: Cart,
     organization: Organization,
   ) => {
-    return !!cart.businessUnit && !!cart.store && cart.businessUnit === organization.businessUnit?.key && cart.store === organization.store?.key;
+    return (
+      !!cart.businessUnit &&
+      !!cart.store &&
+      cart.businessUnit === organization.businessUnit?.key &&
+      cart.store === organization.store?.key
+    );
   };
 }

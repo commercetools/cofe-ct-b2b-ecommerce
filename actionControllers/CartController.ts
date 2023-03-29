@@ -41,17 +41,27 @@ async function updateCartFromRequest(request: Request, actionContext: ActionCont
 }
 
 export const getCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cart = await CartFetcher.fetchCart(request, actionContext);
-  const cartId = cart.cartId;
+  let response: Response;
+  try {
+    const cart = await CartFetcher.fetchCart(request, actionContext);
+    const cartId = cart.cartId;
 
-  const response: Response = {
-    statusCode: 200,
-    body: JSON.stringify(cart),
-    sessionData: {
-      ...request.sessionData,
-      cartId,
-    },
-  };
+    response = {
+      statusCode: 200,
+      body: JSON.stringify(cart),
+      sessionData: {
+        ...request.sessionData,
+        cartId,
+      },
+    };
+  } catch (e) {
+    response = {
+      statusCode: 400,
+      // @ts-ignore
+      error: e?.message ? e.message : e,
+      errorCode: 500,
+    };
+  }
 
   return response;
 };

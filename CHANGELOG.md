@@ -1,3 +1,5 @@
+# 1.0.26
+- cart search/creation always use as-associate apis
 # 1.0.25
 - use as-associate endpoints to fetch cart
 - use as-associate endpoints to create quote-request
