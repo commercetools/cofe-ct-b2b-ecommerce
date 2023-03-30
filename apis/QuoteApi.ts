@@ -54,7 +54,7 @@ export class QuoteApi extends BaseApi {
         .withId({ ID })
         .get({
           queryArgs: {
-            expand: 'customer',
+            expand: ['customer', 'quotationCart'],
             sort: 'createdAt desc',
           },
         })

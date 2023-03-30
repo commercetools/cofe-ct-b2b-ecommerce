@@ -1,3 +1,4 @@
+export * from 'cofe-ct-ecommerce/actionControllers/WishlistController';
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { WishlistApi } from '../apis/WishlistApi';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
@@ -136,30 +137,6 @@ export const createWishlist: ActionHook = async (request, actionContext) => {
   };
 };
 
-export const addToWishlist: ActionHook = async (request, actionContext) => {
-  const wishlistApi = getWishlistApi(request, actionContext);
-  const wishlist = await fetchWishlist(request, wishlistApi);
-
-  const body: {
-    variant?: { sku?: string };
-    count?: number;
-  } = JSON.parse(request.body);
-
-  const updatedWishlist = await wishlistApi.addToWishlist(wishlist, {
-    sku: body?.variant?.sku || undefined,
-    count: body.count || 1,
-  });
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(updatedWishlist),
-    sessionData: {
-      ...request.sessionData,
-      wishlistId: updatedWishlist.wishlistId,
-    },
-  };
-};
-
 export const share: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
   const config = actionContext.frontasticContext?.project?.configuration?.wishlistSharing;
@@ -212,47 +189,5 @@ export const renameWishlist: ActionHook = async (request, actionContext) => {
     statusCode: 200,
     body: JSON.stringify(wishlist),
     sessionData: request.sessionData,
-  };
-};
-
-export const removeLineItem: ActionHook = async (request, actionContext) => {
-  const wishlistApi = getWishlistApi(request, actionContext);
-  const wishlist = await fetchWishlist(request, wishlistApi);
-
-  const body: {
-    lineItem?: { id?: string };
-  } = JSON.parse(request.body);
-
-  const updatedWishlist = await wishlistApi.removeLineItem(wishlist, body.lineItem?.id ?? undefined);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(updatedWishlist),
-    sessionData: request.sessionData,
-  };
-};
-
-export const updateLineItemCount: ActionHook = async (request, actionContext) => {
-  const wishlistApi = getWishlistApi(request, actionContext);
-  const wishlist = await fetchWishlist(request, wishlistApi);
-
-  const body: {
-    lineItem?: { id?: string };
-    count?: number;
-  } = JSON.parse(request.body);
-
-  const updatedWishlist = await wishlistApi.updateLineItemCount(
-    wishlist,
-    body.lineItem?.id ?? undefined,
-    +body.count || 1,
-  );
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(updatedWishlist),
-    sessionData: {
-      ...request.sessionData,
-      wishlistId: updatedWishlist.wishlistId,
-    },
   };
 };

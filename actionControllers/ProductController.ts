@@ -1,3 +1,4 @@
+export * from 'cofe-ct-ecommerce/actionControllers/ProductController';
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';

@@ -1,3 +1,4 @@
+export * from 'cofe-ct-ecommerce/actionControllers/AccountController';
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AccountApi } from '../apis/AccountApi';
