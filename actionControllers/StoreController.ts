@@ -67,7 +67,12 @@ export const query: ActionHook = async (request: Request, actionContext: ActionC
 
 export const setMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   let cartId = request.sessionData?.cartId;
 
   const data = JSON.parse(request.body);

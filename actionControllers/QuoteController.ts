@@ -36,7 +36,12 @@ const mergeQuotesOverview = (quoteRequests: QuoteRequest[], stagedQuotes: Staged
 
 export const createQuoteRequest: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request));
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const quoteBody: QuoteRequestBody = JSON.parse(request.body);
   const cartId = request.sessionData?.cartId;
@@ -149,13 +154,18 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
   const sessionData = { ...request.sessionData };
 
   if (state === 'Accepted') {
-    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+    const cartApi = new CartApi(
+      actionContext.frontasticContext,
+      getLocale(request),
+      request.sessionData?.organization,
+      request.sessionData?.account,
+    );
 
     const stagedQuote = await quoteApi.getStagedQuote(quote.stagedQuote.id);
 
     let cart = await cartApi.getById(stagedQuote.quotationCart.id);
     cart = await cartApi.setEmail(cart, stagedQuote.customer.obj.email);
-    const commercetoolsCart = await cartApi.setCustomerId(cart as Cart, sessionData?.account?.accountId);
+    const commercetoolsCart = await cartApi.setCustomerId(cart as Cart, stagedQuote.customer.obj.id);
 
     sessionData.cartId = commercetoolsCart.cartId;
   }

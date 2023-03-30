@@ -102,14 +102,19 @@ export const getSuperUserBusinessUnits: ActionHook = async (request: Request, ac
 };
 
 export const getBusinessUnitOrders: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
-  const keys = request?.query?.['keys'];
-  if (!keys) {
-    throw new Error('No keys');
+  const key = request?.query?.['key'];
+  if (!key) {
+    throw new Error('No key');
   }
 
-  const orders = await cartApi.getBusinessUnitOrders(keys);
+  const orders = await cartApi.getBusinessUnitOrders(key);
 
   const response: Response = {
     statusCode: 200,

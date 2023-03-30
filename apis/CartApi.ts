@@ -16,13 +16,30 @@ import { Account } from '@commercetools/frontend-domain-types/account/Account';
 import { Cart } from '../types/cart/Cart';
 import { Order } from '../types/cart/Order';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { Context } from '@frontastic/extension-types';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 export class CartApi extends BaseCartApi {
-  getForUser: (account: Account, organization?: Organization) => Promise<Cart> = async (
-    account: Account,
-    organization: Organization,
+  protected organization?: Organization;
+  protected account?: Account;
+  protected associateEndpoints?;
+  constructor(frontasticContext: Context, locale: string, organization?: Organization, account?: Account) {
+    super(frontasticContext, locale);
+    this.account = account;
+    this.organization = organization;
+    this.associateEndpoints =
+      account && organization
+        ? this.getApiForProject()
+            .asAssociate()
+            .withAssociateIdValue({ associateId: account.accountId })
+            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+        : this.getApiForProject();
+  }
+
+  getForUser: (account?: Account, organization?: Organization) => Promise<Cart> = async (
+    account: Account = this.account,
+    organization: Organization = this.organization,
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -41,9 +58,9 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  getAllCarts: (account: Account, organization?: Organization) => Promise<CommercetoolsCart[]> = async (
-    account: Account,
-    organization: Organization,
+  getAllCarts: (account?: Account, organization?: Organization) => Promise<CommercetoolsCart[]> = async (
+    account: Account = this.account,
+    organization: Organization = this.organization,
   ) => {
     try {
       const where = [`cartState="Active"`, `store(key="${organization.store?.key}")`];
@@ -52,10 +69,7 @@ export class CartApi extends BaseCartApi {
         where.push(`customerId="${account.accountId}"`);
       }
 
-      const response = await this.getApiForProject()
-        .asAssociate()
-        .withAssociateIdValue({ associateId: account.accountId })
-        .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+      const response = await this.associateEndpoints
         .carts()
         .get({
           queryArgs: {
@@ -81,9 +95,9 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  getAllForSuperUser: (account: Account, organization?: Organization) => Promise<Cart[]> = async (
-    account: Account,
-    organization: Organization,
+  getAllForSuperUser: (account?: Account, organization?: Organization) => Promise<Cart[]> = async (
+    account: Account = this.account,
+    organization: Organization = this.organization,
   ) => {
     const locale = await this.getCommercetoolsLocal();
     const allCarts = await this.getAllCarts(account, organization);
@@ -93,9 +107,9 @@ export class CartApi extends BaseCartApi {
     return [];
   };
 
-  createCart: (customerId: string, organization: Organization) => Promise<Cart> = async (
-    customerId: string,
-    organization: Organization,
+  createCart: (customerId?: string, organization?: Organization) => Promise<Cart> = async (
+    customerId: string = this.account?.accountId,
+    organization: Organization = this.organization,
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -117,10 +131,7 @@ export class CartApi extends BaseCartApi {
         cartDraft.origin = 'Merchant';
       }
 
-      const commercetoolsCart = await this.getApiForProject()
-        .asAssociate()
-        .withAssociateIdValue({ associateId: customerId })
-        .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
+      const commercetoolsCart = await this.associateEndpoints
         .carts()
         .post({
           queryArgs: {
@@ -319,7 +330,7 @@ export class CartApi extends BaseCartApi {
         throw new Error('Cart not complete yet.');
       }
 
-      const response = await this.getApiForProject()
+      const response = await this.associateEndpoints
         .orders()
         .post({
           queryArgs: {
@@ -344,7 +355,7 @@ export class CartApi extends BaseCartApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
-      const response = await this.getApiForProject()
+      const response = await this.associateEndpoints
         .orders()
         .withOrderNumber({ orderNumber })
         .get({
@@ -365,6 +376,31 @@ export class CartApi extends BaseCartApi {
     }
   };
 
+  protected async updateCart(cartId: string, cartUpdate: CartUpdate, locale: Locale): Promise<CommercetoolsCart> {
+    return await this.associateEndpoints
+      .carts()
+      .withId({
+        ID: cartId,
+      })
+      .post({
+        queryArgs: {
+          expand: [
+            'lineItems[*].discountedPrice.includedDiscounts[*].discount',
+            'discountCodes[*].discountCode',
+            'paymentInfo.payments[*]',
+          ],
+        },
+        body: cartUpdate,
+      })
+      .execute()
+      .then((response) => {
+        return response.body;
+      })
+      .catch((error) => {
+        throw new Error(`Update cart failed ${error}`);
+      });
+  }
+
   returnItems: (orderNumber: string, returnLineItems: LineItemReturnItemDraft[]) => Promise<Order> = async (
     orderNumber: string,
     returnLineItems: LineItemReturnItemDraft[],
@@ -373,7 +409,7 @@ export class CartApi extends BaseCartApi {
       const locale = await this.getCommercetoolsLocal();
 
       const response = await this.getOrder(orderNumber).then((order) => {
-        return this.getApiForProject()
+        return this.associateEndpoints
           .orders()
           .withOrderNumber({ orderNumber })
           .post({
@@ -399,20 +435,22 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  getBusinessUnitOrders: (keys: string) => Promise<Order[]> = async (keys: string) => {
+  getBusinessUnitOrders: (key: string) => Promise<Order[]> = async (key: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
+      const endpoint = this.account
+        ? this.getApiForProject()
+            .asAssociate()
+            .withAssociateIdValue({ associateId: this.account.accountId })
+            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: key })
+        : this.getApiForProject();
 
-      const response = await this.getApiForProject()
+      const response = await endpoint
         .orders()
         .get({
           queryArgs: {
-            expand: [
-              'lineItems[*].discountedPrice.includedDiscounts[*].discount',
-              'discountCodes[*].discountCode',
-              'paymentInfo.payments[*]',
-            ],
-            where: `businessUnit(key in (${keys}))`,
+            expand: ['state'],
+            where: `businessUnit(key="${key}")`,
             sort: 'createdAt desc',
           },
         })
@@ -570,7 +608,7 @@ export class CartApi extends BaseCartApi {
       }
     }
 
-    let replicatedCommercetoolsCart = await this.getApiForProject()
+    let replicatedCommercetoolsCart = await this.associateEndpoints
       .carts()
       .post({
         queryArgs: {
@@ -618,7 +656,7 @@ export class CartApi extends BaseCartApi {
     primaryCartId: string,
     cartVersion: number,
   ) => {
-    await this.getApiForProject()
+    await this.associateEndpoints
       .carts()
       .withId({
         ID: primaryCartId,
@@ -634,7 +672,7 @@ export class CartApi extends BaseCartApi {
   replicateCart: (orderId: string) => Promise<Cart> = async (orderId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const response = await this.getApiForProject()
+      const response = await this.associateEndpoints
         .carts()
         .replicate()
         .post({
@@ -656,60 +694,41 @@ export class CartApi extends BaseCartApi {
     originalCart: Cart,
     address: AddressDraft,
   ) => {
-    return this.getById(originalCart.cartId).then((cart) => {
-      return this.getApiForProject()
-        .carts()
-        .withId({
-          ID: cart.cartId,
-        })
-        .post({
-          body: {
-            version: +cart.cartVersion,
-            actions: [
-              {
-                action: 'addItemShippingAddress',
-                address: {
-                  ...address,
-                  key: address.id,
-                },
-              },
-            ],
+    const locale = await this.getCommercetoolsLocal();
+
+    const cartUpdate: CartUpdate = {
+      version: +originalCart.cartVersion,
+      actions: [
+        {
+          action: 'addItemShippingAddress',
+          address: {
+            ...address,
+            key: address.id,
           },
-        })
-        .execute();
-    });
+        },
+      ],
+    };
+    return this.updateCart(originalCart.cartId, cartUpdate, locale);
   };
 
   updateLineItemShippingDetails: (
-    cartId: string,
+    cart: Cart,
     lineItemId: string,
     targets?: { addressKey: string; quantity: number }[],
-  ) => Promise<Cart> = async (
-    cartId: string,
-    lineItemId: string,
-    targets?: { addressKey: string; quantity: number }[],
-  ) => {
+  ) => Promise<Cart> = async (cart: Cart, lineItemId: string, targets?: { addressKey: string; quantity: number }[]) => {
     const locale = await this.getCommercetoolsLocal();
-    const { body: commercetoolsCart } = await this.getById(cartId).then((cart) => {
-      return this.getApiForProject()
-        .carts()
-        .withId({
-          ID: cart.cartId,
-        })
-        .post({
-          body: {
-            version: +cart.cartVersion,
-            actions: [
-              {
-                action: 'setLineItemShippingDetails',
-                lineItemId,
-                shippingDetails: targets?.length ? { targets } : null,
-              },
-            ],
-          },
-        })
-        .execute();
-    });
+
+    const cartUpdate: CartUpdate = {
+      version: +cart.cartVersion,
+      actions: [
+        {
+          action: 'setLineItemShippingDetails',
+          lineItemId,
+          shippingDetails: targets?.length ? { targets } : null,
+        },
+      ],
+    };
+    const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
     return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
   };
 

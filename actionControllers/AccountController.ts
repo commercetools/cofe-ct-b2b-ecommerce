@@ -186,6 +186,7 @@ export const logout: ActionHook = async (request: Request, actionContext: Action
       ...request.sessionData,
       organization: undefined,
       account: undefined,
+      cartId: undefined,
     },
   } as Response;
 };
