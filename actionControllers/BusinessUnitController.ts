@@ -102,7 +102,12 @@ export const getSuperUserBusinessUnits: ActionHook = async (request: Request, ac
 };
 
 export const getBusinessUnitOrders: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const keys = request?.query?.['keys'];
   if (!keys) {

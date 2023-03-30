@@ -1,3 +1,9 @@
+# 1.0.28
+- clear cartId on logout
+- Store organization, account and associateEndpoint on CartApi initialization
+- default the account and/or organization on CartApi to Api instance properties
+- use associateEndpoint on all cart and order api calls
+- bugfix: accepting a quote should assign the cart to the creator of the quote-request
 # 1.0.27
 - cart reassign should update cart email
 # 1.0.26

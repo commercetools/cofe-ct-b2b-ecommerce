@@ -12,7 +12,12 @@ import { Address } from '@commercetools/frontend-domain-types/account/Address';
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 async function updateCartFromRequest(request: Request, actionContext: ActionContext): Promise<Cart> {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   let cart = await CartFetcher.fetchCart(request, actionContext);
 
   if (request?.body === undefined || request?.body === '') {
@@ -67,7 +72,12 @@ export const getCart: ActionHook = async (request: Request, actionContext: Actio
 };
 
 export const getCartById: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   let response: Response;
   try {
     const id = request.query?.id;
@@ -99,11 +109,13 @@ export const getAllSuperUserCarts: ActionHook = async (request: Request, actionC
   let carts: Cart[] = [];
 
   if (request.sessionData?.organization?.superUserBusinessUnitKey) {
-    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-    carts = (await cartApi.getAllForSuperUser(
-      request.sessionData?.account,
+    const cartApi = new CartApi(
+      actionContext.frontasticContext,
+      getLocale(request),
       request.sessionData?.organization,
-    )) as Cart[];
+      request.sessionData?.account,
+    );
+    carts = (await cartApi.getAllForSuperUser()) as Cart[];
   }
 
   const response: Response = {
@@ -119,11 +131,13 @@ export const createCart: ActionHook = async (request: Request, actionContext: Ac
   let cartId = request.sessionData?.cartId;
 
   if (request.sessionData?.organization?.superUserBusinessUnitKey) {
-    const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
-    cart = (await cartApi.createCart(
-      request.sessionData?.account?.accountId,
+    const cartApi = new CartApi(
+      actionContext.frontasticContext,
+      getLocale(request),
       request.sessionData?.organization,
-    )) as Cart;
+      request.sessionData?.account,
+    );
+    cart = (await cartApi.createCart()) as Cart;
     cartId = cart.cartId;
   }
 
@@ -140,7 +154,12 @@ export const createCart: ActionHook = async (request: Request, actionContext: Ac
 };
 
 export const checkout: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const body: { payload: any } = JSON.parse(request.body);
 
@@ -163,7 +182,12 @@ export const checkout: ActionHook = async (request: Request, actionContext: Acti
 };
 
 export const addToCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const body: {
     variant?: { sku?: string; count: number };
@@ -197,7 +221,12 @@ export const addToCart: ActionHook = async (request: Request, actionContext: Act
 };
 
 export const addItemsToCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const body: {
     list?: { sku?: string; count: number }[];
@@ -231,7 +260,12 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
 };
 
 export const updateLineItem: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   const body: {
     lineItem?: { id?: string; count: number };
@@ -260,7 +294,12 @@ export const updateLineItem: ActionHook = async (request: Request, actionContext
 };
 
 export const returnItems: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
 
   let response: Response;
 
@@ -287,7 +326,12 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
 };
 
 export const replicateCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   const orderId = request.query?.['orderId'];
   try {
     if (orderId) {
@@ -317,7 +361,12 @@ export const replicateCart: ActionHook = async (request: Request, actionContext:
 };
 
 export const splitLineItem: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   const cart = await CartFetcher.fetchCart(request, actionContext);
 
   const body: {
@@ -342,7 +391,7 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
 
   const target = body.data.map((item) => ({ addressKey: item.address.id, quantity: item.quantity }));
 
-  const cartData = await cartApi.updateLineItemShippingDetails(cart.cartId, body.lineItemId, target);
+  const cartData = await cartApi.updateLineItemShippingDetails(cart, body.lineItemId, target);
 
   const response: Response = {
     statusCode: 200,
@@ -360,9 +409,14 @@ export const reassignCart: ActionHook = async (request: Request, actionContext: 
   let cart = await CartFetcher.fetchCart(request, actionContext);
   const cartId = cart.cartId;
 
-  const cartApi = new CartApi(actionContext.frontasticContext, getLocale(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
   cart = await cartApi.setCustomerId(cart, request.query?.customerId);
-  cart = await cartApi.setEmail(cart, request.query?.email) as Cart;
+  cart = (await cartApi.setEmail(cart, request.query?.email)) as Cart;
 
   const response: Response = {
     statusCode: 200,
