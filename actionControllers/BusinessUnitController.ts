@@ -109,12 +109,12 @@ export const getBusinessUnitOrders: ActionHook = async (request: Request, action
     request.sessionData?.account,
   );
 
-  const key = request?.query?.['key'];
-  if (!key) {
-    throw new Error('No key');
+  const keys = request?.query?.['keys'];
+  if (!keys) {
+    throw new Error('No keys');
   }
 
-  const orders = await cartApi.getBusinessUnitOrders(key);
+  const orders = await cartApi.getBusinessUnitOrders(keys);
 
   const response: Response = {
     statusCode: 200,

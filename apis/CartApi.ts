@@ -435,22 +435,20 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  getBusinessUnitOrders: (key: string) => Promise<Order[]> = async (key: string) => {
+  getBusinessUnitOrders: (keys: string) => Promise<Order[]> = async (keys: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const endpoint = this.account
-        ? this.getApiForProject()
-            .asAssociate()
-            .withAssociateIdValue({ associateId: this.account.accountId })
-            .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: key })
-        : this.getApiForProject();
 
-      const response = await endpoint
+      const response = await this.getApiForProject()
         .orders()
         .get({
           queryArgs: {
-            expand: ['state'],
-            where: `businessUnit(key="${key}")`,
+            expand: [
+              'lineItems[*].discountedPrice.includedDiscounts[*].discount',
+              'discountCodes[*].discountCode',
+              'paymentInfo.payments[*]',
+            ],
+            where: `businessUnit(key in (${keys}))`,
             sort: 'createdAt desc',
           },
         })
