@@ -1,4 +1,5 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
+import { Cart as CommercetoolsCart } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
 import { Quote } from '../types/quotes/Quote';
@@ -154,20 +155,26 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
   const sessionData = { ...request.sessionData };
 
   if (state === 'Accepted') {
+    const stagedQuote = await quoteApi.getStagedQuote(quote.stagedQuote.id);
+
+    const commercetoolsCart = stagedQuote.quotationCart.obj as CommercetoolsCart;
+
     const cartApi = new CartApi(
       actionContext.frontasticContext,
       getLocale(request),
-      request.sessionData?.organization,
+      {
+        ...request.sessionData?.organization,
+        businessUnit: {
+          key: commercetoolsCart.businessUnit?.key
+        }
+      },
       request.sessionData?.account,
     );
+    let cart = await cartApi.getById(commercetoolsCart.id);
+    cart = (await cartApi.setEmail(cart, stagedQuote.customer.obj.email));
+    cart = await cartApi.setCustomerId(cart as Cart, stagedQuote.customer.obj.id) as Cart;
 
-    const stagedQuote = await quoteApi.getStagedQuote(quote.stagedQuote.id);
-
-    let cart = await cartApi.getById(stagedQuote.quotationCart.id);
-    cart = await cartApi.setEmail(cart, stagedQuote.customer.obj.email);
-    const commercetoolsCart = await cartApi.setCustomerId(cart as Cart, stagedQuote.customer.obj.id);
-
-    sessionData.cartId = commercetoolsCart.cartId;
+    sessionData.cartId = cart.cartId;
   }
 
   const response: Response = {

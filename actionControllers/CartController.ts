@@ -1,3 +1,4 @@
+export * from 'cofe-ct-ecommerce/actionControllers/CartController';
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { LineItemReturnItemDraft } from '../types/cart/LineItem';
@@ -172,6 +173,42 @@ export const checkout: ActionHook = async (request: Request, actionContext: Acti
   const response: Response = {
     statusCode: 200,
     body: JSON.stringify(order),
+    sessionData: {
+      ...request.sessionData,
+      cartId,
+    },
+  };
+
+  return response;
+};
+
+export const removeLineItem: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
+
+  const body: {
+    lineItem?: { id?: string };
+  } = JSON.parse(request.body);
+
+  const lineItem: LineItem = {
+    lineItemId: body.lineItem?.id,
+    variant: {
+      sku: '',
+    },
+  };
+
+  let cart = await CartFetcher.fetchCart(request, actionContext);
+  cart = await cartApi.removeLineItem(cart, lineItem) as Cart;
+
+  const cartId = cart.cartId;
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(cart),
     sessionData: {
       ...request.sessionData,
       cartId,

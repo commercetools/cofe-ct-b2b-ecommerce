@@ -1,3 +1,9 @@
+# 1.1.0
+- refactor the way two module merge 
+- remove duplicate module methods
+- updating quote state should respect the cart's associate
+
+- BREAKING: method extender is not exported from index anymore
 # 1.0.28
 - clear cartId on logout
 - Store organization, account and associateEndpoint on CartApi initialization
