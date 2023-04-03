@@ -355,7 +355,7 @@ export class CartApi extends BaseCartApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
-      const response = await this.getApiForProject()
+      const response = await this.associateEndpoints
         .orders()
         .withOrderNumber({ orderNumber })
         .get({
