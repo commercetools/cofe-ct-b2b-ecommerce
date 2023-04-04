@@ -1,3 +1,5 @@
+# 1.1.1
+- updateQuoteRequestState
 # 1.1.0
 - refactor the way two module merge 
 - remove duplicate module methods
