@@ -165,14 +165,14 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
       {
         ...request.sessionData?.organization,
         businessUnit: {
-          key: commercetoolsCart.businessUnit?.key
-        }
+          key: commercetoolsCart.businessUnit?.key,
+        },
       },
       request.sessionData?.account,
     );
     let cart = await cartApi.getById(commercetoolsCart.id);
-    cart = (await cartApi.setEmail(cart, stagedQuote.customer.obj.email));
-    cart = await cartApi.setCustomerId(cart as Cart, stagedQuote.customer.obj.id) as Cart;
+    cart = await cartApi.setEmail(cart, stagedQuote.customer.obj.email);
+    cart = (await cartApi.setCustomerId(cart as Cart, stagedQuote.customer.obj.id)) as Cart;
 
     sessionData.cartId = cart.cartId;
   }
@@ -181,6 +181,22 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
     statusCode: 200,
     body: JSON.stringify(quote),
     sessionData,
+  };
+
+  return response;
+};
+
+export const updateQuoteRequestState: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request));
+
+  const ID = request.query?.['id'];
+  const { state } = JSON.parse(request.body);
+
+  const quoteRequest = await quoteApi.updateQuoteRequestState(ID, state);
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(quoteRequest),
   };
 
   return response;

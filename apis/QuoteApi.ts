@@ -4,6 +4,7 @@ import {
   Quote as CommercetoolsQuote,
   StagedQuote as CommercetoolsStagedQuote,
   QuoteState,
+  QuoteRequestState
 } from '@commercetools/platform-sdk';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
@@ -55,6 +56,28 @@ export class QuoteApi extends BaseApi {
         .get({
           queryArgs: {
             expand: ['customer', 'quotationCart'],
+            sort: 'createdAt desc',
+          },
+        })
+        .execute()
+        .then((response) => {
+          return response.body;
+        })
+        .catch((error) => {
+          throw error;
+        });
+    } catch {
+      throw '';
+    }
+  };
+  getQuoteRequest: (ID: string) => Promise<CommercetoolsQuoteRequest> = async (ID: string) => {
+    try {
+      return this.getApiForProject()
+        .quoteRequests()
+        .withId({ ID })
+        .get({
+          queryArgs: {
+            expand: ['customer'],
             sort: 'createdAt desc',
           },
         })
@@ -260,6 +283,39 @@ export class QuoteApi extends BaseApi {
                 },
               ],
               version: quote.version,
+            },
+          })
+          .execute()
+          .then((response) => {
+            return response.body;
+          })
+          .catch((error) => {
+            throw error;
+          });
+      });
+    } catch {
+      throw '';
+    }
+  };  
+  
+  updateQuoteRequestState: (ID: string, quoteRequestState: QuoteRequestState) => Promise<CommercetoolsQuoteRequest> = async (
+    ID: string,
+    quoteRequestState: QuoteRequestState,
+  ) => {
+    try {
+      return this.getQuoteRequest(ID).then((quoteRequest) => {
+        return this.getApiForProject()
+          .quoteRequests()
+          .withId({ ID })
+          .post({
+            body: {
+              actions: [
+                {
+                  action: 'changeQuoteRequestState',
+                  quoteRequestState,
+                },
+              ],
+              version: quoteRequest.version,
             },
           })
           .execute()
