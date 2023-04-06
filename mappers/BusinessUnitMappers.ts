@@ -40,6 +40,8 @@ export class BusinessUnitMappers {
       custom: businessUnit.custom,
       status: businessUnit.status,
       addresses: businessUnit.addresses,
+      defaultShippingAddressId: businessUnit.defaultShippingAddressId,
+      defaultBillingAddressId: businessUnit.defaultBillingAddressId,
     };
   }
 

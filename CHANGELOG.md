@@ -1,3 +1,5 @@
+# 1.1.3
+- return defaultBilling and shipping address IDs in businessUnit tree
 # 1.1.2
 - fetch only the current Business-unit's store in getMe
 # 1.1.1

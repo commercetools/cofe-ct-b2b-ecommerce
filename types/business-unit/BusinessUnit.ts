@@ -34,6 +34,8 @@ export interface BusinessUnit {
   name: string;
   contactEmail?: string;
   addresses?: (Address & { id?: string })[];
+  defaultShippingAddressId?: string;
+  defaultBillingAddressId?: string;
   shippingAddresses?: number[];
   defaultShipingAddress?: number;
   billingAddresses?: number[];
