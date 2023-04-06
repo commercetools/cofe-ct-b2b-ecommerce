@@ -5,6 +5,7 @@ import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { StoreApi } from './StoreApi';
 import { StoreMappers } from '../mappers/StoreMappers';
 import { Organization } from '../types/organization/organization';
+import { StoreKeyReference } from '../types/store/store';
 
 const MAX_LIMIT = 50;
 
@@ -173,7 +174,6 @@ export class BusinessUnitApi extends BaseApi {
       if (!config?.defaultAdminRoleKey || !config?.defaultSuperUserRoleKey) {
         throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
       }
-      const allStores = await storeApi.query();
       const results = await this.getAssociatedBusinessUnits(accountId);
       const highestNodes = this.getHighestNodesWithAssociation(results, accountId);
 
@@ -187,6 +187,8 @@ export class BusinessUnitApi extends BaseApi {
 
       if (highestNodes.length) {
         const bu = await this.setStoresByBusinessUnit(highestNodes[0] as CommercetoolsBusinessUnit);
+        const storeKeys = bu?.stores?.map((store) => `"${store.key}"`).join(' ,');
+        const allStores = await storeApi.query(`key in (${storeKeys})`);
         return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
           bu as CommercetoolsBusinessUnit,
           allStores,
@@ -206,7 +208,6 @@ export class BusinessUnitApi extends BaseApi {
       throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
     }
     const storeApi = new StoreApi(this.frontasticContext, this.locale);
-    const allStores = await storeApi.query();
     try {
       const bu = await this.getApiForProject()
         .businessUnits()
@@ -214,6 +215,8 @@ export class BusinessUnitApi extends BaseApi {
         .get()
         .execute()
         .then((res) => this.setStoresByBusinessUnit(res.body as CommercetoolsBusinessUnit));
+      const storeKeys = bu?.stores?.map((store) => `"${store.key}"`).join(' ,');
+      const allStores = await storeApi.query(`key in (${storeKeys})`);
       return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(
         bu as CommercetoolsBusinessUnit,
         allStores,
@@ -272,7 +275,6 @@ export class BusinessUnitApi extends BaseApi {
   getTree: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
     let tree: CommercetoolsBusinessUnit[] = [];
     const storeApi = new StoreApi(this.frontasticContext, this.locale);
-    const allStores = await storeApi.query();
     if (accountId) {
       const results = await this.getAssociatedBusinessUnits(accountId);
       tree = this.getHighestNodesWithAssociation(results, accountId, true).map((bu) => ({
@@ -300,7 +302,14 @@ export class BusinessUnitApi extends BaseApi {
         }
       }
     }
-
+    const storeKeys = tree
+      .reduce((prev: StoreKeyReference[], curr) => {
+        prev = prev.concat(curr.stores || []);
+        return prev;
+      }, [])
+      ?.map((store) => `"${store.key}"`)
+      .join(' ,');
+    const allStores = await storeApi.query(`key in (${storeKeys})`);
     return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores));
   };
 }

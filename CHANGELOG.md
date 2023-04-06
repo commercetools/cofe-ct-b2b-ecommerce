@@ -1,3 +1,5 @@
+# 1.1.2
+- fetch only the current Business-unit's store in getMe
 # 1.1.1
 - updateQuoteRequestState
 # 1.1.0
