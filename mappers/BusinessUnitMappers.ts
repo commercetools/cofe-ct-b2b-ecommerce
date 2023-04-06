@@ -20,6 +20,7 @@ export class BusinessUnitMappers {
       associates: this.mapReferencedAssociatesToAssociate(businessUnit),
       isAdmin: this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
       isRootAdmin: this.isUserRootAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
+      addresses: businessUnit.addresses,
     };
   }
 
@@ -48,6 +49,7 @@ export class BusinessUnitMappers {
   static trimBusinessUnit(businessUnit: BusinessUnit, accountId: string): BusinessUnit {
     return {
       ...businessUnit,
+      addresses: [],
       // @ts-ignore
       stores: businessUnit.stores.map((store) => ({ key: store.key, name: store.name })),
       associates: businessUnit.associates

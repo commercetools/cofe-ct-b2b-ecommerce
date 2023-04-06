@@ -1,3 +1,5 @@
+# 1.1.4
+- return addresses from BusinessUnitMapper
 # 1.1.3
 - return defaultBilling and shipping address IDs in businessUnit tree
 # 1.1.2
