@@ -46,7 +46,8 @@ export class BusinessUnitMappers {
   static trimBusinessUnit(businessUnit: BusinessUnit, accountId: string): BusinessUnit {
     return {
       ...businessUnit,
-      stores: businessUnit.stores.map((store) => ({ key: store.key, typeId: 'store' })),
+      // @ts-ignore
+      stores: businessUnit.stores.map((store) => ({ key: store.key, name: store.name })),
       associates: businessUnit.associates
         ?.filter((associate) => associate.customer.id === accountId)
         ?.map((associate) => ({
