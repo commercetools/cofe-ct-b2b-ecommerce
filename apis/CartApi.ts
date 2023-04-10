@@ -384,6 +384,9 @@ export class CartApi extends BaseCartApi {
       const locale = await this.getCommercetoolsLocal();
 
       const response = await this.getOrder(orderNumber).then((order) => {
+        if (order.orderState === 'Complete') {
+          throw 'Cannot cancel a Completed order.';
+        }
         return this.associateEndpoints
           .orders()
           .withOrderNumber({ orderNumber })

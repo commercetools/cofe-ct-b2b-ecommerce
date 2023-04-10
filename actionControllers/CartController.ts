@@ -202,7 +202,7 @@ export const removeLineItem: ActionHook = async (request: Request, actionContext
   };
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = await cartApi.removeLineItem(cart, lineItem) as Cart;
+  cart = (await cartApi.removeLineItem(cart, lineItem)) as Cart;
 
   const cartId = cart.cartId;
 
@@ -373,8 +373,7 @@ export const updateOrderState: ActionHook = async (request: Request, actionConte
   let response: Response;
 
   try {
-    const { orderNumber, orderState }: { orderNumber: string; orderState: string } =
-      JSON.parse(request.body);
+    const { orderNumber, orderState }: { orderNumber: string; orderState: string } = JSON.parse(request.body);
     const res = await cartApi.updateOrderState(orderNumber, orderState);
     response = {
       statusCode: 200,
@@ -386,7 +385,7 @@ export const updateOrderState: ActionHook = async (request: Request, actionConte
       statusCode: 400,
       sessionData: request.sessionData,
       // @ts-ignore
-      error: e?.message,
+      error: e?.message ? e.message : e,
       errorCode: 500,
     };
   }
