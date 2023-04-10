@@ -362,6 +362,38 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
   return response;
 };
 
+export const updateOrderState: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
+
+  let response: Response;
+
+  try {
+    const { orderNumber, orderState }: { orderNumber: string; orderState: string } =
+      JSON.parse(request.body);
+    const res = await cartApi.updateOrderState(orderNumber, orderState);
+    response = {
+      statusCode: 200,
+      body: JSON.stringify(res),
+      sessionData: request.sessionData,
+    };
+  } catch (e) {
+    response = {
+      statusCode: 400,
+      sessionData: request.sessionData,
+      // @ts-ignore
+      error: e?.message,
+      errorCode: 500,
+    };
+  }
+
+  return response;
+};
+
 export const replicateCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const cartApi = new CartApi(
     actionContext.frontasticContext,
