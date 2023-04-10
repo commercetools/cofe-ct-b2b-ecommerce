@@ -376,6 +376,48 @@ export class CartApi extends BaseCartApi {
     }
   };
 
+  updateOrderState: (orderNumber: string, orderState: string) => Promise<Order> = async (
+    orderNumber: string,
+    orderState: string,
+  ) => {
+    try {
+      const locale = await this.getCommercetoolsLocal();
+
+      const response = await this.getOrder(orderNumber).then((order) => {
+        if (order.orderState === 'Complete') {
+          throw 'Cannot cancel a Completed order.';
+        }
+        return this.associateEndpoints
+          .orders()
+          .withOrderNumber({ orderNumber })
+          .post({
+            body: {
+              version: +order.orderVersion,
+              actions: [
+                {
+                  action: 'changeOrderState',
+                  orderState,
+                },
+              ],
+            },
+            queryArgs: {
+              expand: [
+                'lineItems[*].discountedPrice.includedDiscounts[*].discount',
+                'discountCodes[*].discountCode',
+                'paymentInfo.payments[*]',
+              ],
+            },
+          })
+          .execute();
+      });
+
+      return CartMapper.commercetoolsOrderToOrder(response.body, locale);
+    } catch (error) {
+      //TODO: better error, get status code etc...
+      throw new Error(`get orders failed. ${error}`);
+    }
+  };
+
   protected async updateCart(cartId: string, cartUpdate: CartUpdate, locale: Locale): Promise<CommercetoolsCart> {
     return await this.associateEndpoints
       .carts()

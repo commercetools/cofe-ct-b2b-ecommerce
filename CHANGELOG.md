@@ -1,3 +1,6 @@
+# 1.1.5
+- Add cart endpoint: updateOrderState
+- bugfix: account without Admin role should not fail fetching getTree
 # 1.1.4
 - return addresses from BusinessUnitMapper
 # 1.1.3

@@ -309,7 +309,7 @@ export class BusinessUnitApi extends BaseApi {
       }, [])
       ?.map((store) => `"${store.key}"`)
       .join(' ,');
-    const allStores = await storeApi.query(`key in (${storeKeys})`);
+    const allStores = storeKeys ? await storeApi.query(`key in (${storeKeys})`) : [];
     return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores));
   };
 }
