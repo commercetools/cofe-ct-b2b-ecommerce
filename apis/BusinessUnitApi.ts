@@ -275,6 +275,10 @@ export class BusinessUnitApi extends BaseApi {
   getTree: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
     let tree: CommercetoolsBusinessUnit[] = [];
     const storeApi = new StoreApi(this.frontasticContext, this.locale);
+    const config = this.frontasticContext?.project?.configuration?.associateRoles;
+    if (!config?.defaultAdminRoleKey) {
+      throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
+    }
     if (accountId) {
       const results = await this.getAssociatedBusinessUnits(accountId);
       tree = this.getHighestNodesWithAssociation(results, accountId, true).map((bu) => ({
@@ -310,6 +314,6 @@ export class BusinessUnitApi extends BaseApi {
       ?.map((store) => `"${store.key}"`)
       .join(' ,');
     const allStores = storeKeys ? await storeApi.query(`key in (${storeKeys})`) : [];
-    return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores));
+    return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores, accountId, config.defaultAdminRoleKey));
   };
 }

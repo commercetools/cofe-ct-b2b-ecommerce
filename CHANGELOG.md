@@ -1,3 +1,5 @@
+# 1.1.6
+- Add isAdmin to getTree response
 # 1.1.5
 - Add cart endpoint: updateOrderState
 - bugfix: account without Admin role should not fail fetching getTree

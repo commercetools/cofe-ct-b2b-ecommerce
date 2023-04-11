@@ -27,6 +27,8 @@ export class BusinessUnitMappers {
   static mapBusinessUnitToBusinessUnitTreeItem(
     businessUnit: CommercetoolsBusinessUnit,
     allStores: Store[],
+    accountId: string,
+    adminRoleKey: string,
   ): BusinessUnit {
     return {
       topLevelUnit: businessUnit.topLevelUnit,
@@ -43,6 +45,7 @@ export class BusinessUnitMappers {
       addresses: businessUnit.addresses,
       defaultShippingAddressId: businessUnit.defaultShippingAddressId,
       defaultBillingAddressId: businessUnit.defaultBillingAddressId,
+      isAdmin: this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
     };
   }
 
