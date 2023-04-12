@@ -181,7 +181,7 @@ export class BusinessUnitApi extends BaseApi {
         BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultSuperUserRoleKey),
       );
 
-      if (superUserList.length > 1) {
+      if (superUserList.length >= 1) {
         throw new Error('superuser');
       }
 

@@ -1,3 +1,5 @@
+# 1.1.7
+- bug fix: superuser with only one organization
 # 1.1.6
 - Add isAdmin to getTree response
 # 1.1.5
