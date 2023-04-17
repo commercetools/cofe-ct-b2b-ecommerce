@@ -1,3 +1,5 @@
+# 1.1.8
+- bug fix: get organization tree should fetch all nodes without taking admin role into considration
 # 1.1.7
 - bug fix: superuser with only one organization
 # 1.1.6

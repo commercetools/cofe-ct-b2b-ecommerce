@@ -281,7 +281,7 @@ export class BusinessUnitApi extends BaseApi {
     }
     if (accountId) {
       const results = await this.getAssociatedBusinessUnits(accountId);
-      tree = this.getHighestNodesWithAssociation(results, accountId, true).map((bu) => ({
+      tree = this.getHighestNodesWithAssociation(results, accountId, false).map((bu) => ({
         ...bu,
         parentUnit: null,
       }));
@@ -314,6 +314,8 @@ export class BusinessUnitApi extends BaseApi {
       ?.map((store) => `"${store.key}"`)
       .join(' ,');
     const allStores = storeKeys ? await storeApi.query(`key in (${storeKeys})`) : [];
-    return tree.map((bu) => BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores, accountId, config.defaultAdminRoleKey));
+    return tree.map((bu) =>
+      BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores, accountId, config.defaultAdminRoleKey),
+    );
   };
 }
