@@ -1,3 +1,5 @@
+# 1.1.9
+- bug fix: lineItem url generation
 # 1.1.8
 - bug fix: get organization tree should fetch all nodes without taking admin role into considration
 # 1.1.7

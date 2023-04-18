@@ -9,7 +9,7 @@ import { Product } from '../types/product/Product';
 
 export class ProductRouter extends BaseProductRouter {
   static isProduct(product: Product | LineItem | WishlistItem): product is Product {
-    return (product as Product).productId !== undefined;
+    return (product as Product).variants !== undefined;
   }
 
   static generateUrlFor(item: Product | LineItem | WishlistItem) {
