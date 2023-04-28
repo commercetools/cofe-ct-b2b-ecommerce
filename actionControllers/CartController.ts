@@ -239,9 +239,10 @@ export const addToCart: ActionHook = async (request: Request, actionContext: Act
   };
 
   const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
+  const supplyChannel = request.sessionData.organization?.supplyChannel?.id;
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = (await cartApi.addToCart(cart, lineItem, distributionChannel)) as Cart;
+  cart = (await cartApi.addToCart(cart, lineItem, distributionChannel, supplyChannel)) as Cart;
 
   const cartId = cart.cartId;
 
@@ -278,9 +279,10 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
   }));
 
   const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
+  const supplyChannel = request.sessionData.organization?.supplyChannel?.id;
 
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = (await cartApi.addItemsToCart(cart, lineItems, distributionChannel)) as Cart;
+  cart = (await cartApi.addItemsToCart(cart, lineItems, distributionChannel, supplyChannel)) as Cart;
 
   const cartId = cart.cartId;
 
