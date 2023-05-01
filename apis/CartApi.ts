@@ -15,7 +15,7 @@ import { CartMapper } from '../mappers/CartMapper';
 import { Account } from '@commercetools/frontend-domain-types/account/Account';
 import { Cart } from '../types/cart/Cart';
 import { Order } from '../types/cart/Order';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { LineItem } from '../types/cart/LineItem';
 import { Context } from '@frontastic/extension-types';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
@@ -153,76 +153,76 @@ export class CartApi extends BaseCartApi {
   };
 
   // @ts-ignore
-  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string, supplyChannel?: string) => Promise<Cart> =
-    async (cart: Cart, lineItem: LineItem, distributionChannel?: string, supplyChannel?: string) => {
-      try {
-        const locale = await this.getCommercetoolsLocal();
+  addToCart: (cart: Cart, lineItem: LineItem) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
+    try {
+      const locale = await this.getCommercetoolsLocal();
 
-        const cartUpdate: CartUpdate = {
-          version: +cart.cartVersion,
-          actions: [
-            {
-              action: 'addLineItem',
-              sku: lineItem.variant.sku,
-              quantity: +lineItem.count,
-            },
-          ],
+      const cartUpdate: CartUpdate = {
+        version: +cart.cartVersion,
+        actions: [
+          {
+            action: 'addLineItem',
+            sku: lineItem.variant.sku,
+            quantity: +lineItem.count,
+          },
+        ],
+      };
+      if (lineItem.variant.distributionChannelId) {
+        (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).distributionChannel = {
+          id: lineItem.variant.distributionChannelId,
+          typeId: 'channel',
         };
-        if (distributionChannel) {
-          (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).distributionChannel = {
-            id: distributionChannel,
-            typeId: 'channel',
-          };
-        }
-        if (supplyChannel) {
-          (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).supplyChannel = {
-            id: supplyChannel,
-            typeId: 'channel',
-          };
-        }
-
-        const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
-        if (oldLineItem) {
-          cartUpdate.actions.push({
-            action: 'setLineItemShippingDetails',
-            lineItemId: oldLineItem.lineItemId,
-            shippingDetails: null,
-          });
-        }
-
-        const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
-
-        return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
-      } catch (error) {
-        //TODO: better error, get status code etc...
-        throw new Error(`addToCart failed. ${error}`);
       }
-    };
+      if (lineItem.variant.supplyChannelId) {
+        (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).supplyChannel = {
+          id: lineItem.variant.supplyChannelId,
+          typeId: 'channel',
+        };
+      }
+
+      const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
+      if (oldLineItem) {
+        cartUpdate.actions.push({
+          action: 'setLineItemShippingDetails',
+          lineItemId: oldLineItem.lineItemId,
+          shippingDetails: null,
+        });
+      }
+
+      const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
+
+      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
+    } catch (error) {
+      //TODO: better error, get status code etc...
+      throw new Error(`addToCart failed. ${error}`);
+    }
+  };
 
   // @ts-ignore
-  addItemsToCart: (
-    cart: Cart,
-    lineItems: LineItem[],
-    distributionChannel: string,
-    supplyChannel: string,
-  ) => Promise<Cart> = async (
-    cart: Cart,
-    lineItems: LineItem[],
-    distributionChannel: string,
-    supplyChannel: string,
-  ) => {
+  addItemsToCart: (cart: Cart, lineItems: LineItem[]) => Promise<Cart> = async (cart: Cart, lineItems: LineItem[]) => {
     try {
       const locale = await this.getCommercetoolsLocal();
 
       const actions: CartUpdateAction[] = [];
       lineItems.forEach((lineItem) => {
-        actions.push({
+        const action: Writeable<CartUpdateAction> = {
           action: 'addLineItem',
           sku: lineItem.variant.sku,
           quantity: +lineItem.count,
-          distributionChannel: { id: distributionChannel, typeId: 'channel' },
-          supplyChannel: { id: supplyChannel, typeId: 'channel' },
-        });
+        };
+        if (lineItem.variant.distributionChannelId) {
+          action.distributionChannel = {
+            id: lineItem.variant.distributionChannelId,
+            typeId: 'channel',
+          };
+        }
+        if (lineItem.variant.supplyChannelId) {
+          action.supplyChannel = {
+            id: lineItem.variant.supplyChannelId,
+            typeId: 'channel',
+          };
+        }
+        actions.push(action);
         const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
         if (oldLineItem) {
           actions.push({
@@ -247,7 +247,7 @@ export class CartApi extends BaseCartApi {
   };
 
   // @ts-ignore
-  updateLineItem: (cart: Cart, lineItem: LineItem) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
+  updateLineItem: (cart: Cart, lineItem: Omit<LineItem, 'variant'>) => Promise<Cart> = async (cart: Cart, lineItem: LineItem) => {
     const locale = await this.getCommercetoolsLocal();
 
     const cartUpdate: CartUpdate = {

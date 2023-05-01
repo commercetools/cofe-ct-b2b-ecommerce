@@ -20,6 +20,8 @@ export class ProductApi extends BaseProductApi {
         const filterQuery: string[] = [];
         const filterFacets: string[] = [];
         const sortAttributes: string[] = [];
+         // @ts-ignore
+         const {distributionChannelId, supplyChannelId, ...additionalArgs} = additionalQueryArgs || {};
 
         const facetDefinitions: FacetDefinition[] = [
           ...ProductMapper.commercetoolsProductTypesToFacetDefinitions(await this.getProductTypes(), locale),
@@ -104,7 +106,7 @@ export class ProductApi extends BaseProductApi {
             'filter.facets': filterFacets.length > 0 ? filterFacets : undefined,
             'filter.query': filterQuery.length > 0 ? filterQuery : undefined,
             [`text.${locale.language}`]: productQuery.query,
-            ...additionalQueryArgs,
+            ...additionalArgs,
           },
         };
 
@@ -115,7 +117,7 @@ export class ProductApi extends BaseProductApi {
           .execute()
           .then((response) => {
             const items = response.body.results.map((product) =>
-              ProductMapper.commercetoolsProductProjectionToProduct(product, locale),
+              ProductMapper.commercetoolsProductProjectionToProduct(product, locale, distributionChannelId, supplyChannelId),
             );
 
             const result: Result = {

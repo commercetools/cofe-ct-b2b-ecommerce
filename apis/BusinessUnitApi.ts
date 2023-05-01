@@ -18,12 +18,6 @@ export class BusinessUnitApi extends BaseApi {
       const storeApi = new StoreApi(this.frontasticContext, this.locale);
       const store = await storeApi.get(businessUnit.stores?.[0].key);
       organization.store = StoreMappers.mapStoreToSmallerStore(store);
-      if (store?.distributionChannels?.length) {
-        organization.distributionChannel = store.distributionChannels[0];
-      }
-      if (store?.supplyChannels?.length) {
-        organization.supplyChannel = store.supplyChannels[0];
-      }
     }
 
     return organization;

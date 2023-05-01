@@ -27,12 +27,11 @@ export class SearchRouter extends BaseSearchRouter {
         attributeId: 'categories.id',
       },
     ];
-    const distributionChannelId =
-      request.query?.['distributionChannelId'] || request.sessionData?.organization?.distributionChannel?.id;
+         const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
-    if (distributionChannelId) {
+    if (storeKey) {
       // @ts-ignore
-      additionalQueryArgs.priceChannel = distributionChannelId;
+        additionalQueryArgs.storeProjection = storeKey;
       additionalFacets.push({
         attributeId: `variants.availability.availableQuantity`,
       });

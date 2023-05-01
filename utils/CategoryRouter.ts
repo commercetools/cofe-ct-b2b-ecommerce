@@ -42,8 +42,7 @@ export class CategoryRouter extends BaseCategoryRouter {
       });
 
       const additionalQueryArgs = {};
-      const distributionChannelId =
-        request.query?.['distributionChannelId'] || request.sessionData?.organization?.distributionChannel?.id;
+      const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
       const additionalFacets = [
         {
@@ -51,9 +50,9 @@ export class CategoryRouter extends BaseCategoryRouter {
         },
       ];
 
-      if (distributionChannelId) {
+      if (storeKey) {
         // @ts-ignore
-        additionalQueryArgs.priceChannel = distributionChannelId;
+        additionalQueryArgs.storeProjection = storeKey;
         additionalFacets.push({
           attributeId: `variants.availability.availableQuantity`,
         });
@@ -86,12 +85,11 @@ export class CategoryRouter extends BaseCategoryRouter {
       const additionalQueryArgs = {
         staged: true,
       };
-      const distributionChannelId =
-        request.query?.['distributionChannelId'] || request.sessionData?.organization?.distributionChannel?.id;
+      const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
-      if (distributionChannelId) {
+      if (storeKey) {
         // @ts-ignore
-        additionalQueryArgs.priceChannel = distributionChannelId;
+        additionalQueryArgs.storeProjection = storeKey;
       }
 
       const additionalFacets = [

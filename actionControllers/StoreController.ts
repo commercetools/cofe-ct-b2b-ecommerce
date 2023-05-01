@@ -79,20 +79,14 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
 
   const store = await storeApi.get(data.key);
 
-  let distributionChannel = request.sessionData?.organization?.distributionChannel;
-  let supplyChannel = request.sessionData?.organization?.supplyChannel;
+  let distributionChannel;
 
   if (store?.distributionChannels?.length) {
     distributionChannel = store.distributionChannels[0];
   }
-  if (store?.supplyChannels?.length) {
-    supplyChannel = store.supplyChannels[0];
-  }
 
   const organization = {
     ...request.sessionData?.organization,
-    distributionChannel,
-    supplyChannel,
   };
 
   organization.store = StoreMappers.mapStoreToSmallerStore(store);
