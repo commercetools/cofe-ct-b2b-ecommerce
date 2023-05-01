@@ -1,3 +1,7 @@
+# 1.1.10
+- remove unused argument from ProductMapper
+- store supplyChannel in organization
+- remove method getPriceChannelAvailability and use default availability ib ProductMapper
 # 1.1.9
 - bug fix: lineItem url generation
 # 1.1.8

@@ -153,49 +153,63 @@ export class CartApi extends BaseCartApi {
   };
 
   // @ts-ignore
-  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string) => Promise<Cart> = async (
-    cart: Cart,
-    lineItem: LineItem,
-    distributionChannel: string,
-  ) => {
-    try {
-      const locale = await this.getCommercetoolsLocal();
+  addToCart: (cart: Cart, lineItem: LineItem, distributionChannel?: string, supplyChannel?: string) => Promise<Cart> =
+    async (cart: Cart, lineItem: LineItem, distributionChannel?: string, supplyChannel?: string) => {
+      try {
+        const locale = await this.getCommercetoolsLocal();
 
-      const cartUpdate: CartUpdate = {
-        version: +cart.cartVersion,
-        actions: [
-          {
-            action: 'addLineItem',
-            sku: lineItem.variant.sku,
-            quantity: +lineItem.count,
-            distributionChannel: { id: distributionChannel, typeId: 'channel' },
-          } as CartAddLineItemAction,
-        ],
-      };
+        const cartUpdate: CartUpdate = {
+          version: +cart.cartVersion,
+          actions: [
+            {
+              action: 'addLineItem',
+              sku: lineItem.variant.sku,
+              quantity: +lineItem.count,
+            },
+          ],
+        };
+        if (distributionChannel) {
+          (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).distributionChannel = {
+            id: distributionChannel,
+            typeId: 'channel',
+          };
+        }
+        if (supplyChannel) {
+          (cartUpdate.actions[0] as Writeable<CartAddLineItemAction>).supplyChannel = {
+            id: supplyChannel,
+            typeId: 'channel',
+          };
+        }
 
-      const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
-      if (oldLineItem) {
-        cartUpdate.actions.push({
-          action: 'setLineItemShippingDetails',
-          lineItemId: oldLineItem.lineItemId,
-          shippingDetails: null,
-        });
+        const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
+        if (oldLineItem) {
+          cartUpdate.actions.push({
+            action: 'setLineItemShippingDetails',
+            lineItemId: oldLineItem.lineItemId,
+            shippingDetails: null,
+          });
+        }
+
+        const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
+
+        return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
+      } catch (error) {
+        //TODO: better error, get status code etc...
+        throw new Error(`addToCart failed. ${error}`);
       }
-
-      const commercetoolsCart = await this.updateCart(cart.cartId, cartUpdate, locale);
-
-      return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
-    } catch (error) {
-      //TODO: better error, get status code etc...
-      throw new Error(`addToCart failed. ${error}`);
-    }
-  };
+    };
 
   // @ts-ignore
-  addItemsToCart: (cart: Cart, lineItems: LineItem[], distributionChannel: string) => Promise<Cart> = async (
+  addItemsToCart: (
     cart: Cart,
     lineItems: LineItem[],
     distributionChannel: string,
+    supplyChannel: string,
+  ) => Promise<Cart> = async (
+    cart: Cart,
+    lineItems: LineItem[],
+    distributionChannel: string,
+    supplyChannel: string,
   ) => {
     try {
       const locale = await this.getCommercetoolsLocal();
@@ -207,6 +221,7 @@ export class CartApi extends BaseCartApi {
           sku: lineItem.variant.sku,
           quantity: +lineItem.count,
           distributionChannel: { id: distributionChannel, typeId: 'channel' },
+          supplyChannel: { id: supplyChannel, typeId: 'channel' },
         });
         const oldLineItem = cart.lineItems?.find((li) => li.variant?.sku === lineItem.variant.sku);
         if (oldLineItem) {

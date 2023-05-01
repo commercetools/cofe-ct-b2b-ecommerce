@@ -2,7 +2,6 @@ import { Category } from '@commercetools/frontend-domain-types/product/Category'
 import { Variant } from '../types/product/Variant';
 import {
   Category as CommercetoolsCategory,
-  Price,
   ProductVariant as CommercetoolsProductVariant,
   ProductVariantAvailability,
 } from '@commercetools/platform-sdk';
@@ -13,7 +12,6 @@ export class ProductMapper extends BaseProductMapper {
   static commercetoolsProductVariantToVariant(
     commercetoolsVariant: CommercetoolsProductVariant,
     locale: Locale,
-    productPrice?: Price,
   ): Variant {
     const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes, locale);
     const { price, discountedPrice, discounts } = this.extractPriceAndDiscounts(commercetoolsVariant, locale);
@@ -30,28 +28,9 @@ export class ProductMapper extends BaseProductMapper {
       price: price,
       discountedPrice: discountedPrice,
       discounts: discounts,
-      availability: this.getPriceChannelAvailability(commercetoolsVariant, productPrice),
+      availability: commercetoolsVariant.availability,
       isOnStock: commercetoolsVariant.availability?.isOnStock || undefined,
     } as Variant;
-  }
-
-  static getPriceChannelAvailability(
-    variant: CommercetoolsProductVariant,
-    productPrice?: Price,
-  ): ProductVariantAvailability {
-    let channelId = '';
-    if (productPrice) {
-      channelId = productPrice.channel?.id;
-    } else {
-      channelId = variant.scopedPrice?.channel?.id || variant.price?.channel?.id;
-    }
-    if (!channelId) {
-      return variant.availability;
-    }
-    if (!variant.availability?.channels?.[channelId]) {
-      return variant.availability;
-    }
-    return variant.availability.channels[channelId];
   }
 
   static commercetoolsCategoryToCategory: (commercetoolsCategory: CommercetoolsCategory, locale: Locale) => Category = (
@@ -101,4 +80,3 @@ Object.getOwnPropertyNames(ProductMapper).forEach((key) => {
     BaseProductMapper[key] = ProductMapper[key];
   }
 });
-

@@ -21,6 +21,9 @@ export class BusinessUnitApi extends BaseApi {
       if (store?.distributionChannels?.length) {
         organization.distributionChannel = store.distributionChannels[0];
       }
+      if (store?.supplyChannels?.length) {
+        organization.supplyChannel = store.supplyChannels[0];
+      }
     }
 
     return organization;
