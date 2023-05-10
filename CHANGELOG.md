@@ -1,3 +1,9 @@
+# 1.2.0
+- use storeProjection instead of distribution channel, using product projection endpoint
+- pass distribution channel and supply channel for price/availability selection
+- rewrite productMapper to use channels
+- refactor StoreMapper to fetch channels of the store
+- remove distribution channel from sessionData.organization
 # 1.1.10
 - remove unused argument from ProductMapper
 - store supplyChannel in organization

@@ -45,12 +45,11 @@ export class ProductRouter extends BaseProductRouter {
         skus: [urlMatches[1]],
       };
       const additionalQueryArgs = {};
-      const distributionChannelId =
-        request.query?.['distributionChannelId'] || request.sessionData?.organization?.distributionChannel?.id;
+           const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
-      if (distributionChannelId) {
+      if (storeKey) {
         // @ts-ignore
-        additionalQueryArgs.priceChannel = distributionChannelId;
+        additionalQueryArgs.storeProjection = storeKey;
       }
 
       return productApi.getProduct(productQuery, additionalQueryArgs);
@@ -70,12 +69,11 @@ export class ProductRouter extends BaseProductRouter {
       };
 
       const additionalQueryArgs = { staged: true };
-      const distributionChannelId =
-        request.query?.['distributionChannelId'] || request.sessionData?.organization?.distributionChannel?.id;
+            const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
-      if (distributionChannelId) {
+      if (storeKey) {
         // @ts-ignore
-        additionalQueryArgs.priceChannel = distributionChannelId;
+        additionalQueryArgs.storeProjection = storeKey;
       }
       return productApi.getProduct(productQuery, additionalQueryArgs);
     }

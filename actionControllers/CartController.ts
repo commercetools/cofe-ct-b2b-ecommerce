@@ -6,7 +6,7 @@ import { AddressDraft } from '@commercetools/platform-sdk';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartApi } from '../apis/CartApi';
 import { CartFetcher } from '../utils/CartFetcher';
-import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
+import { LineItem } from '../types/cart/LineItem';
 import { Cart } from '../types/cart/Cart';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 
@@ -227,22 +227,21 @@ export const addToCart: ActionHook = async (request: Request, actionContext: Act
   );
 
   const body: {
-    variant?: { sku?: string; count: number };
+    variant?: { sku?: string; count: number; supplyChannelId?: string; distributionChannelId?: string };
   } = JSON.parse(request.body);
 
   const lineItem: LineItem = {
     variant: {
       sku: body.variant?.sku || undefined,
       price: undefined,
+      distributionChannelId: body.variant?.distributionChannelId,
+      supplyChannelId: body.variant?.supplyChannelId,
     },
     count: +body.variant?.count || 1,
   };
 
-  const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
-  const supplyChannel = request.sessionData.organization?.supplyChannel?.id;
-
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = (await cartApi.addToCart(cart, lineItem, distributionChannel, supplyChannel)) as Cart;
+  cart = (await cartApi.addToCart(cart, lineItem)) as Cart;
 
   const cartId = cart.cartId;
 
@@ -267,22 +266,21 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
   );
 
   const body: {
-    list?: { sku?: string; count: number }[];
+    list?: { sku?: string; count: number; supplyChannelId?: string; distributionChannelId?: string }[];
   } = JSON.parse(request.body);
 
   const lineItems: LineItem[] = body.list?.map((variant) => ({
     variant: {
       sku: variant.sku || undefined,
+      distributionChannelId: variant.distributionChannelId,
+      supplyChannelId: variant.supplyChannelId,
       price: undefined,
     },
     count: +variant.count || 1,
   }));
 
-  const distributionChannel = request.sessionData.organization?.distributionChannel?.id;
-  const supplyChannel = request.sessionData.organization?.supplyChannel?.id;
-
   let cart = await CartFetcher.fetchCart(request, actionContext);
-  cart = (await cartApi.addItemsToCart(cart, lineItems, distributionChannel, supplyChannel)) as Cart;
+  cart = (await cartApi.addItemsToCart(cart, lineItems)) as Cart;
 
   const cartId = cart.cartId;
 
@@ -310,7 +308,7 @@ export const updateLineItem: ActionHook = async (request: Request, actionContext
     lineItem?: { id?: string; count: number };
   } = JSON.parse(request.body);
 
-  const lineItem: LineItem = {
+  const lineItem: Omit<LineItem, 'variant'> = {
     lineItemId: body.lineItem?.id,
     count: +body.lineItem?.count || 1,
   };
