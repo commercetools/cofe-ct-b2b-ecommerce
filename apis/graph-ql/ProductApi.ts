@@ -70,7 +70,7 @@ export class ProductApi extends RestProductApi {
       const locale = await this.getCommercetoolsLocal();
       if (productQuery.facets !== undefined) {
         filterFacets.push(
-          ...ProductMapper.facetDefinitionsToFilterFacets(productQuery.facets, facetDefinitions, locale),
+          ...ProductMapper.facetDefinitionsToGraphQlFilterFacets(productQuery.facets, facetDefinitions, locale),
         );
       }
       return filterFacets;
@@ -98,7 +98,7 @@ export class ProductApi extends RestProductApi {
           },
         ];
         const filterFacets = await this.getGraphQlFilterFacets(productQuery, facetDefinitions);
-        const queryArgFacets = ProductMapper.facetDefinitionsToCommercetoolsQueryArgFacets(facetDefinitions, locale);
+        const queryArgFacets = ProductMapper.facetDefinitionsToGraphQlArgFacets(facetDefinitions, locale);
         const filterQuery = this.getGraphQlFilterQuery(productQuery);
 
         const variables: any = {
@@ -153,15 +153,15 @@ export class ProductApi extends RestProductApi {
             );
 
             const result: Result = {
-              total: response.body.total,
+              total: response.body.data.total,
               items,
-              count: response.body.count,
-              facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.facets, productQuery, locale),
-              previousCursor: ProductMapper.calculatePreviousCursor(response.body.offset, response.body.count),
+              count: response.body.data.count,
+              facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.data.facets, productQuery, locale),
+              previousCursor: ProductMapper.calculatePreviousCursor(response.body.data.offset, response.body.count),
               nextCursor: ProductMapper.calculateNextCursor(
-                response.body.offset,
-                response.body.count,
-                response.body.total,
+                response.body.data.offset,
+                response.body.data.count,
+                response.body.data.total,
               ),
               query: productQuery,
             };
