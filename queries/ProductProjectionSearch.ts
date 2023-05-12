@@ -1,6 +1,10 @@
+const parameterToString = (parameters) => Object.entries(parameters)
+  .map(([key, value]) => `${key}: ${value}`)
+  .join(", ");
+
 const query = (parameters: Record<string, any>) => `
   query GetProducts($locale: Locale, $currency: Currency!) {
-    productProjectionSearch(${parameters}) {
+    productProjectionSearch(${parameterToString(parameters)}) {
       ...FrSearchQuery
       ...CurrentProduct
     }
