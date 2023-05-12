@@ -9,19 +9,83 @@ import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilte
 import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFilter';
 import { Category } from '../types/product/Category';
 export class ProductApi extends BaseProductApi {
+  getSortAttributes: (productQuery: ProductQuery) => string[] = (productQuery: ProductQuery) => {
+    const sortAttributes: string[] = [];
+    if (productQuery.sortAttributes !== undefined) {
+      Object.keys(productQuery.sortAttributes).map((field, directionIndex) => {
+        sortAttributes.push(`${field} ${Object.values(productQuery.sortAttributes)[directionIndex]}`);
+      });
+    } else {
+      // default sort
+      sortAttributes.push(`variants.attributes.salesRank asc`);
+    }
+    return sortAttributes;
+  };
+
+  getFilterQuery: (productQuery: ProductQuery) => string[] = (productQuery: ProductQuery) => {
+    const filterQuery: string[] = [];
+    if (productQuery.productIds !== undefined && productQuery.productIds.length !== 0) {
+      filterQuery.push(`id:"${productQuery.productIds.join('","')}"`);
+    }
+
+    if (productQuery.skus !== undefined && productQuery.skus.length !== 0) {
+      filterQuery.push(`variants.sku:"${productQuery.skus.join('","')}"`);
+    }
+
+    if (productQuery.category !== undefined && productQuery.category !== '') {
+      filterQuery.push(`categories.id:subtree("${productQuery.category}")`);
+    }
+
+    if (productQuery.filters !== undefined) {
+      productQuery.filters.forEach((filter) => {
+        switch (filter.type) {
+          case FilterTypes.TERM:
+            filterQuery.push(`${filter.identifier}.key:"${(filter as TermFilter).terms.join('","')}"`);
+            break;
+          case FilterTypes.BOOLEAN:
+            filterQuery.push(
+              `${filter.identifier}:${(filter as TermFilter).terms[0]?.toString().toLowerCase() === 'true'}`,
+            );
+            break;
+          case FilterTypes.RANGE:
+            if (filter.identifier === 'price') {
+              // The scopedPrice filter is a commercetools price filter of a product variant selected
+              // base on the price scope. The scope used is currency and country.
+              filterQuery.push(
+                `variants.scopedPrice.value.centAmount:range (${(filter as RangeFilter).min ?? '*'} to ${
+                  (filter as RangeFilter).max ?? '*'
+                })`,
+              );
+            }
+            break;
+        }
+      });
+    }
+    return filterQuery;
+  };
+
+  getFilterFacets: (productQuery: ProductQuery, facetDefinitions: FacetDefinition[]) => Promise<string[]> = async (
+    productQuery: ProductQuery,
+    facetDefinitions: FacetDefinition[],
+  ) => {
+    const filterFacets: string[] = [];
+    const locale = await this.getCommercetoolsLocal();
+    if (productQuery.facets !== undefined) {
+      filterFacets.push(...ProductMapper.facetDefinitionsToFilterFacets(productQuery.facets, facetDefinitions, locale));
+    }
+    return filterFacets;
+  };
+
   query: (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets?: object[]) => Promise<Result> =
     async (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets: object[] = []) => {
       try {
         const locale = await this.getCommercetoolsLocal();
-
+        const filterQuery = this.getFilterQuery(productQuery);
         // TODO: get default from constant
         const limit = +productQuery.limit || 24;
 
-        const filterQuery: string[] = [];
-        const filterFacets: string[] = [];
-        const sortAttributes: string[] = [];
-         // @ts-ignore
-         const {distributionChannelId, supplyChannelId, ...additionalArgs} = additionalQueryArgs || {};
+        // @ts-ignore
+        const { distributionChannelId, supplyChannelId, ...additionalArgs } = additionalQueryArgs || {};
 
         const facetDefinitions: FacetDefinition[] = [
           ...ProductMapper.commercetoolsProductTypesToFacetDefinitions(await this.getProductTypes(), locale),
@@ -37,65 +101,13 @@ export class ProductApi extends BaseProductApi {
             attributeType: 'money',
           },
         ];
+        const filterFacets = await this.getFilterFacets(productQuery, facetDefinitions);
 
         const queryArgFacets = ProductMapper.facetDefinitionsToCommercetoolsQueryArgFacets(facetDefinitions, locale);
 
-        if (productQuery.productIds !== undefined && productQuery.productIds.length !== 0) {
-          filterQuery.push(`id:"${productQuery.productIds.join('","')}"`);
-        }
-
-        if (productQuery.skus !== undefined && productQuery.skus.length !== 0) {
-          filterQuery.push(`variants.sku:"${productQuery.skus.join('","')}"`);
-        }
-
-        if (productQuery.category !== undefined && productQuery.category !== '') {
-          filterQuery.push(`categories.id:subtree("${productQuery.category}")`);
-        }
-
-        if (productQuery.filters !== undefined) {
-          productQuery.filters.forEach((filter) => {
-            switch (filter.type) {
-              case FilterTypes.TERM:
-                filterQuery.push(`${filter.identifier}.key:"${(filter as TermFilter).terms.join('","')}"`);
-                break;
-              case FilterTypes.BOOLEAN:
-                filterQuery.push(
-                  `${filter.identifier}:${(filter as TermFilter).terms[0]?.toString().toLowerCase() === 'true'}`,
-                );
-                break;
-              case FilterTypes.RANGE:
-                if (filter.identifier === 'price') {
-                  // The scopedPrice filter is a commercetools price filter of a product variant selected
-                  // base on the price scope. The scope used is currency and country.
-                  filterQuery.push(
-                    `variants.scopedPrice.value.centAmount:range (${(filter as RangeFilter).min ?? '*'} to ${
-                      (filter as RangeFilter).max ?? '*'
-                    })`,
-                  );
-                }
-                break;
-            }
-          });
-        }
-
-        if (productQuery.facets !== undefined) {
-          filterFacets.push(
-            ...ProductMapper.facetDefinitionsToFilterFacets(productQuery.facets, facetDefinitions, locale),
-          );
-        }
-
-        if (productQuery.sortAttributes !== undefined) {
-          Object.keys(productQuery.sortAttributes).map((field, directionIndex) => {
-            sortAttributes.push(`${field} ${Object.values(productQuery.sortAttributes)[directionIndex]}`);
-          });
-        } else {
-          // default sort
-          sortAttributes.push(`variants.attributes.salesRank asc`);
-        }
-
         const methodArgs = {
           queryArgs: {
-            sort: sortAttributes,
+            sort: this.getSortAttributes(productQuery),
             limit: limit,
             offset: this.getOffsetFromCursor(productQuery.cursor),
             priceCurrency: locale.currency,
@@ -117,7 +129,12 @@ export class ProductApi extends BaseProductApi {
           .execute()
           .then((response) => {
             const items = response.body.results.map((product) =>
-              ProductMapper.commercetoolsProductProjectionToProduct(product, locale, distributionChannelId, supplyChannelId),
+              ProductMapper.commercetoolsProductProjectionToProduct(
+                product,
+                locale,
+                distributionChannelId,
+                supplyChannelId,
+              ),
             );
 
             const result: Result = {
