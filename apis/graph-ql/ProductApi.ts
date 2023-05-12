@@ -8,6 +8,7 @@ import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFil
 import { SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
 import { ProductApi as RestProductApi } from '../ProductApi';
 import { productProjectionSearchQuery } from '../../queries/ProductProjectionSearch';
+import { AdditionalQueryArgs } from '../../types/query/ProductQuery';
 export class ProductApi extends RestProductApi {
   getGraphQlFilterQuery: (productQuery: ProductQuery) => SearchFilterInput[] = (productQuery: ProductQuery) => {
     const filterQuery: SearchFilterInput[] = [];
@@ -30,7 +31,7 @@ export class ProductApi extends RestProductApi {
         switch (filter.type) {
           case FilterTypes.TERM:
             filterQuery.push({
-              model: { value: { path: `${filter.identifier}.key`, values: (filter as TermFilter).terms } },
+              model: { value: { path: `${filter.identifier}.key`, values: (filter as TermFilter).terms || [] } },
             });
 
             break;
@@ -76,11 +77,11 @@ export class ProductApi extends RestProductApi {
       return filterFacets;
     };
 
-  query: (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets?: object[]) => Promise<Result> =
-    async (productQuery: ProductQuery, additionalQueryArgs?: object, additionalFacets: object[] = []) => {
+  query: (productQuery: ProductQuery, additionalQueryArgs?: AdditionalQueryArgs, additionalFacets?: object[]) => Promise<Result> =
+    async (productQuery: ProductQuery, additionalQueryArgs?: AdditionalQueryArgs, additionalFacets: object[] = []) => {
       try {
         const locale = await this.getCommercetoolsLocal();
-        const limit = +productQuery.limit || 24;
+        const limit = productQuery.limit || 24;
         const { distributionChannelId, supplyChannelId, ...additionalArgs } = additionalQueryArgs || {};
 
         const facetDefinitions: FacetDefinition[] = [
@@ -153,15 +154,15 @@ export class ProductApi extends RestProductApi {
             );
 
             const result: Result = {
-              total: response.body.data.total,
+              total: response.body.data.productProjectionSearch.total,
               items,
-              count: response.body.data.count,
-              facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.data.facets, productQuery, locale),
-              previousCursor: ProductMapper.calculatePreviousCursor(response.body.data.offset, response.body.count),
+              count: response.body.data.productProjectionSearch.count,
+              facets: ProductMapper.commercetoolsFacetResultsToFacets(response.body.data.productProjectionSearch.facets, productQuery, locale),
+              previousCursor: ProductMapper.calculatePreviousCursor(response.body.data.productProjectionSearch.offset, response.body.data.productProjectionSearch.count),
               nextCursor: ProductMapper.calculateNextCursor(
-                response.body.data.offset,
-                response.body.data.count,
-                response.body.data.total,
+                response.body.data.productProjectionSearch.offset,
+                response.body.data.productProjectionSearch.count,
+                response.body.data.productProjectionSearch.total,
               ),
               query: productQuery,
             };

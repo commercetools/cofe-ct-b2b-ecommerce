@@ -2,3 +2,9 @@ import { ProductQuery as DomainProductQuery } from '@commercetools/frontend-doma
 export interface ProductQuery extends DomainProductQuery {
     rootCategoryId?: string;
 }
+
+export interface AdditionalQueryArgs {
+    supplyChannelId?: string;
+    distributionChannelId?: string;
+    storeProjection?: string;
+}
