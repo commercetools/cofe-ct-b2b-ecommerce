@@ -9,6 +9,7 @@ import { SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
 import { ProductApi as RestProductApi } from '../ProductApi';
 import { productProjectionSearchQuery } from '../../queries/ProductProjectionSearch';
 import { AdditionalQueryArgs } from '../../types/query/ProductQuery';
+import { ProductProjection } from '@commercetools/platform-sdk';
 export class ProductApi extends RestProductApi {
   getGraphQlFilterQuery: (productQuery: ProductQuery) => SearchFilterInput[] = (productQuery: ProductQuery) => {
     const filterQuery: SearchFilterInput[] = [];
@@ -144,7 +145,7 @@ export class ProductApi extends RestProductApi {
           .execute()
           .then((response) => {
             console.debug('response', response);
-            const items = response.body.data.productProjectionSearch.results.map((product) =>
+            const items = response.body.data.productProjectionSearch.results.map((product: ProductProjection) =>
               ProductMapper.commercetoolsProductProjectionToProduct(
                 product,
                 locale,
