@@ -124,4 +124,4 @@ const fragmentCurrentProduct = `
   }
 `;
 
-const composedQuery = `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query}`;
+export const productProjectionSearchQuery = `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query}`;

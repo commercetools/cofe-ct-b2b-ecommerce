@@ -7,6 +7,7 @@ import { TermFilter } from '@commercetools/frontend-domain-types/query/TermFilte
 import { RangeFilter } from '@commercetools/frontend-domain-types/query/RangeFilter';
 import { SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
 import { ProductApi as RestProductApi } from '../ProductApi';
+import { productProjectionSearchQuery } from '../../queries/ProductProjectionSearch';
 export class ProductApi extends RestProductApi {
   getGraphQlFilterQuery: (productQuery: ProductQuery) => SearchFilterInput[] = (productQuery: ProductQuery) => {
     const filterQuery: SearchFilterInput[] = [];
@@ -119,6 +120,7 @@ export class ProductApi extends RestProductApi {
           },
         };
 
+
         if (additionalArgs.storeProjection) {
           variables.storeProjection = additionalArgs.storeProjection;
         }
@@ -126,18 +128,21 @@ export class ProductApi extends RestProductApi {
         if (additionalArgs.storeProjection) {
           variables.storeProjection = additionalArgs.storeProjection;
         }
+
+        console.debug('variables', variables)
 
         return await this.getApiForProject()
           .graphql()
           .post({
             body: {
-              query: '',
-              variables: {},
+              query: productProjectionSearchQuery,
+              variables,
               operationName: 'productProjectionSearch',
             },
           })
           .execute()
           .then((response) => {
+            console.debug('response', response);
             const items = response.body.data.productProjectionSearch.results.map((product) =>
               ProductMapper.commercetoolsProductProjectionToProduct(
                 product,

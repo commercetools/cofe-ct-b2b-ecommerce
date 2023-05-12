@@ -1,5 +1,5 @@
 import { Context, Request } from '@frontastic/extension-types';
-import { ProductApi } from '../apis/ProductApi';
+import { ProductApi } from '../apis/graph-ql/ProductApi';
 import { CategoryRouter as BaseCategoryRouter } from 'cofe-ct-ecommerce/utils/CategoryRouter';
 import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { ProductQueryFactory } from './ProductQueryFactory';
