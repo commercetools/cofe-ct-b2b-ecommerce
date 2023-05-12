@@ -1,6 +1,6 @@
-const query = `
+const query = (parameters: Record<string, any>) => `
   query GetProducts($locale: Locale, $currency: Currency!) {
-    productProjectionSearch(limit: 1) {
+    productProjectionSearch(${parameters}) {
       ...FrSearchQuery
       ...CurrentProduct
     }
@@ -124,4 +124,4 @@ const fragmentCurrentProduct = `
   }
 `;
 
-export const productProjectionSearchQuery = `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query}`;
+export const productProjectionSearchQuery = (parameters: Record<string, any>) => `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query(parameters)}`;
