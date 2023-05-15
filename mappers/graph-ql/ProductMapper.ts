@@ -149,7 +149,7 @@ export class ProductMapper {
           filterFacets.push({
             model: {
               value: {
-                path: `${queryFacet.identifier}.label.${locale.language}`,
+                path: `${queryFacet.identifier}.label`,
                 values: [(queryFacet as QueryTermFacet).terms.join('","')],
               },
             },
@@ -159,7 +159,7 @@ export class ProductMapper {
           filterFacets.push({
             model: {
               value: {
-                path: `${queryFacet.identifier}.${locale.language}`,
+                path: `${queryFacet.identifier}`,
                 values: [(queryFacet as QueryTermFacet).terms.join('","')],
               },
             },

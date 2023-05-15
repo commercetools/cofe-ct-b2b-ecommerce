@@ -81,10 +81,9 @@ export class ProductApi extends RestProductApi {
     facetDefinitions: FacetDefinition[],
   ) => Promise<SearchFilterInput[]> = async (productQuery: ProductQuery, facetDefinitions: FacetDefinition[]) => {
     const filterFacets: SearchFilterInput[] = [];
-    const locale = await this.getCommercetoolsLocal();
     if (productQuery.facets !== undefined) {
       filterFacets.push(
-        ...ProductMapperGraphQL.facetDefinitionsToGraphQlFilterFacets(productQuery.facets, facetDefinitions, locale),
+        ...ProductMapperGraphQL.facetDefinitionsToGraphQlFilterFacets(productQuery.facets, facetDefinitions),
       );
     }
     return filterFacets;
