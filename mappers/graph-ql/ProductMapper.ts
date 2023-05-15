@@ -60,7 +60,6 @@ export class ProductMapper {
 
   static commercetoolsCategoryReferencesToCategories(
     commercetoolsCategoryReferences: CategoryReferenceGraphQl[],
-,
   ): Category[] {
     const categories: Category[] = [];
 
