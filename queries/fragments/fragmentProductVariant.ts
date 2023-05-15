@@ -4,6 +4,14 @@ export const fragmentProductVariant = `
       name
       value
     }
+    images {
+      url
+    }
+    assets {
+      sources {
+        uri
+      }
+    }
     ...Prices
   }
 `;
