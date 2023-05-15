@@ -172,7 +172,7 @@ export class ProductApi extends RestProductApi {
         .then((response) => {
           console.debug('response', response);
           const items = response.body.data.productProjectionSearch.results.map((product: ProductProjection) =>
-            ProductMapper.commercetoolsProductProjectionToProduct(
+            ProductMapper.commercetoolsProductProjectionGraphQlToProduct(
               product,
               locale,
               distributionChannelId,

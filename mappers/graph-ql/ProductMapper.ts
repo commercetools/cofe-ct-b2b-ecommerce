@@ -249,7 +249,7 @@ export class ProductMapper extends B2BProductMapper {
       variants: this.commercetoolsProductProjectionToVariantsWithUnifiedAvailability(commercetoolsProduct),
     };
   }
-  static commercetoolsProductProjectionToProduct(
+  static commercetoolsProductProjectionGraphQlToProduct(
     commercetoolsProduct: CommercetoolsProductProjection,
     locale: Locale,
     distributionChannelId?: string,
@@ -257,7 +257,7 @@ export class ProductMapper extends B2BProductMapper {
   ): Product {
     const transitionProduct: CommercetoolsProductProjection =
       this.commercetoolsProductProjectionToProductWithUnifiedAvailability(commercetoolsProduct);
-    return super.commercetoolsProductProjectionToProduct(
+    return this.commercetoolsProductProjectionToProduct(
       transitionProduct,
       locale,
       distributionChannelId,
