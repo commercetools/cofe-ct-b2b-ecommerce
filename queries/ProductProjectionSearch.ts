@@ -1,25 +1,35 @@
-function generateParameterString(parameters: Record<string, any>) {
-  const parameterPairs: string[] = [];
+function generateParameterString(parameters:any) {
+  const parameterPairs:string[] = [];
 
   // Recursively traverse the parameters object
-  function traverse(obj: any, prefix = "") {
+  function traverse(obj:any, prefix = "") {
     for (const [key, value] of Object.entries(obj)) {
       const paramName = prefix ? `${prefix}.${key}` : key;
-      if (typeof value === "object" && value !== null) {
-        traverse(value, paramName);
+      if (Array.isArray(value)) {
+        const arrayValues = value.map(item => JSON.stringify(item)).join(", ");
+        parameterPairs.push(`${paramName}: [${arrayValues}]`);
+      } else if (typeof value === "object" && value !== null) {
+        const objectValue = generateParameterString(value);
+        parameterPairs.push(`${paramName}: ${objectValue}`);
       } else {
-        parameterPairs.push(`${paramName}: ${value}`);
+        parameterPairs.push(`${paramName}: ${JSON.stringify(value)}`);
       }
     }
   }
 
   traverse(parameters);
 
-  return parameterPairs.join(", ");
+  const a = `{ ${parameterPairs.join(", ")} }`;
+  return a;
+}
+
+function parametersToString(parameters: any) {
+  const result = generateParameterString(parameters);
+  return result.slice(1, -1);
 }
 const query = (parameters: Record<string, any>) => `
   query GetProducts($locale: Locale, $currency: Currency!) {
-    productProjectionSearch(${generateParameterString(parameters)}) {
+    productProjectionSearch(${parametersToString(parameters)}) {
       ...FrSearchQuery
       ...CurrentProduct
     }

@@ -48,6 +48,6 @@ export interface RangeFacetInput {
 export interface SearchFacetInput {
     model :{
       terms?: TermsFacetInput;
-      range?: RangeFacetInput;
+      ranges?: RangeFacetInput;
     }
 }

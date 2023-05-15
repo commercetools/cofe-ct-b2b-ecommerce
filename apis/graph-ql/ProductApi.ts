@@ -11,6 +11,15 @@ import { productProjectionSearchQuery } from '../../queries/ProductProjectionSea
 import { AdditionalQueryArgs } from '../../types/query/ProductQuery';
 import { ProductProjection } from '@commercetools/platform-sdk';
 export class ProductApi extends RestProductApi {
+  protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
+    if (cursor === undefined) {
+      return {};
+    }
+
+    const offsetMach = cursor.match(/(?<=offset:).+/);
+    return offsetMach !== null ? { offset: +Object.values(offsetMach)[0] } : {};
+  };
+
   getGraphQlFilterQuery: (productQuery: ProductQuery) => SearchFilterInput[] = (productQuery: ProductQuery) => {
     const filterQuery: SearchFilterInput[] = [];
     if (productQuery.productIds !== undefined && productQuery.productIds.length !== 0) {
@@ -119,29 +128,37 @@ export class ProductApi extends RestProductApi {
 
       const parameters: any = {
         limit: limit,
-        sort: this.getSortAttributes(productQuery),
-        offset: this.getOffsetFromCursor(productQuery.cursor),
+        sorts: this.getSortAttributes(productQuery),
+        ...this.getGraphQlOffsetFromCursor(productQuery.cursor),
         priceSelector: {
           currency: locale.currency,
           country: locale.country,
         },
-        text: productQuery.query, //TODO: if text then add $locale
-        filter: filterFacets.length > 0 ? filterFacets : undefined,
-        'filter.facets': filterFacets.length > 0 ? filterFacets : undefined,
-        facet: queryArgFacets.length > 0 ? queryArgFacets : undefined,
-        'filter.query': filterQuery.length > 0 ? filterQuery : undefined,
       };
 
-      if (additionalArgs.storeProjection) {
-        parameters.storeProjection = additionalArgs.storeProjection;
+      if (productQuery.query) {
+        parameters.text = productQuery.query;
+      }
+
+      if (filterFacets.length) {
+        parameters.filters = filterFacets;
+        parameters['facetFilters'] = filterFacets;
+      }
+
+      if (queryArgFacets.length) {
+        parameters.facets = queryArgFacets;
+      }
+      if (filterQuery.length) {
+        parameters['queryFilters'] = filterQuery;
       }
 
       if (additionalArgs.storeProjection) {
         parameters.storeProjection = additionalArgs.storeProjection;
       }
 
-      console.debug('variables', variables);
-
+      if (additionalArgs.storeProjection) {
+        parameters.storeProjection = additionalArgs.storeProjection;
+      }
       return await this.getApiForProject()
         .graphql()
         .post({
