@@ -116,10 +116,10 @@ export class ProductMapper extends B2BProductMapper {
         case 'money':
           queryArgFacets.push({
             model: {
-              ranges: {
+              range: {
                 countProducts: true,
                 path: `${facetDefinition.attributeId}.centAmount`,
-                range: [{ from: '0', to: '*' }],
+                ranges: [{ from: '0', to: '*' }],
                 alias: facetDefinition.attributeId,
               },
             },

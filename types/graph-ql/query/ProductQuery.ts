@@ -40,7 +40,7 @@ export interface TermsFacetInput {
 
 export interface RangeFacetInput {
     path: string;
-    range: Range[];
+    ranges: Range[];
     alias?: string;
     countProducts: boolean;
 }
@@ -48,6 +48,6 @@ export interface RangeFacetInput {
 export interface SearchFacetInput {
     model :{
       terms?: TermsFacetInput;
-      ranges?: RangeFacetInput;
+      range?: RangeFacetInput;
     }
 }

@@ -1,14 +1,14 @@
-function generateParameterString(parameters:any) {
-  const parameterPairs:string[] = [];
+function generateParameterString(parameters: any) {
+  const parameterPairs: any[] = [];
 
   // Recursively traverse the parameters object
-  function traverse(obj:any, prefix = "") {
+  function traverse(obj: any, prefix = '') {
     for (const [key, value] of Object.entries(obj)) {
       const paramName = prefix ? `${prefix}.${key}` : key;
       if (Array.isArray(value)) {
-        const arrayValues = value.map(item => JSON.stringify(item)).join(", ");
+        const arrayValues = value.map((item) => JSON.stringify(item)).join(', ');
         parameterPairs.push(`${paramName}: [${arrayValues}]`);
-      } else if (typeof value === "object" && value !== null) {
+      } else if (typeof value === 'object' && value !== null) {
         const objectValue = generateParameterString(value);
         parameterPairs.push(`${paramName}: ${objectValue}`);
       } else {
@@ -19,8 +19,7 @@ function generateParameterString(parameters:any) {
 
   traverse(parameters);
 
-  const a = `{ ${parameterPairs.join(", ")} }`;
-  return a;
+  return `{ ${parameterPairs.join(', ')} }`.replace(/"([^"]+)":/g, '$1:');
 }
 
 function parametersToString(parameters: any) {
@@ -153,4 +152,7 @@ const fragmentCurrentProduct = `
   }
 `;
 
-export const productProjectionSearchQuery = (parameters: Record<string, any>) => `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query(parameters)}`;
+export const productProjectionSearchQuery = (parameters: Record<string, any>) =>
+  `${fragmentDiscountedPrice}${fragmentPrices}${fragmentProductVariant}${fragmentFrSearchQuery}${fragmentCategories}${fragmentCurrentProduct}${query(
+    parameters,
+  )}`;
