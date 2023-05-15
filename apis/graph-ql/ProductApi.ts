@@ -1,4 +1,5 @@
-import { ProductMapper } from '../../mappers/graph-ql/ProductMapper';
+import { ProductMapper as ProductMapperGraphQL } from '../../mappers/graph-ql/ProductMapper';
+import { ProductMapper } from '../../mappers/ProductMapper';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { ProductQuery } from '@commercetools/frontend-domain-types/query/ProductQuery';
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
@@ -9,7 +10,6 @@ import { SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
 import { ProductApi as RestProductApi } from '../ProductApi';
 import { productProjectionSearchQuery } from '../../queries/ProductProjectionSearch';
 import { AdditionalQueryArgs } from '../../types/query/ProductQuery';
-import { ProductProjection } from '@commercetools/platform-sdk';
 import { CommercetoolsGraphQlProductProjection } from '../../types/graph-ql/product/Product';
 export class ProductApi extends RestProductApi {
   protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
@@ -84,7 +84,7 @@ export class ProductApi extends RestProductApi {
     const locale = await this.getCommercetoolsLocal();
     if (productQuery.facets !== undefined) {
       filterFacets.push(
-        ...ProductMapper.facetDefinitionsToGraphQlFilterFacets(productQuery.facets, facetDefinitions, locale),
+        ...ProductMapperGraphQL.facetDefinitionsToGraphQlFilterFacets(productQuery.facets, facetDefinitions, locale),
       );
     }
     return filterFacets;
@@ -119,7 +119,7 @@ export class ProductApi extends RestProductApi {
         },
       ];
       const filterFacets = await this.getGraphQlFilterFacets(productQuery, facetDefinitions);
-      const queryArgFacets = ProductMapper.facetDefinitionsToGraphQlArgFacets(facetDefinitions, locale);
+      const queryArgFacets = ProductMapperGraphQL.facetDefinitionsToGraphQlArgFacets(facetDefinitions, locale);
       const filterQuery = this.getGraphQlFilterQuery(productQuery);
 
       const variables = {
@@ -172,9 +172,8 @@ export class ProductApi extends RestProductApi {
         .execute()
         .then((response) => {
           const items = response.body.data.productProjectionSearch.results.map((product: CommercetoolsGraphQlProductProjection) =>
-            ProductMapper.commercetoolsProductProjectionGraphQlToProduct(
+            ProductMapperGraphQL.commercetoolsProductProjectionGraphQlToProduct(
               product,
-              locale,
               distributionChannelId,
               supplyChannelId,
             ),

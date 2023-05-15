@@ -45,7 +45,7 @@ export class ProductMapper {
       name: commercetoolsProduct?.name,
       slug: commercetoolsProduct?.slug,
       description: commercetoolsProduct?.description,
-      categories: this.commercetoolsCategoryReferencesToCategories(commercetoolsProduct.categories, locale),
+      categories: this.commercetoolsCategoryReferencesToCategories(commercetoolsProduct.categories),
       variants: this.commercetoolsProductProjectionToVariants(
         commercetoolsProduct,
         distributionChannelId,
@@ -105,7 +105,6 @@ export class ProductMapper {
   static facetDefinitionsToGraphQlFilterFacets(
     queryFacets: QueryFacet[],
     facetDefinitions: FacetDefinition[],
-    locale: Locale,
   ): SearchFilterInput[] {
     const filterFacets: SearchFilterInput[] = [];
     const typeLookup: Record<string, string> = {};
@@ -199,7 +198,7 @@ export class ProductMapper {
     return filterFacets;
   }
 
-  static facetDefinitionsToGraphQlArgFacets(facetDefinitions: FacetDefinition[]): SearchFacetInput[] {
+  static facetDefinitionsToGraphQlArgFacets(facetDefinitions: FacetDefinition[], locale: Locale): SearchFacetInput[] {
     const queryArgFacets: SearchFacetInput[] = [];
 
     facetDefinitions?.forEach((facetDefinition) => {
