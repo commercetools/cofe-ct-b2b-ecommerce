@@ -13,6 +13,7 @@ import {
   ProductVariantAvailability,
   ProductVariantChannelAvailabilityMap,
   Price,
+  ProductVariant,
 } from '@commercetools/platform-sdk';
 import { Product } from '../../types/product/Product';
 
@@ -21,6 +22,15 @@ interface ChannelsAvailability {
     channel: { id: string };
     availability: { isOnStock: boolean; availableQuantity: number; id: string; version: string };
   }[];
+}
+
+interface NoChannelAvailability {
+  noChannel: {
+    isOnStock: boolean;
+    availableQuantity: number;
+    id: string;
+    version: string;
+  };
 }
 
 export class ProductMapper extends B2BProductMapper {
@@ -200,54 +210,37 @@ export class ProductMapper extends B2BProductMapper {
   static getChannelsAvailability(availability?: ProductVariantAvailability): ProductVariantChannelAvailabilityMap {
     if (availability?.channels?.results) {
       // @ts-ignore
-      return (availability.channels as ChannelsAvailability).results
-        .reduce((prev, item) => {
-          prev[item.channel.id] = item.availability;
-          return prev;
-        }, {});
+      return (availability.channels as ChannelsAvailability).results.reduce((prev, item) => {
+        prev[item.channel.id] = item.availability;
+        return prev;
+      }, {});
     }
     return {};
   }
 
-  static commercetoolsProductProjectionToVariantsWithUnifiedAvailability(
-    commercetoolsProduct: CommercetoolsProductProjection,
-  ): CommercetoolsProductVariant[] {
-    const variants: CommercetoolsProductVariant[] = [];
-
-    if (commercetoolsProduct?.masterVariant) {
-      variants.push({
-        ...commercetoolsProduct?.masterVariant,
-        availability: {
-          ...commercetoolsProduct?.masterVariant.availability,
-          channels: commercetoolsProduct?.masterVariant.availability
-            ? this.getChannelsAvailability(commercetoolsProduct?.masterVariant.availability)
-            : {},
-        },
-      });
+  static commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(
+    commercetoolsProductVariant: ProductVariant,
+  ): ProductVariant {
+    return {
+      ...commercetoolsProductVariant,
+      availability: {
+        ...(commercetoolsProductVariant.availability as NoChannelAvailability)?.noChannel || {},
+        channels: commercetoolsProductVariant.availability
+          ? this.getChannelsAvailability(commercetoolsProductVariant.availability)
+          : {},
+      },
     }
-
-    for (let i = 0; i < commercetoolsProduct.variants.length; i++) {
-      variants.push({
-        ...commercetoolsProduct?.variants[i],
-        availability: {
-          ...commercetoolsProduct?.variants[i].availability,
-          channels: commercetoolsProduct?.variants[i]?.availability
-            ? this.getChannelsAvailability(commercetoolsProduct?.variants[i].availability)
-            : {},
-        },
-      });
-    }
-
-    return variants;
   }
 
   static commercetoolsProductProjectionToProductWithUnifiedAvailability(
     commercetoolsProduct: CommercetoolsProductProjection,
   ): CommercetoolsProductProjection {
-    return {
+    const product = {
       ...commercetoolsProduct,
-      variants: this.commercetoolsProductProjectionToVariantsWithUnifiedAvailability(commercetoolsProduct),
+      masterVariant: this.commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(commercetoolsProduct.masterVariant) ,
+      variants: commercetoolsProduct.variants.map(variant => this.commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(variant)),
     };
+    return product;
   }
   static commercetoolsProductProjectionGraphQlToProduct(
     commercetoolsProduct: CommercetoolsProductProjection,
@@ -257,6 +250,7 @@ export class ProductMapper extends B2BProductMapper {
   ): Product {
     const transitionProduct: CommercetoolsProductProjection =
       this.commercetoolsProductProjectionToProductWithUnifiedAvailability(commercetoolsProduct);
+    //   console.debug(transitionProduct);
     return this.commercetoolsProductProjectionToProduct(
       transitionProduct,
       locale,
