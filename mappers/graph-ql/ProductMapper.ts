@@ -6,6 +6,22 @@ import { Facet as QueryFacet } from '@commercetools/frontend-domain-types/query/
 import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
 import { SearchFacetInput, SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
+import {
+  Category as CommercetoolsCategory,
+  ProductProjection as CommercetoolsProductProjection,
+  ProductVariant as CommercetoolsProductVariant,
+  ProductVariantAvailability,
+  ProductVariantChannelAvailabilityMap,
+  Price,
+} from '@commercetools/platform-sdk';
+import { Product } from '../../types/product/Product';
+
+interface ChannelsAvailability {
+  results?: {
+    channel: { id: string };
+    availability: { isOnStock: boolean; availableQuantity: number; id: string; version: string };
+  }[];
+}
 
 export class ProductMapper extends B2BProductMapper {
   static facetDefinitionsToGraphQlFilterFacets(
@@ -14,7 +30,7 @@ export class ProductMapper extends B2BProductMapper {
     locale: Locale,
   ): SearchFilterInput[] {
     const filterFacets: SearchFilterInput[] = [];
-    const typeLookup: Record<string,string> = {};
+    const typeLookup: Record<string, string> = {};
 
     if (facetDefinitions.length === 0) {
       return filterFacets;
@@ -105,10 +121,7 @@ export class ProductMapper extends B2BProductMapper {
     return filterFacets;
   }
 
-  static facetDefinitionsToGraphQlArgFacets(
-    facetDefinitions: FacetDefinition[],
-    locale: Locale,
-  ): SearchFacetInput[] {
+  static facetDefinitionsToGraphQlArgFacets(facetDefinitions: FacetDefinition[], locale: Locale): SearchFacetInput[] {
     const queryArgFacets: SearchFacetInput[] = [];
 
     facetDefinitions?.forEach((facetDefinition) => {
@@ -182,6 +195,74 @@ export class ProductMapper extends B2BProductMapper {
     });
 
     return queryArgFacets;
+  }
+
+  static getChannelsAvailability(availability?: ProductVariantAvailability): ProductVariantChannelAvailabilityMap {
+    if (availability?.channels?.results) {
+      // @ts-ignore
+      return (availability.channels as ChannelsAvailability).results
+        .reduce((prev, item) => {
+          prev[item.channel.id] = item.availability;
+          return prev;
+        }, {});
+    }
+    return {};
+  }
+
+  static commercetoolsProductProjectionToVariantsWithUnifiedAvailability(
+    commercetoolsProduct: CommercetoolsProductProjection,
+  ): CommercetoolsProductVariant[] {
+    const variants: CommercetoolsProductVariant[] = [];
+
+    if (commercetoolsProduct?.masterVariant) {
+      variants.push({
+        ...commercetoolsProduct?.masterVariant,
+        availability: {
+          ...commercetoolsProduct?.masterVariant.availability,
+          channels: commercetoolsProduct?.masterVariant.availability
+            ? this.getChannelsAvailability(commercetoolsProduct?.masterVariant.availability)
+            : {},
+        },
+      });
+    }
+
+    for (let i = 0; i < commercetoolsProduct.variants.length; i++) {
+      variants.push({
+        ...commercetoolsProduct?.variants[i],
+        availability: {
+          ...commercetoolsProduct?.variants[i].availability,
+          channels: commercetoolsProduct?.variants[i]?.availability
+            ? this.getChannelsAvailability(commercetoolsProduct?.variants[i].availability)
+            : {},
+        },
+      });
+    }
+
+    return variants;
+  }
+
+  static commercetoolsProductProjectionToProductWithUnifiedAvailability(
+    commercetoolsProduct: CommercetoolsProductProjection,
+  ): CommercetoolsProductProjection {
+    return {
+      ...commercetoolsProduct,
+      variants: this.commercetoolsProductProjectionToVariantsWithUnifiedAvailability(commercetoolsProduct),
+    };
+  }
+  static commercetoolsProductProjectionToProduct(
+    commercetoolsProduct: CommercetoolsProductProjection,
+    locale: Locale,
+    distributionChannelId?: string,
+    supplyChannelId?: string,
+  ): Product {
+    const transitionProduct: CommercetoolsProductProjection =
+      this.commercetoolsProductProjectionToProductWithUnifiedAvailability(commercetoolsProduct);
+    return super.commercetoolsProductProjectionToProduct(
+      transitionProduct,
+      locale,
+      distributionChannelId,
+      supplyChannelId,
+    );
   }
 }
 
