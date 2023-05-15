@@ -1,5 +1,7 @@
 export const fragmentProductVariant = `
   fragment ProductVariant on ProductSearchVariant {
+    sku
+    id
     attributes: attributesRaw {
       name
       value
