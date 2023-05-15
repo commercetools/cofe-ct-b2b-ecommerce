@@ -15,6 +15,9 @@ export const fragmentProductVariant = `
     availability {
       channels {
         results {
+          channel{
+            id
+          }
           availability {
             isOnStock
             availableQuantity
