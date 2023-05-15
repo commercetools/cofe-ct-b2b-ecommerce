@@ -12,6 +12,20 @@ export const fragmentProductVariant = `
         uri
       }
     }
+    availability {
+      channels {
+        results {
+          availability {
+            isOnStock
+            availableQuantity
+          }
+        }
+      }
+      noChannel {
+        isOnStock
+        availableQuantity
+      }
+    }
     ...Prices
   }
 `;
