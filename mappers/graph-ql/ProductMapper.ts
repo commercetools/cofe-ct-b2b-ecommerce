@@ -1,5 +1,4 @@
 import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
-import { ProductMapper as B2BProductMapper } from '../ProductMapper';
 import { TermFacet as QueryTermFacet } from '@commercetools/frontend-domain-types/query/TermFacet';
 import { RangeFacet as QueryRangeFacet } from '@commercetools/frontend-domain-types/query/RangeFacet';
 import { Facet as QueryFacet } from '@commercetools/frontend-domain-types/query/Facet';
@@ -7,22 +6,23 @@ import { FacetDefinition } from '@commercetools/frontend-domain-types/product/Fa
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
 import { SearchFacetInput, SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
 import {
-  Category as CommercetoolsCategory,
-  ProductProjection as CommercetoolsProductProjection,
-  ProductVariant as CommercetoolsProductVariant,
   ProductVariantAvailability,
-  ProductVariantChannelAvailabilityMap,
+  Attribute as CommercetoolsAttribute,
   Price,
-  ProductVariant,
+  Money as CommercetoolsMoney,
+  TypedMoney,
 } from '@commercetools/platform-sdk';
 import { Product } from '../../types/product/Product';
-
-interface ChannelsAvailability {
-  results?: {
-    channel: { id: string };
-    availability: { isOnStock: boolean; availableQuantity: number; id: string; version: string };
-  }[];
-}
+import {
+  CategoryReferenceGraphQl,
+  CommercetoolsGraphQlProductProjection,
+  CommercetoolsProductVariantGraphQl,
+} from '../../types/graph-ql/product/Product';
+import { Variant } from '../../types/product/Variant';
+import { Category } from '../../types/product/Category';
+import { Attributes } from '@commercetools/frontend-domain-types/product/Attributes';
+import { Money } from '@commercetools/frontend-domain-types/product/Money';
+import { ProductRouter } from '../../utils/ProductRouter';
 
 interface NoChannelAvailability {
   noChannel: {
@@ -33,7 +33,76 @@ interface NoChannelAvailability {
   };
 }
 
-export class ProductMapper extends B2BProductMapper {
+export class ProductMapper {
+  static commercetoolsProductProjectionGraphQlToProduct(
+    commercetoolsProduct: CommercetoolsGraphQlProductProjection,
+    distributionChannelId?: string,
+    supplyChannelId?: string,
+  ): Product {
+    const product: Product = {
+      productId: commercetoolsProduct.id,
+      version: commercetoolsProduct?.version?.toString(),
+      name: commercetoolsProduct?.name,
+      slug: commercetoolsProduct?.slug,
+      description: commercetoolsProduct?.description,
+      categories: this.commercetoolsCategoryReferencesToCategories(commercetoolsProduct.categories, locale),
+      variants: this.commercetoolsProductProjectionToVariants(
+        commercetoolsProduct,
+        distributionChannelId,
+        supplyChannelId,
+      ),
+    };
+
+    product._url = ProductRouter.generateUrlFor(product);
+
+    return product;
+  }
+
+  static commercetoolsCategoryReferencesToCategories(
+    commercetoolsCategoryReferences: CategoryReferenceGraphQl[],
+,
+  ): Category[] {
+    const categories: Category[] = [];
+
+    commercetoolsCategoryReferences.forEach((commercetoolsCategory) => {
+      const category: Category = {
+        categoryId: commercetoolsCategory.id,
+        name: commercetoolsCategory.name ?? undefined,
+        slug: commercetoolsCategory.slug ?? undefined,
+        depth: commercetoolsCategory.ancestors.length,
+        path:
+          commercetoolsCategory.ancestors.length > 0
+            ? `/${commercetoolsCategory.ancestors
+                .map((ancestor) => {
+                  return ancestor.id;
+                })
+                .join('/')}/${commercetoolsCategory.id}`
+            : `/${commercetoolsCategory.id}`,
+      };
+
+      categories.push(category);
+    });
+
+    return categories;
+  }
+
+  static commercetoolsCategoryToCategory(commercetoolsCategory: CategoryReferenceGraphQl): Category {
+    return {
+      categoryId: commercetoolsCategory.id,
+      name: commercetoolsCategory.name ?? undefined,
+      slug: commercetoolsCategory.slug ?? undefined,
+      depth: commercetoolsCategory.ancestors.length,
+      path:
+        commercetoolsCategory.ancestors.length > 0
+          ? `/${commercetoolsCategory.ancestors
+              .map((ancestor) => {
+                return ancestor.id;
+              })
+              .join('/')}/${commercetoolsCategory.id}`
+          : `/${commercetoolsCategory.id}`,
+    };
+  }
+
   static facetDefinitionsToGraphQlFilterFacets(
     queryFacets: QueryFacet[],
     facetDefinitions: FacetDefinition[],
@@ -131,7 +200,7 @@ export class ProductMapper extends B2BProductMapper {
     return filterFacets;
   }
 
-  static facetDefinitionsToGraphQlArgFacets(facetDefinitions: FacetDefinition[], locale: Locale): SearchFacetInput[] {
+  static facetDefinitionsToGraphQlArgFacets(facetDefinitions: FacetDefinition[]): SearchFacetInput[] {
     const queryArgFacets: SearchFacetInput[] = [];
 
     facetDefinitions?.forEach((facetDefinition) => {
@@ -207,62 +276,201 @@ export class ProductMapper extends B2BProductMapper {
     return queryArgFacets;
   }
 
-  static getChannelsAvailability(availability?: ProductVariantAvailability): ProductVariantChannelAvailabilityMap {
-    if (availability?.channels?.results) {
-      // @ts-ignore
-      return (availability.channels as ChannelsAvailability).results.reduce((prev, item) => {
-        prev[item.channel.id] = item.availability;
-        return prev;
-      }, {});
-    }
-    return {};
+  static commercetoolsAttributesToAttributes(commercetoolsAttributes?: CommercetoolsAttribute[]): Attributes {
+    const attributes: Attributes = {};
+
+    commercetoolsAttributes?.forEach((commercetoolsAttribute) => {
+      attributes[commercetoolsAttribute.name] = commercetoolsAttribute.value;
+    });
+
+    return attributes;
   }
 
-  static commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(
-    commercetoolsProductVariant: ProductVariant,
-  ): ProductVariant {
-    return {
-      ...commercetoolsProductVariant,
-      availability: {
-        ...(commercetoolsProductVariant.availability as NoChannelAvailability)?.noChannel || {},
-        channels: commercetoolsProductVariant.availability
-          ? this.getChannelsAvailability(commercetoolsProductVariant.availability)
-          : {},
-      },
+  static getAvailability(
+    variant: CommercetoolsProductVariantGraphQl,
+    supplyChannelId?: string,
+  ): { availability: ProductVariantAvailability; supplyChannelId?: string } {
+    if (supplyChannelId && variant.availability?.channels?.results?.length) {
+      const availabilityChannel = variant.availability.channels.results.find(
+        (channel) => channel.channel.id === supplyChannelId,
+      );
+      if (availabilityChannel) {
+        return { availability: availabilityChannel.availability, supplyChannelId };
+      }
     }
+    return { availability: variant.availability.noChannel };
   }
 
-  static commercetoolsProductProjectionToProductWithUnifiedAvailability(
-    commercetoolsProduct: CommercetoolsProductProjection,
-  ): CommercetoolsProductProjection {
-    const product = {
-      ...commercetoolsProduct,
-      masterVariant: this.commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(commercetoolsProduct.masterVariant) ,
-      variants: commercetoolsProduct.variants.map(variant => this.commercetoolsProductProjectionVariantToVariantsWithUnifiedAvailability(variant)),
-    };
-    return product;
-  }
-  static commercetoolsProductProjectionGraphQlToProduct(
-    commercetoolsProduct: CommercetoolsProductProjection,
-    locale: Locale,
+  static commercetoolsProductVariantToVariant(
+    commercetoolsVariant: CommercetoolsProductVariantGraphQl,
     distributionChannelId?: string,
     supplyChannelId?: string,
-  ): Product {
-    const transitionProduct: CommercetoolsProductProjection =
-      this.commercetoolsProductProjectionToProductWithUnifiedAvailability(commercetoolsProduct);
-    //   console.debug(transitionProduct);
-    return this.commercetoolsProductProjectionToProduct(
-      transitionProduct,
-      locale,
-      distributionChannelId,
-      supplyChannelId,
-    );
+  ): Variant {
+    const attributes = this.commercetoolsAttributesToAttributes(commercetoolsVariant.attributes);
+    const pricesAndDiscounts = this.extractPriceAndDiscounts(commercetoolsVariant, distributionChannelId);
+
+    const variantAvailability = this.getAvailability(commercetoolsVariant, supplyChannelId);
+
+    return {
+      id: commercetoolsVariant.id?.toString(),
+      sku: commercetoolsVariant.sku?.toString(),
+      images: [
+        ...commercetoolsVariant.assets.map((asset) => asset.sources?.[0].uri),
+        ...commercetoolsVariant.images.map((image) => image.url),
+      ],
+      groupId: attributes?.baseId || undefined,
+      attributes: attributes,
+      price: pricesAndDiscounts.price,
+      distributionChannelId: pricesAndDiscounts.distributionChannelId,
+      supplyChannelId: variantAvailability.supplyChannelId,
+      discountedPrice: pricesAndDiscounts.discountedPrice,
+      discounts: pricesAndDiscounts.discounts,
+      availability: variantAvailability.availability,
+      isOnStock: variantAvailability.availability?.isOnStock || undefined,
+    } as Variant;
+  }
+
+  static extractPriceAndDiscounts(
+    commercetoolsVariant: CommercetoolsProductVariantGraphQl,
+    distributionChannelId?: string,
+  ) {
+    let price: Money | undefined;
+    let discountedPrice: Money | undefined;
+    let discounts: string[] | undefined;
+
+    if (commercetoolsVariant?.scopedPrice) {
+      price = this.commercetoolsMoneyToMoney(commercetoolsVariant.scopedPrice?.value);
+      distributionChannelId = commercetoolsVariant.scopedPrice?.channel?.id;
+      if (commercetoolsVariant.scopedPrice?.discounted?.value) {
+        discountedPrice = this.commercetoolsMoneyToMoney(commercetoolsVariant.scopedPrice?.discounted?.value);
+      }
+
+      // @ts-ignore
+      if (commercetoolsVariant.scopedPrice?.discounted?.discount?.description) {
+        // @ts-ignore
+        discounts = [commercetoolsVariant.scopedPrice?.discounted?.discount?.description];
+      }
+
+      return { price, discountedPrice, discounts, distributionChannelId };
+    }
+
+    // Price with correct channel id has the priority
+    if (commercetoolsVariant?.prices) {
+      let commercetoolsPrice: Price;
+      if (distributionChannelId) {
+        commercetoolsPrice = commercetoolsVariant?.prices.find(
+          (price: Price) => price.hasOwnProperty('channel') && price.channel?.id === distributionChannelId,
+        );
+        if (commercetoolsPrice) {
+          price = this.commercetoolsMoneyToMoney(commercetoolsPrice?.value);
+
+          if (commercetoolsPrice?.discounted?.value) {
+            discountedPrice = this.commercetoolsMoneyToMoney(commercetoolsPrice?.discounted?.value);
+          }
+
+          // @ts-ignore
+          if (commercetoolsPrice?.discounted?.discount?.description) {
+            // @ts-ignore
+            discounts = [commercetoolsPrice?.discounted?.discount?.description];
+          }
+
+          return { price, discountedPrice, discounts, distributionChannelId };
+        }
+      }
+    }
+
+    if (commercetoolsVariant?.price) {
+      price = this.commercetoolsMoneyToMoney(commercetoolsVariant.price?.value);
+      distributionChannelId = commercetoolsVariant.price?.channel?.id;
+      if (commercetoolsVariant.price?.discounted?.value) {
+        discountedPrice = this.commercetoolsMoneyToMoney(commercetoolsVariant.price?.discounted?.value);
+      }
+      // @ts-ignore
+      if (commercetoolsVariant.price?.discounted?.discount?.description) {
+        // @ts-ignore
+        discounts = [commercetoolsVariant.price?.discounted?.discount?.description];
+      }
+
+      return { price, discountedPrice, discounts, distributionChannelId };
+    }
+
+    if (commercetoolsVariant?.prices) {
+      let commercetoolsPrice: Price;
+      //Filter price by country and currency and if we don't find one, then filter only by currency
+      commercetoolsPrice = commercetoolsVariant?.prices.find((price: Price) => {
+        return !price.hasOwnProperty('channel') && !price.hasOwnProperty('customerGroup');
+      });
+
+      if (!commercetoolsPrice) {
+        commercetoolsPrice = commercetoolsVariant?.prices.find((price: Price) => {
+          return (
+            !price.hasOwnProperty('channel') &&
+            !price.hasOwnProperty('customerGroup') &&
+            !price.hasOwnProperty('country')
+          );
+        });
+      }
+
+      price = this.commercetoolsMoneyToMoney(commercetoolsPrice?.value);
+      distributionChannelId = commercetoolsPrice?.channel?.id;
+
+      if (commercetoolsPrice?.discounted?.value) {
+        discountedPrice = this.commercetoolsMoneyToMoney(commercetoolsPrice?.discounted?.value);
+      }
+      // @ts-ignore
+      if (commercetoolsPrice?.discounted?.discount?.description) {
+        // @ts-ignore
+        discounts = [commercetoolsPrice?.discounted?.discount?.description];
+      }
+
+      return { price, discountedPrice, discounts, distributionChannelId };
+    }
+
+    return { price, discountedPrice, discounts, distributionChannelId };
+  }
+  static commercetoolsMoneyToMoney(commercetoolsMoney: CommercetoolsMoney | TypedMoney): Money | undefined {
+    if (commercetoolsMoney === undefined) {
+      return undefined;
+    }
+
+    return {
+      fractionDigits:
+        commercetoolsMoney.hasOwnProperty('fractionDigits') &&
+        (commercetoolsMoney as TypedMoney).fractionDigits !== undefined
+          ? (commercetoolsMoney as TypedMoney).fractionDigits
+          : 2,
+      centAmount: commercetoolsMoney.centAmount,
+      currencyCode: commercetoolsMoney.currencyCode,
+    };
+  }
+
+  static commercetoolsProductProjectionToVariants(
+    commercetoolsProduct: CommercetoolsGraphQlProductProjection,
+    distributionChannelId?: string,
+    supplyChannelId?: string,
+  ): Variant[] {
+    const variants: Variant[] = [];
+
+    if (commercetoolsProduct?.masterVariant) {
+      variants.push(
+        this.commercetoolsProductVariantToVariant(
+          commercetoolsProduct.masterVariant,
+          distributionChannelId,
+          supplyChannelId,
+        ),
+      );
+    }
+
+    for (let i = 0; i < commercetoolsProduct.variants.length; i++) {
+      variants.push(
+        this.commercetoolsProductVariantToVariant(
+          commercetoolsProduct.variants[i],
+          distributionChannelId,
+          supplyChannelId,
+        ),
+      );
+    }
+
+    return variants;
   }
 }
-
-// Override the BaseMapper with new Mapper functions
-Object.getOwnPropertyNames(ProductMapper).forEach((key) => {
-  if (typeof ProductMapper[key] === 'function') {
-    B2BProductMapper[key] = ProductMapper[key];
-  }
-});

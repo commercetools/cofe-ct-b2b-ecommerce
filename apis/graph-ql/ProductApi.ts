@@ -10,6 +10,7 @@ import { ProductApi as RestProductApi } from '../ProductApi';
 import { productProjectionSearchQuery } from '../../queries/ProductProjectionSearch';
 import { AdditionalQueryArgs } from '../../types/query/ProductQuery';
 import { ProductProjection } from '@commercetools/platform-sdk';
+import { CommercetoolsGraphQlProductProjection } from '../../types/graph-ql/product/Product';
 export class ProductApi extends RestProductApi {
   protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
     if (cursor === undefined) {
@@ -170,8 +171,7 @@ export class ProductApi extends RestProductApi {
         })
         .execute()
         .then((response) => {
-          console.debug('response', response);
-          const items = response.body.data.productProjectionSearch.results.map((product: ProductProjection) =>
+          const items = response.body.data.productProjectionSearch.results.map((product: CommercetoolsGraphQlProductProjection) =>
             ProductMapper.commercetoolsProductProjectionGraphQlToProduct(
               product,
               locale,
