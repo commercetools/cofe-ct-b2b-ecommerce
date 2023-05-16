@@ -120,16 +120,18 @@ export class ProductMapper {
 
       switch (typeLookup[queryFacet.identifier]) {
         case 'money':
-          filterFacets.push({
-            model: {
-              range: {
-                path: `${queryFacet.identifier}.centAmount`,
-                ranges: [
-                  { from: `${(queryFacet as QueryRangeFacet).min}`, to: `${(queryFacet as QueryRangeFacet).max}` },
-                ],
+          if ((queryFacet as QueryRangeFacet).min && (queryFacet as QueryRangeFacet).max) {
+            filterFacets.push({
+              model: {
+                range: {
+                  path: `${queryFacet.identifier}.centAmount`,
+                  ranges: [
+                    { from: `${(queryFacet as QueryRangeFacet).min}`, to: `${(queryFacet as QueryRangeFacet).max}` },
+                  ],
+                },
               },
-            },
-          });
+            });
+          }
           break;
         case 'enum':
           filterFacets.push({
@@ -175,7 +177,7 @@ export class ProductMapper {
                 },
               },
             });
-          } else {
+          } else if ((queryFacet as QueryRangeFacet).min && (queryFacet as QueryRangeFacet).max) {
             filterFacets.push({
               model: {
                 range: {
