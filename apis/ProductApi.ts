@@ -11,10 +11,7 @@ import { productProjectionSearchQuery } from '../queries/ProductProjectionSearch
 import { CommercetoolsGraphQlProductProjection } from '../types/product/Product';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { Product } from 'cofe-ct-b2b-ecommerce/types/product/Product';
-// Temporary
-import {ProductApi as RestApi} from 'cofe-ct-b2b-ecommerce/apis/ProductApi';
-import { CategoryQuery } from 'cofe-ct-ecommerce/interfaces/CategoryQuery';
-import { Category } from 'cofe-ct-b2b-ecommerce/types/product/Category';
+
 export class ProductApi extends BaseApi {
   protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
     if (cursor === undefined) {
@@ -244,19 +241,5 @@ export class ProductApi extends BaseApi {
       //TODO: better error, get status code etc...
       throw new Error(`getProduct failed. ${error}`);
     }
-  };
-  queryCategories: (categoryQuery: CategoryQuery) => Promise<Result> = async (categoryQuery: CategoryQuery) => {
-    const restApi = new RestApi(this.frontasticContext, this.locale);
-    return restApi.queryCategories(categoryQuery);
-  }
-
-  getNavigationCategories: () => Promise<Category[]> = async () => {
-    const { items }: { items: any[] } = await this.queryCategories({ limit: 500 });
-
-    let categories: Category[] = [];
-
-    categories = items.filter((item: Category) => !item.ancestors?.length);
-
-    return categories as Category[];
   };
 }
