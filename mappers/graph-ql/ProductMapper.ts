@@ -468,7 +468,6 @@ export class ProductMapper {
     return variants;
   }
 
-  
   static commercetoolsFacetResultsToFacets(
     commercetoolsFacetResults: FacetResultGraphQl[],
     productQuery: ProductQuery,
@@ -503,7 +502,7 @@ export class ProductMapper {
 
           facets.push(
             B2BProductMapper.commercetoolsTermFacetResultToTermFacet(
-                facet.facet,
+              facet.facet,
               facet.value as CommercetoolsTermFacetResult,
               facetQuery as QueryTermFacet | undefined,
             ),

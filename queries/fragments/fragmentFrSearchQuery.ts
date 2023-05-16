@@ -7,6 +7,16 @@ export const fragmentFrSearchQuery = `
       facet
       value {
         type
+        ... on TermsFacetResult {
+          dataType
+          total
+           terms {
+            ... on TermCount {
+              count
+              term
+            }
+          }
+        }
         ... on RangeFacetResult {
           ranges {
             type
