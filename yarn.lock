@@ -1674,11 +1674,6 @@ globby@^11.1.0:
     merge2 "^1.4.1"
     slash "^3.0.0"
 
-gql-query-builder@^3.8.0:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/gql-query-builder/-/gql-query-builder-3.8.0.tgz#d182d127f88abb7d39f7bec2c64f8b4570812e2f"
-  integrity sha512-q0PncZTrLDeyiH4R7YH1ISM+XGB4NvQ8eTm/Wr/sHSuquFZvqvDpGyMhbgoCZDc8kNAK8GOdfh3nI2GCLREFvw==
-
 graceful-fs@^4.2.9:
   version "4.2.10"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
