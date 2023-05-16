@@ -1,22 +1,20 @@
-# CoFe B2B extensions
-
+# CoFe B2B extensions using GraphQl
 ## NOTE:
 This is **NOT** an official B2B extension code and **NOT** production ready. Use it at your own risk
-
 ## Installation
 ```
-yarn add cofe-ct-ecommerce cofe-ct-b2b-ecommerce
+yarn add cofe-ct-ecommerce cofe-ct-b2b-ecommerce cofe-ct-graphql-b2b-ecommerce
 ```
 ## How to use it
 In order to use B2B extensions, edit `commerce-commercetools/index.ts`
 ```
 import { QuoteAction, AssociateAction, AccountAction, ... } from 'cofe-ct-b2b-ecommerce';
+import { ProductAction } from 'cofe-ct-graphql-b2b-ecommerce';
 
 export default {
     ...
     actions: {
-        account: AccountAction,
-        quote: QuoteAction,
+        product: ProductAction
     ...
     }
 }
@@ -27,36 +25,43 @@ export default {
 If you plan to extend the login method in the `AccountAction`, create the file `AccountController.ts`
 ```
 // this line has to be the first line at the top
-export * from 'cofe-ct-b2b-ecommerce/actionControllers/AccountController';
+export * from 'cofe-ct-graphql-b2b-ecommerce/actionControllers/ProductController';
 import { Request, Response } from '@frontastic/extension-types';
 ...
 
-export const login: ActionHook = async (request: Request, actionContext: ActionContext) => {
+export const query: ActionHook = async (request: Request, actionContext: ActionContext) => {
     // implement you code here
 }
 ```
 ### API
-If you plan to extend createCart endpoint in Cart, create a file `CartApi.ts`
+If you plan to extend createCart endpoint in Cart, create a file `ProductApi.ts`
 ```
 // your imports
-import { CartApi as B2BCartApi } from 'cofe-ct-b2b-ecommerce/apis/CartApi';
+import { ProductApi as GraphQlProductApi } from 'cofe-ct-graphql-b2b-ecommerce/apis/ProductApi';
 
-export class CartApi extends B2BCartApi {
-    createCart: (...args) => Cart {
+export class ProductApi extends GraphQlProductApi {
+    query: (...args) => Cart {
         // your implementation
     }
 }
 ```
 
-## Configuration
-### Variables to set
-1. project.yml`
+### GraphQl Queries
+Modify the graphQl query passed to commercetools-sdk
 ```
-wishlistSharing:
-    wishlistSharingCustomType: b2b-list
-    wishlistSharingCustomField: business-unit-keys // string(set)
-associateRoles:
-    defaultAdminRoleKey: admin // key of default admin role
-    defaultBuyerRoleKey: buyer // key of default buyer role
-    defaultSuperUserRoleKey: super-user // key of default superUser role
+class ProductApi {
+    ...
+    query: () => {
+        ...
+        return this.getApiForProject()
+        .graphql()
+        .post({
+          body: {
+            query: `<write your own query here>`,
+            variables,
+          },
+        })
+    }
+}
+
 ```
