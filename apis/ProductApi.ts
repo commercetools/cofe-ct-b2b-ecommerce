@@ -10,6 +10,7 @@ import { SearchFilterInput, AdditionalQueryArgs } from '../types/query/ProductQu
 import { productProjectionSearchQuery } from '../queries/ProductProjectionSearch';
 import { CommercetoolsGraphQlProductProjection } from '../types/product/Product';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
+import { Product } from 'cofe-ct-b2b-ecommerce/types/product/Product';
 export class ProductApi extends BaseApi {
   protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
     if (cursor === undefined) {
@@ -224,6 +225,20 @@ export class ProductApi extends BaseApi {
     } catch (error) {
       //TODO: better error, get status code etc...
       throw new Error(`query failed. ${error}`);
+    }
+  };
+
+  getProduct: (productQuery: ProductQuery, additionalQueryArgs?: object) => Promise<Product> = async (
+    productQuery: ProductQuery,
+    additionalQueryArgs?: object,
+  ) => {
+    try {
+      const result = await this.query(productQuery, additionalQueryArgs);
+
+      return result.items.shift() as Product;
+    } catch (error) {
+      //TODO: better error, get status code etc...
+      throw new Error(`getProduct failed. ${error}`);
     }
   };
 }
