@@ -182,10 +182,9 @@ export class ProductApi extends RestProductApi {
             total: response.body.data.productProjectionSearch.total,
             items,
             count: response.body.data.productProjectionSearch.count,
-            facets: ProductMapper.commercetoolsFacetResultsToFacets(
+            facets: ProductMapperGraphQL.commercetoolsFacetResultsToFacets(
               response.body.data.productProjectionSearch.facets,
               productQuery,
-              locale,
             ),
             previousCursor: ProductMapper.calculatePreviousCursor(
               response.body.data.productProjectionSearch.offset,

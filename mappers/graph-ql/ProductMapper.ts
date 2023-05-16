@@ -2,6 +2,7 @@ import { Locale } from 'cofe-ct-ecommerce/interfaces/Locale';
 import { TermFacet as QueryTermFacet } from '@commercetools/frontend-domain-types/query/TermFacet';
 import { RangeFacet as QueryRangeFacet } from '@commercetools/frontend-domain-types/query/RangeFacet';
 import { Facet as QueryFacet } from '@commercetools/frontend-domain-types/query/Facet';
+import { Facet } from '@commercetools/frontend-domain-types/result/Facet';
 import { FacetDefinition } from '@commercetools/frontend-domain-types/product/FacetDefinition';
 import { FilterTypes } from '@commercetools/frontend-domain-types/query/Filter';
 import { SearchFacetInput, SearchFilterInput } from '../../types/graph-ql/query/ProductQuery';
@@ -11,6 +12,8 @@ import {
   Price,
   Money as CommercetoolsMoney,
   TypedMoney,
+  RangeFacetResult as CommercetoolsRangeFacetResult,
+  TermFacetResult as CommercetoolsTermFacetResult,
 } from '@commercetools/platform-sdk';
 import { Product } from '../../types/product/Product';
 import {
@@ -23,15 +26,8 @@ import { Category } from '../../types/product/Category';
 import { Attributes } from '@commercetools/frontend-domain-types/product/Attributes';
 import { Money } from '@commercetools/frontend-domain-types/product/Money';
 import { ProductRouter } from '../../utils/ProductRouter';
-
-interface NoChannelAvailability {
-  noChannel: {
-    isOnStock: boolean;
-    availableQuantity: number;
-    id: string;
-    version: string;
-  };
-}
+import { FacetResultGraphQl, ProductQuery } from '../../types/query/ProductQuery';
+import { ProductMapper as B2BProductMapper } from '../ProductMapper';
 
 export class ProductMapper {
   static commercetoolsProductProjectionGraphQlToProduct(
@@ -470,5 +466,66 @@ export class ProductMapper {
     }
 
     return variants;
+  }
+
+  static commercetoolsFacetResultsToFacets(
+    commercetoolsFacetResults: FacetResultGraphQl[],
+    productQuery: ProductQuery,
+  ): Facet[] {
+    const facets: Facet[] = [];
+
+    commercetoolsFacetResults.forEach((facet) => {
+      const facetQuery = this.findFacetQuery(productQuery, facet.facet);
+
+      switch (facet.value.type) {
+        case 'range':
+          facets.push(
+            B2BProductMapper.commercetoolsRangeFacetResultToRangeFacet(
+              facet.facet,
+              facet.value as CommercetoolsRangeFacetResult,
+              facetQuery as QueryRangeFacet | undefined,
+            ),
+          );
+          break;
+
+        // case 'terms':
+        //   if (facetResult.dataType === 'number') {
+        //     facets.push(
+        //       B2BProductMapper.commercetoolsTermNumberFacetResultToRangeFacet(
+        //         facetKey,
+        //         facetResult as CommercetoolsTermFacetResult,
+        //         facetQuery as QueryRangeFacet | undefined,
+        //       ),
+        //     );
+        //     break;
+        //   }
+
+        //   facets.push(
+        //     this.commercetoolsTermFacetResultToTermFacet(
+        //       facetKey,
+        //       facetResult as CommercetoolsTermFacetResult,
+        //       facetQuery as QueryTermFacet | undefined,
+        //     ),
+        //   );
+        //   break;
+        case 'filter': // Currently, we are not mapping FilteredFacetResult
+        default:
+          break;
+      }
+    });
+
+    return facets;
+  }
+
+  private static findFacetQuery(productQuery: ProductQuery, facetKey: string) {
+    if (productQuery.facets !== undefined) {
+      for (const facet of productQuery.facets) {
+        if (facet.identifier === facetKey) {
+          return facet;
+        }
+      }
+    }
+
+    return undefined;
   }
 }
