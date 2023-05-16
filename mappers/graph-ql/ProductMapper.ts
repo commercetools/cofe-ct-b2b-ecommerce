@@ -468,6 +468,7 @@ export class ProductMapper {
     return variants;
   }
 
+  
   static commercetoolsFacetResultsToFacets(
     commercetoolsFacetResults: FacetResultGraphQl[],
     productQuery: ProductQuery,
@@ -488,26 +489,26 @@ export class ProductMapper {
           );
           break;
 
-        // case 'terms':
-        //   if (facetResult.dataType === 'number') {
-        //     facets.push(
-        //       B2BProductMapper.commercetoolsTermNumberFacetResultToRangeFacet(
-        //         facetKey,
-        //         facetResult as CommercetoolsTermFacetResult,
-        //         facetQuery as QueryRangeFacet | undefined,
-        //       ),
-        //     );
-        //     break;
-        //   }
+        case 'terms':
+          if (facet.value.dataType === 'number') {
+            facets.push(
+              B2BProductMapper.commercetoolsTermNumberFacetResultToRangeFacet(
+                facet.facet,
+                facet.value as CommercetoolsTermFacetResult,
+                facetQuery as QueryRangeFacet | undefined,
+              ),
+            );
+            break;
+          }
 
-        //   facets.push(
-        //     this.commercetoolsTermFacetResultToTermFacet(
-        //       facetKey,
-        //       facetResult as CommercetoolsTermFacetResult,
-        //       facetQuery as QueryTermFacet | undefined,
-        //     ),
-        //   );
-        //   break;
+          facets.push(
+            B2BProductMapper.commercetoolsTermFacetResultToTermFacet(
+                facet.facet,
+              facet.value as CommercetoolsTermFacetResult,
+              facetQuery as QueryTermFacet | undefined,
+            ),
+          );
+          break;
         case 'filter': // Currently, we are not mapping FilteredFacetResult
         default:
           break;
