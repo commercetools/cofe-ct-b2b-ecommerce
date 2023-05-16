@@ -5,6 +5,7 @@ import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { Category } from '@commercetools/frontend-domain-types/product/Category';
 import { ProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
+import { AdditionalQueryArgs } from '../types/query/ProductQuery';
 
 export class CategoryRouter extends BaseCategoryRouter {
   static identifyPreviewFrom(request: Request) {
@@ -73,7 +74,7 @@ export class CategoryRouter extends BaseCategoryRouter {
         ...request,
       });
 
-      const additionalQueryArgs = {
+      const additionalQueryArgs: AdditionalQueryArgs = {
         staged: true,
       };
       const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;

@@ -11,6 +11,9 @@ import { productProjectionSearchQuery } from '../queries/ProductProjectionSearch
 import { CommercetoolsGraphQlProductProjection } from '../types/product/Product';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { Product } from 'cofe-ct-b2b-ecommerce/types/product/Product';
+// Temporary
+import {ProductApi as RestApi} from 'cofe-ct-b2b-ecommerce/apis/ProductApi';
+import { CategoryQuery } from 'cofe-ct-ecommerce/interfaces/CategoryQuery';
 export class ProductApi extends BaseApi {
   protected getGraphQlOffsetFromCursor = (cursor?: string): object => {
     if (cursor === undefined) {
@@ -241,4 +244,8 @@ export class ProductApi extends BaseApi {
       throw new Error(`getProduct failed. ${error}`);
     }
   };
+  queryCategories: (categoryQuery: CategoryQuery) => Promise<Result> = async (categoryQuery: CategoryQuery) => {
+    const restApi = new RestApi(this.frontasticContext, this.locale);
+    return restApi.queryCategories(categoryQuery);
+  }
 }

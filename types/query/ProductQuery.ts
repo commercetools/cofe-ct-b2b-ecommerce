@@ -4,6 +4,7 @@ export interface AdditionalQueryArgs {
     supplyChannelId?: string;
     distributionChannelId?: string;
     storeProjection?: string;
+    staged?: boolean;
 }
 
 export interface FacetResultGraphQl {
