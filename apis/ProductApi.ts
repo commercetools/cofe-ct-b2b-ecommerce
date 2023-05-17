@@ -234,6 +234,7 @@ export class ProductApi extends BaseApi {
     additionalQueryArgs?: object,
   ) => {
     try {
+      productQuery.limit = 1;
       const result = await this.query(productQuery, additionalQueryArgs);
 
       return result.items.shift() as Product;
