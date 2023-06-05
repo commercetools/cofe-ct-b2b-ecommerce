@@ -2,10 +2,9 @@ import { Context, Request } from '@frontastic/extension-types';
 import { ProductApi } from '../apis/ProductApi';
 import { CategoryRouter as BaseCategoryRouter } from 'cofe-ct-ecommerce/utils/CategoryRouter';
 import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
-import { ProductQueryFactory } from './ProductQueryFactory';
-import { CategoryQuery } from '@commercetools/frontend-domain-types/query/CategoryQuery';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { Category } from '@commercetools/frontend-domain-types/product/Category';
+import { ProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
 
 export class CategoryRouter extends BaseCategoryRouter {
   static identifyPreviewFrom(request: Request) {
@@ -23,32 +22,25 @@ export class CategoryRouter extends BaseCategoryRouter {
     return false;
   }
 
-  static loadFor = async (request: Request, frontasticContext: Context): Promise<Result | null> => {
+  static loadFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
     const productApi = new ProductApi(frontasticContext, getLocale(request));
-    const urlMatches = getPath(request)?.match(/[^\/]+/);
 
-    if (urlMatches) {
-      const categoryQuery: CategoryQuery = {
-        slug: urlMatches[0],
-      };
+    const chunks = getPath(request)?.split('/').filter(Boolean);
 
-      const categoryQueryResult = await productApi.queryCategories(categoryQuery);
+    if (chunks) {
+      const slug = chunks[chunks.length - 1];
 
-      if (categoryQueryResult.items.length == 0) return null;
-      request.query.category = (categoryQueryResult.items[0] as Category).categoryId;
+      const response = await productApi.queryCategories({ slug });
+
+      request.query.categories = [(response.items[0] as Category).categoryId];
 
       const productQuery = ProductQueryFactory.queryFromParams({
         ...request,
       });
-
       const additionalQueryArgs = {};
       const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
-      const additionalFacets = [
-        {
-          attributeId: 'categories.id',
-        },
-      ];
+      const additionalFacets: any[] = [];
 
       if (storeKey) {
         // @ts-ignore
@@ -61,22 +53,21 @@ export class CategoryRouter extends BaseCategoryRouter {
       return await productApi.query(productQuery, additionalQueryArgs, additionalFacets);
     }
 
+    // @ts-ignore
     return null;
   };
 
-  static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Result | null> => {
+  static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
     const productApi = new ProductApi(frontasticContext, getLocale(request));
     const urlMatches = getPath(request)?.match(/\/preview\/(.+)/);
 
     if (urlMatches) {
-      const categoryQuery: CategoryQuery = {
-        slug: urlMatches[1],
-      };
+      const slug = urlMatches[1];
+     
 
-      const categoryQueryResult = await productApi.queryCategories(categoryQuery);
+      const response = await productApi.queryCategories({ slug });
 
-      if (categoryQueryResult.items.length == 0) return null;
-      request.query.category = (categoryQueryResult.items[0] as Category).categoryId;
+      request.query.categories = [(response.items[0] as Category).categoryId];
 
       const productQuery = ProductQueryFactory.queryFromParams({
         ...request,
@@ -96,15 +87,13 @@ export class CategoryRouter extends BaseCategoryRouter {
         {
           attributeId: 'published',
           attributeType: 'boolean',
-        },
-        {
-          attributeId: 'categories.id',
-        },
+        }
       ];
 
       return await productApi.query(productQuery, additionalQueryArgs, additionalFacets);
     }
 
+    // @ts-ignore
     return null;
   };
 }

@@ -29,23 +29,19 @@ export const create: ActionHook = async (request: Request, actionContext: Action
 
   try {
     const store = await storeApi.create(data);
-
+  
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(store),
       sessionData: request.sessionData,
     };
-
+  
     return response;
-  } catch (error) {
+  } catch (error: any) {
     const response: Response = {
-      statusCode: 400,
-      sessionData: request.sessionData,
-      // @ts-ignore
-      error: error.message,
-      errorCode: 400,
-    };
-
+      statusCode: 401,
+      body: JSON.stringify(error.message || error.body?.message || error),
+    }
     return response;
   }
 };

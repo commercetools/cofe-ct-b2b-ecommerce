@@ -3,7 +3,7 @@ import { Customer } from '@commercetools/platform-sdk';
 import { CustomerDraft } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/customer';
 import { CartResourceIdentifier } from '@commercetools/platform-sdk/dist/declarations/src/generated/models/cart';
 import { AccountApi as BaseAccountApi } from 'cofe-ct-ecommerce/apis/AccountApi';
-import { AccountMapper } from '../mappers/AccontMapper';
+import { AccountMapper } from '../mappers/AccountMapper';
 import { Cart } from '@commercetools/frontend-domain-types/cart/Cart';
 
 export class AccountApi extends BaseAccountApi {

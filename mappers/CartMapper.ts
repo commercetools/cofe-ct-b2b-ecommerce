@@ -91,10 +91,14 @@ export class CartMapper extends BaseCartMapper {
       billingAddress: this.commercetoolsAddressToAddress(commercetoolsOrder.billingAddress),
       sum: ProductMapper.commercetoolsMoneyToMoney(commercetoolsOrder.totalPrice),
       businessUnit: commercetoolsOrder.businessUnit?.key,
-      createdAt: commercetoolsOrder.createdAt,
+      createdAt: new Date(commercetoolsOrder.createdAt),
       shippingInfo: this.commercetoolsShippingInfoToShippingInfo(commercetoolsOrder.shippingInfo, locale),
       returnInfo: this.commercetoolsReturnInfoToReturnInfo(commercetoolsOrder.returnInfo),
       purchaseOrderNumber: commercetoolsOrder.purchaseOrderNumber,
+      subtotal: ProductMapper.commercetoolsMoneyToMoney(commercetoolsOrder.taxedPrice.totalNet),
+      taxed: commercetoolsOrder.taxedPrice.taxPortions[0],
+      payments: this.commercetoolsPaymentInfoToPayments(commercetoolsOrder.paymentInfo, locale),
+      shipmentState: commercetoolsOrder.shipmentState ?? 'Pending',
     };
   }
 

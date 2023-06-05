@@ -16,8 +16,9 @@ export interface Order extends Cart {
   orderId?: string;
   orderVersion?: string;
   orderState?: string;
-  createdAt?: string;
+  createdAt?: Date;
   businessUnit?: string;
   returnInfo?: ReturnInfo[];
   purchaseOrderNumber?: string;
+  shipmentState?: string;
 }

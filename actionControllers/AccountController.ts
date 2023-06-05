@@ -4,7 +4,6 @@ import { ActionContext } from '@frontastic/extension-types';
 import { AccountApi } from '../apis/AccountApi';
 import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
-import { EmailApi } from 'cofe-ct-ecommerce/apis/EmailApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
 import { Account } from '../types/account/Account';
@@ -24,6 +23,7 @@ export type AccountRegisterBody = {
   birthdayDay?: string;
   billingAddress?: Address;
   shippingAddress?: Address;
+  isSubscribed?: boolean;
 };
 
 type AccountLoginBody = {
@@ -54,99 +54,15 @@ async function loginAccount(
   }
 }
 
-function parseBirthday(accountRegisterBody: AccountRegisterBody): Date | undefined {
-  if (accountRegisterBody.birthdayYear) {
-    return new Date(
-      +accountRegisterBody.birthdayYear,
-      +accountRegisterBody?.birthdayMonth ?? 1,
-      +accountRegisterBody?.birthdayDay ?? 1,
-    );
-  }
-
-  return null;
-}
-
-function mapRequestToAccount(request: Request): Account {
-  const accountRegisterBody: AccountRegisterBody = JSON.parse(request.body);
-
-  const account: Account = {
-    email: accountRegisterBody?.email,
-    confirmed: accountRegisterBody?.confirmed,
-    password: accountRegisterBody?.password,
-    salutation: accountRegisterBody?.salutation,
-    firstName: accountRegisterBody?.firstName,
-    lastName: accountRegisterBody?.lastName,
-    company: accountRegisterBody?.company,
-    birthday: parseBirthday(accountRegisterBody),
-    addresses: [],
-  };
-
-  if (accountRegisterBody.billingAddress) {
-    accountRegisterBody.billingAddress.isDefaultBillingAddress = true;
-    accountRegisterBody.billingAddress.isDefaultShippingAddress = !(accountRegisterBody.shippingAddress !== undefined);
-
-    account.addresses.push(accountRegisterBody.billingAddress);
-  }
-
-  if (accountRegisterBody.shippingAddress) {
-    accountRegisterBody.shippingAddress.isDefaultShippingAddress = true;
-    accountRegisterBody.shippingAddress.isDefaultBillingAddress = !(accountRegisterBody.billingAddress !== undefined);
-
-    account.addresses.push(accountRegisterBody.shippingAddress);
-  }
-
-  return account;
-}
-
-export const register: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-
-  const accountData = mapRequestToAccount(request);
-
-  const cart = await CartFetcher.fetchCart(request, actionContext).catch(() => undefined);
-
-  let response: Response;
-
-  try {
-    const account = await accountApi.create(accountData, cart);
-
-    if (EmailApi) {
-      const emailApi = EmailApi.getDefaultApi(actionContext.frontasticContext, getLocale(request));
-
-      emailApi.sendWelcomeCustomerEmail(account);
-
-      emailApi.sendAccountVerificationEmail(account);
-    }
-
-    response = {
-      statusCode: 200,
-      body: JSON.stringify({ accountId: account.accountId }),
-      sessionData: {
-        ...request.sessionData,
-      },
-    };
-  } catch (e) {
-    response = {
-      statusCode: 400,
-      // @ts-ignore
-      error: e?.message,
-      errorCode: 500,
-    };
-  }
-  return response;
-};
-
 export const login: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const accountLoginBody: AccountLoginBody = JSON.parse(request.body);
 
-  const loginInfo = {
-    email: accountLoginBody.email,
-    password: accountLoginBody.password,
-  } as Account;
-
-  let response: Response;
-
   try {
+    const loginInfo = {
+      email: accountLoginBody.email,
+      password: accountLoginBody.password,
+    } as Account;
+  
     const { account, organization } = await loginAccount(
       request,
       actionContext,
@@ -154,7 +70,7 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
       false,
       accountLoginBody.businessUnitKey,
     );
-    response = {
+    const response: Response = {
       statusCode: 200,
       body: JSON.stringify(account),
       sessionData: {
@@ -167,16 +83,15 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
         },
       },
     };
-  } catch (e) {
-    response = {
-      statusCode: 400,
-      // @ts-ignore
-      error: e?.message,
-      errorCode: 500,
-    };
+  
+    return response;
+  } catch (error: any) {
+    const response: Response = {
+      statusCode: 401,
+      body: JSON.stringify(error.message),
+    }
+    return response;
   }
-
-  return response;
 };
 
 export const logout: ActionHook = async (request: Request, actionContext: ActionContext) => {

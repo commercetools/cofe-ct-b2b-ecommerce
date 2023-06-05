@@ -40,27 +40,24 @@ async function fetchWishlist(request: Request, wishlistApi: WishlistApi) {
 }
 
 export const getStoreWishlists: ActionHook = async (request, actionContext) => {
-  try {
-    const account = fetchAccountFromSessionEnsureLoggedIn(request);
-    const wishlistApi = getWishlistApi(request, actionContext);
-    const storeKey = fetchStoreFromSession(request);
-    const wishlists = await wishlistApi.getForAccountStore(account.accountId, storeKey);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(wishlists),
-      sessionData: request.sessionData,
-    };
-  } catch (e) {
-    const response: Response = {
-      statusCode: 400,
-      // @ts-ignore
-      error: e,
-      errorCode: 400,
-    };
-
-    return response;
+  const account = fetchAccountFromSessionEnsureLoggedIn(request);
+  const wishlistApi = getWishlistApi(request, actionContext);
+  const storeKey = fetchStoreFromSession(request);
+ try {
+   const wishlists = await wishlistApi.getForAccountStore(account.accountId, storeKey);
+ 
+   return {
+     statusCode: 200,
+     body: JSON.stringify(wishlists),
+     sessionData: request.sessionData,
+   };
+ } catch (error: any) {
+  const response: Response = {
+    statusCode: 401,
+    body: JSON.stringify(error.message || error.body?.message || error),
   }
+  return response;
+ }
 };
 
 export const getAllWishlists: ActionHook = async (request, actionContext) => {
@@ -101,22 +98,20 @@ export const getSharedWishlists: ActionHook = async (request, actionContext) => 
 
 export const getWishlist: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
-  try {
-    const wishlist = await fetchWishlist(request, wishlistApi);
-    return {
-      statusCode: 200,
-      body: JSON.stringify(wishlist),
-      sessionData: request.sessionData,
-    };
-  } catch (e) {
-    return {
-      statusCode: 400,
-      sessionData: request.sessionData,
-      // @ts-ignore
-      error: e?.body?.message,
-      errorCode: 500,
-    };
-  }
+ try {
+   const wishlist = await fetchWishlist(request, wishlistApi);
+   return {
+     statusCode: 200,
+     body: JSON.stringify(wishlist),
+     sessionData: request.sessionData,
+   };
+ } catch (error: any) {
+  const response: Response = {
+      statusCode: 401,
+      body: JSON.stringify(error.message || error.body?.message || error),
+    }
+    return response;
+ }
 };
 
 export const createWishlist: ActionHook = async (request, actionContext) => {

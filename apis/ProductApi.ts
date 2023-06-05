@@ -28,6 +28,10 @@ export class ProductApi extends BaseProductApi {
           ...additionalFacets,
           // Include Scoped Price facet
           {
+            attributeId: 'categories.id',
+            attributeType: 'text',
+          },
+          {
             attributeId: 'variants.scopedPrice.value',
             attributeType: 'money',
           },
@@ -35,6 +39,10 @@ export class ProductApi extends BaseProductApi {
           {
             attributeId: 'variants.price',
             attributeType: 'money',
+          },
+          {
+            attributeId: 'variants.scopedPriceDiscounted',
+            attributeType: 'boolean',
           },
         ];
 
@@ -48,8 +56,9 @@ export class ProductApi extends BaseProductApi {
           filterQuery.push(`variants.sku:"${productQuery.skus.join('","')}"`);
         }
 
-        if (productQuery.category !== undefined && productQuery.category !== '') {
-          filterQuery.push(`categories.id:subtree("${productQuery.category}")`);
+        if (productQuery.categories !== undefined && productQuery.categories.length !== 0) {
+          const categoryIds = productQuery.categories.map((category) => `subtree("${category}")`);
+          filterQuery.push(`categories.id: ${categoryIds.join(', ')}`);
         }
 
         if (productQuery.filters !== undefined) {

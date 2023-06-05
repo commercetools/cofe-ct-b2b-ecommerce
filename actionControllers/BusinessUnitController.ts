@@ -271,22 +271,19 @@ export const getByKey: ActionHook = async (request: Request, actionContext: Acti
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
   try {
     const businessUnit = await businessUnitApi.getByKey(request.query?.['key']);
-
+  
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(businessUnit),
       sessionData: request.sessionData,
     };
-
+  
     return response;
-  } catch {
+  } catch (error: any) {
     const response: Response = {
-      statusCode: 400,
-      // @ts-ignore
-      error: new Error('Business unit not found'),
-      errorCode: 400,
-    };
-
+      statusCode: 401,
+      body: JSON.stringify(error.message || error.body?.message || error),
+    }
     return response;
   }
 };
@@ -295,24 +292,12 @@ export const remove: ActionHook = async (request: Request, actionContext: Action
   const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
   const key = request.query?.['key'];
 
-  let response: Response;
-
-  try {
-    const businessUnit = await businessUnitApi.delete(key);
-    response = {
-      statusCode: 200,
-      body: JSON.stringify(businessUnit),
-      sessionData: request.sessionData,
-    };
-  } catch (e) {
-    response = {
-      statusCode: 400,
-      sessionData: request.sessionData,
-      // @ts-ignore
-      error: e?.body?.message,
-      errorCode: 500,
-    };
-  }
+  const businessUnit = await businessUnitApi.delete(key);
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(businessUnit),
+    sessionData: request.sessionData,
+  };
 
   return response;
 };
