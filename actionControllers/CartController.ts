@@ -435,7 +435,7 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
     request.sessionData?.organization,
     request.sessionData?.account,
   );
-  const cart = await CartFetcher.fetchCart(request, actionContext);
+  let cart = await CartFetcher.fetchCart(request, actionContext);
 
   const body: {
     lineItemId?: string;
@@ -453,7 +453,7 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
 
   if (remainingAddresses.length) {
     for await (const address of remainingAddresses) {
-      await cartApi.addItemShippingAddress(cart, address);
+      cart = await cartApi.addItemShippingAddress(cart, address);
     }
   }
 

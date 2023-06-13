@@ -1,3 +1,5 @@
+# 1.2.1
+- bugfix: split lineitem
 # 1.2.0
 - use storeProjection instead of distribution channel, using product projection endpoint
 - pass distribution channel and supply channel for price/availability selection
