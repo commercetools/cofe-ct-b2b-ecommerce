@@ -745,7 +745,7 @@ export class CartApi extends BaseCartApi {
     }
   };
 
-  addItemShippingAddress: (originalCart: Cart, address: AddressDraft) => Promise<any> = async (
+  addItemShippingAddress: (originalCart: Cart, address: AddressDraft) => Promise<Cart> = async (
     originalCart: Cart,
     address: AddressDraft,
   ) => {
@@ -763,7 +763,8 @@ export class CartApi extends BaseCartApi {
         },
       ],
     };
-    return this.updateCart(originalCart.cartId, cartUpdate, locale);
+    const commercetoolsCart = await this.updateCart(originalCart.cartId, cartUpdate, locale);
+    return (await this.buildCartWithAvailableShippingMethods(commercetoolsCart, locale)) as Cart;
   };
 
   updateLineItemShippingDetails: (
