@@ -1,4 +1,4 @@
-# 1.2.1
+# 1.2.2
 - bugfix: split lineitem
 # 1.2.0
 - use storeProjection instead of distribution channel, using product projection endpoint
