@@ -1,4 +1,8 @@
 # CoFe B2B extensions
+
+## NOTE:
+This is **NOT** an official B2B extension code and **NOT** production ready. Use it at your own risk
+
 ## Installation
 ```
 yarn add cofe-ct-ecommerce cofe-ct-b2b-ecommerce
