@@ -2,6 +2,7 @@ import { Account as DomainAccount } from '@commercetools/frontend-domain-types/a
 
 export interface Account extends DomainAccount {
   company?: string;
+  isSubscribed?: boolean;
 }
 
 export interface CustomerReference {

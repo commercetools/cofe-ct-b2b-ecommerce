@@ -1,8 +1,6 @@
-import { Category } from '@commercetools/frontend-domain-types/product/Category';
 import { Product } from '../types/product/Product';
 import { Variant } from '../types/product/Variant';
 import {
-  Category as CommercetoolsCategory,
   ProductProjection as CommercetoolsProductProjection,
   ProductVariant as CommercetoolsProductVariant,
   ProductVariantAvailability,
@@ -212,46 +210,6 @@ export class ProductMapper extends BaseProductMapper {
       }
     }
     return { availability: variant.availability };
-  }
-
-  static commercetoolsCategoryToCategory: (commercetoolsCategory: CommercetoolsCategory, locale: Locale) => Category = (
-    commercetoolsCategory: CommercetoolsCategory,
-    locale: Locale,
-  ) => {
-    return {
-      categoryId: commercetoolsCategory.id,
-      parentId: commercetoolsCategory.parent?.id ? commercetoolsCategory.parent.id : undefined,
-      ancestors: commercetoolsCategory.ancestors?.length ? commercetoolsCategory.ancestors : undefined,
-      name: commercetoolsCategory.name?.[locale.language] ?? undefined,
-      slug: commercetoolsCategory.slug?.[locale.language] ?? undefined,
-      depth: commercetoolsCategory.ancestors.length,
-      subCategories: (commercetoolsCategory as any).subCategories?.map((subCategory: CommercetoolsCategory) =>
-        this.commercetoolsCategoryToCategory(subCategory, locale),
-      ),
-      path:
-        commercetoolsCategory.ancestors.length > 0
-          ? `/${commercetoolsCategory.ancestors
-              .map((ancestor) => {
-                return ancestor.id;
-              })
-              .join('/')}/${commercetoolsCategory.id}`
-          : `/${commercetoolsCategory.id}`,
-    };
-  };
-
-  static extractAttributeValue(commercetoolsAttributeValue: unknown, locale: Locale): unknown {
-    if (commercetoolsAttributeValue['key'] !== undefined && commercetoolsAttributeValue['label'] !== undefined) {
-      return {
-        key: commercetoolsAttributeValue['key'],
-        label: this.extractAttributeValue(commercetoolsAttributeValue['label'], locale),
-      };
-    }
-
-    if (commercetoolsAttributeValue instanceof Array) {
-      return commercetoolsAttributeValue.map((value) => this.extractAttributeValue(value, locale));
-    }
-
-    return commercetoolsAttributeValue[locale.language] || commercetoolsAttributeValue;
   }
 }
 

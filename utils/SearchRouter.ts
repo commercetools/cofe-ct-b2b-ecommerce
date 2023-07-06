@@ -1,9 +1,9 @@
 import { Context, Request } from '@frontastic/extension-types';
-import { ProductQueryFactory } from './ProductQueryFactory';
 import { SearchRouter as BaseSearchRouter } from 'cofe-ct-ecommerce/utils/SearchRouter';
 import { ProductApi } from '../apis/ProductApi';
 import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
+import { ProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
 
 export class SearchRouter extends BaseSearchRouter {
   static identifyFrom(request: Request) {
@@ -22,16 +22,12 @@ export class SearchRouter extends BaseSearchRouter {
     const urlMatches = getPath(request)?.match(/\/search/);
 
     const additionalQueryArgs = {};
-    const additionalFacets = [
-      {
-        attributeId: 'categories.id',
-      },
-    ];
-         const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
+    const additionalFacets: any[] = [];
+    const storeKey = request.query?.['storeKey'] || request.sessionData?.organization?.store?.key;
 
     if (storeKey) {
       // @ts-ignore
-        additionalQueryArgs.storeProjection = storeKey;
+      additionalQueryArgs.storeProjection = storeKey;
       additionalFacets.push({
         attributeId: `variants.availability.availableQuantity`,
       });

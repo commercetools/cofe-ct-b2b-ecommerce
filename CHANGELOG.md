@@ -1,3 +1,12 @@
+# 1.3.0
+- Update cofe-ct-ecommerce dependency
+- Update platform-sdk dependency
+- remove unchanged methods from cofe-ct-ecommerce in AccountController
+- return statuscode: 401 to catch in frontend-sdk
+- rename accontMapper to accountMapper
+- FIX expansions for cart
+- add categories and scopedDiscounts to defaultFacets
+
 # 1.2.2
 - bugfix: split lineitem
 # 1.2.0
