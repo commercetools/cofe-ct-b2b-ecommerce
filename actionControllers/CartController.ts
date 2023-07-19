@@ -166,6 +166,8 @@ export const checkout: ActionHook = async (request: Request, actionContext: Acti
   const cart = await updateCartFromRequest(request, actionContext);
   const order = await cartApi.order(cart, body.payload);
 
+  // TODO: get flow by order id, if exist, set workflow status
+
   // Unset the cartId
   const cartId: string = undefined;
 
