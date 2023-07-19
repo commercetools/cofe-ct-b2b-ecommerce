@@ -54,11 +54,14 @@ export class ApprovalRuleApi extends BaseApi {
     const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
 
     const response = await axios
-      .get(`${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-rules?sort=createdAt desc`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      .get(
+        `${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-rules?sort=createdAt desc`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      })
+      )
       .catch(this.throwError);
     return response.data?.results;
   };
@@ -91,6 +94,28 @@ export class ApprovalRuleApi extends BaseApi {
           Authorization: `Bearer ${accessToken}`,
         },
       })
+      .catch(this.throwError);
+    return response.data;
+  };
+
+  duplicate: (businessUnitKey: string, data: ApprovalRuleDraft) => Promise<ApprovalRule> = async (
+    businessUnitKey: string,
+    data: ApprovalRuleDraft,
+  ): Promise<ApprovalRule> => {
+    const accessToken = await this.getAccessToken();
+    const engine = 'commercetools';
+    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+
+    const response = await axios
+      .post(
+        `${clientSettings.hostUrl}/${clientSettings.projectKey}/as-associate/${this.account.accountId}/in-business-unit/key=${businessUnitKey}/approval-rules`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      )
       .catch(this.throwError);
     return response.data;
   };
