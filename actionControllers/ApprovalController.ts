@@ -84,6 +84,44 @@ export const createApprovalRule: ActionHook = async (request: Request, actionCon
   }
 };
 
+export const duplicateApprovalRule: ActionHook = async (request: Request, actionContext) => {
+  const businessUnitKey = request.query?.['key'];
+  const approvalRuleId = request.query?.['approvalRuleId'];
+  const approvalRuleApi = new ApprovalRuleApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
+    request.sessionData?.account,
+  );
+
+  try {
+    const { businessUnitKeys }: { businessUnitKeys: string[] } = JSON.parse(request.body);
+    const approvalRule = await approvalRuleApi.get(approvalRuleId);
+    const approvalRuleDraft: ApprovalRuleDraft = {
+      approvers: approvalRule.approvers,
+      name: approvalRule.name,
+      predicate: approvalRule.predicate,
+      requesters: approvalRule.requesters,
+      status: approvalRule.status,
+      description: approvalRule.description,
+    };
+    const promises = businessUnitKeys.map((businessUnitKey) => approvalRuleApi.duplicate(businessUnitKey, approvalRuleDraft));
+    const res = Promise.allSettled(promises).then((values) => values);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(res),
+      sessionData: request.sessionData,
+    };
+  } catch (error) {
+    const response: Response = {
+      statusCode: 401,
+      // @ts-ignore
+      body: JSON.stringify(error.message || error.body?.message || error),
+    };
+    return response;
+  }
+};
+
 export const activateApprovalRule: ActionHook = async (request: Request, actionContext) => {
   const businessUnitKey = request.query?.['key'];
   const approvalRuleId = request.query?.['approvalRuleId'];
