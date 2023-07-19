@@ -105,8 +105,16 @@ export const duplicateApprovalRule: ActionHook = async (request: Request, action
       status: approvalRule.status,
       description: approvalRule.description,
     };
-    const promises = businessUnitKeys.map((businessUnitKey) => approvalRuleApi.duplicate(businessUnitKey, approvalRuleDraft));
-    const res = Promise.allSettled(promises).then((values) => values);
+    const promises = businessUnitKeys.map((businessUnitKey) =>
+      approvalRuleApi.duplicate(businessUnitKey, approvalRuleDraft),
+    );
+    // @ts-ignore
+    const res = await Promise.allSettled(promises).then((values) => values);
+    // @ts-ignore
+    const rejections = res.filter((item) => item.status === 'rejected').map((item) => item.reason);
+    if (rejections.length) {
+      throw rejections.join('. ');
+    }
     return {
       statusCode: 200,
       body: JSON.stringify(res),
