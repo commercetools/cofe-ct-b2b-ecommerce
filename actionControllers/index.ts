@@ -6,7 +6,6 @@ import * as StoreActions from './StoreController';
 import * as BusinessUnitActions from './BusinessUnitController';
 import * as QuoteActions from './QuoteController';
 import * as AssociateActions from './AssociateController';
-import * as ApprovalActions from './ApprovalController';
 
 export const actions = {
   account: AccountActions,
@@ -17,5 +16,4 @@ export const actions = {
   quote: QuoteActions,
   'business-unit': BusinessUnitActions,
   'associate': AssociateActions,
-  'approval': ApprovalActions,
 };

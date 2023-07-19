@@ -50,7 +50,7 @@ export const getCart: ActionHook = async (request: Request, actionContext: Actio
   try {
     const cart = await CartFetcher.fetchCart(request, actionContext);
     const cartId = cart.cartId;
-
+  
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(cart),
@@ -64,7 +64,7 @@ export const getCart: ActionHook = async (request: Request, actionContext: Actio
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    };
+    }
     return response;
   }
 };
@@ -81,7 +81,7 @@ export const getCartById: ActionHook = async (request: Request, actionContext: A
   try {
     const cart = await cartApi.getById(id);
     const cartId = cart.cartId;
-
+  
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(cart),
@@ -95,7 +95,7 @@ export const getCartById: ActionHook = async (request: Request, actionContext: A
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    };
+    }
     return response;
   }
 };
@@ -160,8 +160,6 @@ export const checkout: ActionHook = async (request: Request, actionContext: Acti
 
   const cart = await updateCartFromRequest(request, actionContext);
   const order = await cartApi.order(cart, body.payload);
-
-  // TODO: get flow by order id, if exist, set workflow status
 
   // Unset the cartId
   const cartId: string = undefined;
@@ -343,13 +341,13 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
       body: JSON.stringify(res),
       sessionData: request.sessionData,
     };
-
+  
     return response;
   } catch (error: any) {
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    };
+    }
     return response;
   }
 };
