@@ -123,7 +123,33 @@ export class ProductMapper extends BaseProductMapper {
       return { price, discountedPrice, discounts, distributionChannelId };
     }
 
-    // Price with correct channel id has the priority
+    // Price with correct channel id and locale has the priority
+    if (commercetoolsVariant?.prices) {
+      let commercetoolsPrice: Price;
+      if (distributionChannelId) {
+        commercetoolsPrice = commercetoolsVariant?.prices.find(
+          (price: Price) =>
+            price.hasOwnProperty('channel') &&
+            price.channel?.id === distributionChannelId &&
+            price.country === locale.country,
+        );
+        if (commercetoolsPrice) {
+          price = this.commercetoolsMoneyToMoney(commercetoolsPrice?.value);
+
+          if (commercetoolsPrice?.discounted?.value) {
+            discountedPrice = this.commercetoolsMoneyToMoney(commercetoolsPrice?.discounted?.value);
+          }
+
+          if (commercetoolsPrice?.discounted?.discount?.obj?.description?.[locale.language]) {
+            discounts = [commercetoolsPrice?.discounted?.discount?.obj?.description[locale.language]];
+          }
+
+          return { price, discountedPrice, discounts, distributionChannelId };
+        }
+      }
+    }
+
+    // Price with correct channel id has the next priority
     if (commercetoolsVariant?.prices) {
       let commercetoolsPrice: Price;
       if (distributionChannelId) {
