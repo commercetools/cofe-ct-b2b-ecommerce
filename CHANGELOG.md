@@ -1,3 +1,5 @@
+# 1.3.1
+- considers current locale when mapping product price
 # 1.3.0
 - Update cofe-ct-ecommerce dependency
 - Update platform-sdk dependency
