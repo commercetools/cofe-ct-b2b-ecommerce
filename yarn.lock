@@ -1155,7 +1155,7 @@ co@^4.6.0:
 
 "cofe-ct-ecommerce@https://github.com/commercetools/cofe-ct-ecommerce#beta-multitenancy":
   version "2.0.0-beta-multitenant"
-  resolved "https://github.com/commercetools/cofe-ct-ecommerce#14ca042f5326d05bcfd352f5b8e5b2ef95b2de44"
+  resolved "https://github.com/commercetools/cofe-ct-ecommerce#2cc0ff1affedc562a2efb2ef023789c1a8b80f5d"
   dependencies:
     "@commercetools/frontend-domain-types" "^1.0.7"
     "@commercetools/platform-sdk" "^4.10.1"
