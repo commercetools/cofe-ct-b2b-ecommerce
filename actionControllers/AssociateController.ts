@@ -1,11 +1,11 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { AssociateApi } from '../apis/AssociateApi';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 export const getAllAssociateRoles: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const associateApi = new AssociateApi(actionContext.frontasticContext, getLocale(request));
+  const associateApi = new AssociateApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
   const associateRoles = await associateApi.getAllAssociateRoles();
 
   const response: Response = {

@@ -8,9 +8,10 @@ export class WishlistApi extends BaseWishlistApi {
   getForAccount = async (accountId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const config = this.frontasticContext?.project?.configuration?.wishlistSharing;
+      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
 
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .shoppingLists()
         .get({
           queryArgs: {
@@ -21,7 +22,11 @@ export class WishlistApi extends BaseWishlistApi {
         .execute();
 
       return response.body.results.map((shoppingList) =>
-        WishlistMapper.commercetoolsShoppingListToWishlist(shoppingList, locale, config),
+        WishlistMapper.commercetoolsShoppingListToWishlist(
+          shoppingList,
+          locale,
+          EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD,
+        ),
       );
     } catch (error) {
       throw new Error(`Get wishlist for account failed: ${error}`);
@@ -31,7 +36,7 @@ export class WishlistApi extends BaseWishlistApi {
   getForAccountStore = async (accountId: string, storeKey: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .inStoreKeyWithStoreKeyValue({ storeKey })
         .shoppingLists()
         .get({
@@ -53,13 +58,15 @@ export class WishlistApi extends BaseWishlistApi {
   getForBusinessUnit = async (businessUnitKey: string, accountId: string): Promise<Wishlist[]> => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const config = this.frontasticContext?.project?.configuration?.wishlistSharing;
-      const response = await this.getApiForProject()
+      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+
+      const response = await this.requestBuilder()
         .shoppingLists()
         .get({
           queryArgs: {
             where: [
-              `custom(fields(${config.wishlistSharingCustomField} contains any ("${businessUnitKey}")))`,
+              `custom(fields(${EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD} contains any ("${businessUnitKey}")))`,
               `customer(id!="${accountId}")`,
             ],
             expand: expandVariants,
@@ -78,9 +85,10 @@ export class WishlistApi extends BaseWishlistApi {
   getByIdForAccount = async (wishlistId: string, accountId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const config = this.frontasticContext?.project?.configuration?.wishlistSharing;
+      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
 
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .shoppingLists()
         .withId({ ID: wishlistId })
         .get({
@@ -91,7 +99,7 @@ export class WishlistApi extends BaseWishlistApi {
         })
         .execute();
 
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale, config);
+      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale, EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD);
     } catch (error) {
       // @ts-ignore
       throw error;
@@ -103,7 +111,7 @@ export class WishlistApi extends BaseWishlistApi {
     try {
       const locale = await this.getCommercetoolsLocal();
       const body = WishlistMapper.wishlistToCommercetoolsShoppingListDraft(wishlist, locale, accountId);
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .inStoreKeyWithStoreKeyValue({ storeKey })
         .shoppingLists()
         .post({
@@ -122,7 +130,7 @@ export class WishlistApi extends BaseWishlistApi {
 
   delete = async (wishlist: Wishlist, storeKey: string) => {
     try {
-      await this.getApiForProject()
+      await this.requestBuilder()
         .inStoreKeyWithStoreKeyValue({ storeKey })
         .shoppingLists()
         .withId({ ID: wishlist.wishlistId })
@@ -141,7 +149,7 @@ export class WishlistApi extends BaseWishlistApi {
     const locale = await this.getCommercetoolsLocal();
 
     try {
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .shoppingLists()
         .withId({ ID: wishlist.wishlistId })
         .post({
@@ -170,7 +178,10 @@ export class WishlistApi extends BaseWishlistApi {
   share = async (wishlist: Wishlist, businessUnitKey: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const config = this.frontasticContext?.project?.configuration?.wishlistSharing;
+      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
+      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
 
       // @ts-ignore
       let currentSharedBUs: string[] = wishlist?.shared || [];
@@ -181,7 +192,7 @@ export class WishlistApi extends BaseWishlistApi {
         currentSharedBUs.push(businessUnitKey);
       }
 
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .shoppingLists()
         .withId({ ID: wishlist.wishlistId })
         .post({
@@ -191,11 +202,11 @@ export class WishlistApi extends BaseWishlistApi {
               {
                 action: 'setCustomType',
                 type: {
-                  key: config.wishlistSharingCustomType,
+                  key: EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE,
                   typeId: 'type',
                 },
                 fields: {
-                  [config.wishlistSharingCustomField]: currentSharedBUs,
+                  [EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD]: currentSharedBUs,
                 },
               },
             ],

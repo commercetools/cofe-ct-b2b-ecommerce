@@ -9,7 +9,7 @@ export class WishlistMapper extends BaseWishlistMapper {
   static commercetoolsShoppingListToWishlist = (
     commercetoolsShoppingList: ShoppingList,
     locale: Locale,
-    config?: Record<string, string>,
+    EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD?: string,
   ): Wishlist => {
     return {
       wishlistId: commercetoolsShoppingList.id,
@@ -22,18 +22,21 @@ export class WishlistMapper extends BaseWishlistMapper {
         this.commercetoolsLineItemToLineItem(lineItem, locale),
       ),
       store: this.commercetoolsStoreRefToStore(commercetoolsShoppingList.store),
-      shared: this.commercetoolsCustomToShared(commercetoolsShoppingList.custom, config),
+      shared: this.commercetoolsCustomToShared(
+        commercetoolsShoppingList.custom,
+        EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD,
+      ),
     };
   };
 
   private static commercetoolsCustomToShared = (
     commercetoolsCustom: CustomFields,
-    config?: Record<string, string>,
+    EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD?: string,
   ): string[] => {
-    if (!config) {
+    if (!EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD) {
       return [];
     }
-    return commercetoolsCustom?.fields?.[config.wishlistSharingCustomField];
+    return commercetoolsCustom?.fields?.[EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD];
   };
 
   private static commercetoolsStoreRefToStore = (commercetoolsStoreRef: StoreKeyReference): Store => {

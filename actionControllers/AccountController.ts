@@ -2,7 +2,7 @@ export * from 'cofe-ct-ecommerce/actionControllers/AccountController';
 import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { AccountApi } from '../apis/AccountApi';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartFetcher } from '../utils/CartFetcher';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { Address } from '@commercetools/frontend-domain-types/account/Address';
@@ -39,8 +39,8 @@ async function loginAccount(
   reverify = false,
   businessUnitKey = '',
 ) {
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
+  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
   const cart = await CartFetcher.fetchCart(request, actionContext);
 
@@ -118,7 +118,7 @@ export const reset: ActionHook = async (request: Request, actionContext: ActionC
 
   const accountResetBody: AccountResetBody = JSON.parse(request.body);
 
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
   const newAccount = await accountApi.resetPassword(accountResetBody.token, accountResetBody.newPassword);
   newAccount.password = accountResetBody.newPassword;
@@ -139,7 +139,7 @@ export const reset: ActionHook = async (request: Request, actionContext: ActionC
 };
 
 export const getById: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
   const customer = await accountApi.getCustomerById(request.query['id']);
 

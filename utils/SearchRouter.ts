@@ -1,7 +1,7 @@
 import { Context, Request } from '@frontastic/extension-types';
 import { SearchRouter as BaseSearchRouter } from 'cofe-ct-ecommerce/utils/SearchRouter';
 import { ProductApi } from '../apis/ProductApi';
-import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { ProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
 
@@ -17,7 +17,7 @@ export class SearchRouter extends BaseSearchRouter {
   }
 
   static loadFor = async (request: Request, frontasticContext: Context): Promise<Result | null> => {
-    const productApi = new ProductApi(frontasticContext, getLocale(request));
+    const productApi = new ProductApi(frontasticContext, getLocale(request), getCurrency(request));
 
     const urlMatches = getPath(request)?.match(/\/search/);
 

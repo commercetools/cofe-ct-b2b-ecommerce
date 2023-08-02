@@ -2,7 +2,7 @@ import { ChannelResourceIdentifier } from '../types/channel/channel';
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { Store } from '../types/store/store';
 import { StoreDraft } from '@commercetools/platform-sdk';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { StoreApi } from '../apis/StoreApi';
 import { CartApi } from '../apis/CartApi';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
@@ -23,7 +23,7 @@ type AccountRegisterBody = {
 const DEFAULT_CHANNEL_KEY = 'default-channel';
 
 export const create: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
+  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
   const data = await mapRequestToStore(request, actionContext, storeApi);
 
@@ -47,7 +47,7 @@ export const create: ActionHook = async (request: Request, actionContext: Action
 };
 
 export const query: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
+  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
   const where = request.query['where'];
 
   const stores = await storeApi.query(where);
@@ -62,7 +62,7 @@ export const query: ActionHook = async (request: Request, actionContext: ActionC
 };
 
 export const setMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request));
+  const storeApi = new StoreApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
@@ -138,7 +138,7 @@ async function mapRequestToStore(
   let distributionChannels: ChannelResourceIdentifier[] = [];
 
   if (parentBusinessUnit) {
-    const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+    const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
     const businessUnit = await businessUnitApi.get(parentBusinessUnit);
 
     if (businessUnit?.stores) {

@@ -1,13 +1,13 @@
 export * from 'cofe-ct-ecommerce/actionControllers/WishlistController';
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { WishlistApi } from '../apis/WishlistApi';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { Account } from '@commercetools/frontend-domain-types/account/Account';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
 function getWishlistApi(request: Request, actionContext: ActionContext) {
-  return new WishlistApi(actionContext.frontasticContext, getLocale(request));
+  return new WishlistApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 }
 
 function fetchStoreFromSession(request: Request): string {
@@ -43,21 +43,21 @@ export const getStoreWishlists: ActionHook = async (request, actionContext) => {
   const account = fetchAccountFromSessionEnsureLoggedIn(request);
   const wishlistApi = getWishlistApi(request, actionContext);
   const storeKey = fetchStoreFromSession(request);
- try {
-   const wishlists = await wishlistApi.getForAccountStore(account.accountId, storeKey);
- 
-   return {
-     statusCode: 200,
-     body: JSON.stringify(wishlists),
-     sessionData: request.sessionData,
-   };
- } catch (error: any) {
-  const response: Response = {
-    statusCode: 401,
-    body: JSON.stringify(error.message || error.body?.message || error),
+  try {
+    const wishlists = await wishlistApi.getForAccountStore(account.accountId, storeKey);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(wishlists),
+      sessionData: request.sessionData,
+    };
+  } catch (error: any) {
+    const response: Response = {
+      statusCode: 401,
+      body: JSON.stringify(error.message || error.body?.message || error),
+    };
+    return response;
   }
-  return response;
- }
 };
 
 export const getAllWishlists: ActionHook = async (request, actionContext) => {
@@ -75,10 +75,13 @@ export const getAllWishlists: ActionHook = async (request, actionContext) => {
 
 export const getSharedWishlists: ActionHook = async (request, actionContext) => {
   const businessUnit = request.sessionData?.organization?.businessUnit?.key;
-  const config = actionContext.frontasticContext?.project?.configuration?.wishlistSharing;
+  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
+    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
+  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
   const account = fetchAccountFromSessionEnsureLoggedIn(request);
 
-  if (!businessUnit || !config?.wishlistSharingCustomType || !config?.wishlistSharingCustomField) {
+  if (!businessUnit || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD) {
     return {
       statusCode: 400,
       sessionData: request.sessionData,
@@ -98,20 +101,20 @@ export const getSharedWishlists: ActionHook = async (request, actionContext) => 
 
 export const getWishlist: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
- try {
-   const wishlist = await fetchWishlist(request, wishlistApi);
-   return {
-     statusCode: 200,
-     body: JSON.stringify(wishlist),
-     sessionData: request.sessionData,
-   };
- } catch (error: any) {
-  const response: Response = {
+  try {
+    const wishlist = await fetchWishlist(request, wishlistApi);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(wishlist),
+      sessionData: request.sessionData,
+    };
+  } catch (error: any) {
+    const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    }
+    };
     return response;
- }
+  }
 };
 
 export const createWishlist: ActionHook = async (request, actionContext) => {
@@ -134,8 +137,11 @@ export const createWishlist: ActionHook = async (request, actionContext) => {
 
 export const share: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
-  const config = actionContext.frontasticContext?.project?.configuration?.wishlistSharing;
-  if (!config?.wishlistSharingCustomType || !config?.wishlistSharingCustomField) {
+  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
+    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
+  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
+    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+  if (!EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD) {
     return {
       statusCode: 400,
       sessionData: request.sessionData,

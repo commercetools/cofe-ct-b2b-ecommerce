@@ -1,7 +1,7 @@
 import { Context, Request } from '@frontastic/extension-types';
 import { ProductApi } from '../apis/ProductApi';
 import { CategoryRouter as BaseCategoryRouter } from 'cofe-ct-ecommerce/utils/CategoryRouter';
-import { getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale, getPath } from 'cofe-ct-ecommerce/utils/Request';
 import { Result } from '@commercetools/frontend-domain-types/product/Result';
 import { Category } from '@commercetools/frontend-domain-types/product/Category';
 import { ProductQueryFactory } from 'cofe-ct-ecommerce/utils/ProductQueryFactory';
@@ -23,7 +23,7 @@ export class CategoryRouter extends BaseCategoryRouter {
   }
 
   static loadFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
-    const productApi = new ProductApi(frontasticContext, getLocale(request));
+    const productApi = new ProductApi(frontasticContext, getLocale(request), getCurrency(request));
 
     const chunks = getPath(request)?.split('/').filter(Boolean);
 
@@ -58,7 +58,7 @@ export class CategoryRouter extends BaseCategoryRouter {
   };
 
   static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Result> => {
-    const productApi = new ProductApi(frontasticContext, getLocale(request));
+    const productApi = new ProductApi(frontasticContext, getLocale(request), getCurrency(request));
     const urlMatches = getPath(request)?.match(/\/preview\/(.+)/);
 
     if (urlMatches) {

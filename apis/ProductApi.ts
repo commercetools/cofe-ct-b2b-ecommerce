@@ -119,7 +119,7 @@ export class ProductApi extends BaseProductApi {
           },
         };
 
-        return await this.getApiForProject()
+        return await this.requestBuilder()
           .productProjections()
           .search()
           .get(methodArgs)
@@ -170,7 +170,7 @@ export class ProductApi extends BaseProductApi {
 
   getAttributeGroup: (key: string) => Promise<string[]> = async (key: string) => {
     try {
-      const { body } = await this.getApiForProject().attributeGroups().withKey({ key }).get().execute();
+      const { body } = await this.requestBuilder().attributeGroups().withKey({ key }).get().execute();
 
       return ProductMapper.commercetoolsAttributeGroupToString(body);
     } catch (error) {

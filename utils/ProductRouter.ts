@@ -3,7 +3,7 @@ import { ProductQuery } from '../types/query/ProductQuery';
 import { LineItem as WishlistItem } from '@commercetools/frontend-domain-types/wishlist/LineItem';
 import { ProductRouter as BaseProductRouter } from 'cofe-ct-ecommerce/utils/ProductRouter';
 import { ProductApi } from '../apis/ProductApi';
-import { getPath, getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getPath, getLocale, getCurrency } from 'cofe-ct-ecommerce/utils/Request';
 import { LineItem } from '@commercetools/frontend-domain-types/cart/LineItem';
 import { Product } from '../types/product/Product';
 
@@ -36,7 +36,7 @@ export class ProductRouter extends BaseProductRouter {
   }
 
   static loadFor = async (request: Request, frontasticContext: Context): Promise<Product> => {
-    const productApi = new ProductApi(frontasticContext, getLocale(request));
+    const productApi = new ProductApi(frontasticContext, getLocale(request), getCurrency(request));
 
     const urlMatches = getPath(request)?.match(/\/p\/([^\/]+)/);
 
@@ -59,7 +59,7 @@ export class ProductRouter extends BaseProductRouter {
   };
 
   static loadPreviewFor = async (request: Request, frontasticContext: Context): Promise<Product> => {
-    const productApi = new ProductApi(frontasticContext, getLocale(request));
+    const productApi = new ProductApi(frontasticContext, getLocale(request), getCurrency(request));
 
     const urlMatches = getPath(request)?.match(/\/preview\/.+\/p\/([^\/]+)/);
 

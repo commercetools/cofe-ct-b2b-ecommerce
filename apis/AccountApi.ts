@@ -47,7 +47,7 @@ export class AccountApi extends BaseAccountApi {
             : undefined,
       };
 
-      account = await this.getApiForProject()
+      account = await this.requestBuilder()
         .customers()
         .post({
           body: customerDraft,
@@ -92,7 +92,7 @@ export class AccountApi extends BaseAccountApi {
     reverify = false,
   ) => {
     try {
-      account = await this.getApiForProject()
+      account = await this.requestBuilder()
         .login()
         .post({
           body: {
@@ -145,7 +145,7 @@ export class AccountApi extends BaseAccountApi {
   getCustomerByEmail: (email: string) => Promise<Customer | null> = async (email: string) => {
     const {
       body: { results },
-    } = await this.getApiForProject()
+    } = await this.requestBuilder()
       .customers()
       .get({
         queryArgs: {
@@ -157,7 +157,7 @@ export class AccountApi extends BaseAccountApi {
     return results.length ? results[0] : null;
   };
   getCustomerById: (id: string) => Promise<Account | null> = async (id: string) => {
-    const { body } = await this.getApiForProject().customers().withId({ ID: id }).get().execute();
+    const { body } = await this.requestBuilder().customers().withId({ ID: id }).get().execute();
     return body;
   };
 }

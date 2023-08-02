@@ -19,7 +19,7 @@ export class StoreApi extends BaseApi {
     const body = convertStoreToBody(store, locale.language);
 
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stores()
         .post({
           body,
@@ -40,7 +40,7 @@ export class StoreApi extends BaseApi {
     const locale = await this.getCommercetoolsLocal();
 
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stores()
         .withKey({ key })
         .get()
@@ -65,7 +65,7 @@ export class StoreApi extends BaseApi {
       : {};
 
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stores()
         .get({
           queryArgs,

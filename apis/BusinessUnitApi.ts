@@ -15,7 +15,7 @@ export class BusinessUnitApi extends BaseApi {
 
     organization.businessUnit = businessUnit;
     if (businessUnit.stores?.[0]) {
-      const storeApi = new StoreApi(this.frontasticContext, this.locale);
+      const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
       const store = await storeApi.get(businessUnit.stores?.[0].key);
       organization.store = StoreMappers.mapStoreToSmallerStore(store);
     }
@@ -46,7 +46,7 @@ export class BusinessUnitApi extends BaseApi {
 
   create: (data: any) => Promise<CommercetoolsBusinessUnit> = async (data: any) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .businessUnits()
         .post({
           body: data,
@@ -61,7 +61,7 @@ export class BusinessUnitApi extends BaseApi {
   delete: (key: string) => Promise<any> = async (key: string) => {
     try {
       return this.getByKey(key).then((bu) => {
-        return this.getApiForProject()
+        return this.requestBuilder()
           .businessUnits()
           .withKey({ key })
           .delete({
@@ -80,7 +80,7 @@ export class BusinessUnitApi extends BaseApi {
   update: (key: string, actions: any[]) => Promise<any> = async (key: string, actions: any[]) => {
     try {
       return this.getByKey(key).then((res) => {
-        return this.getApiForProject()
+        return this.requestBuilder()
           .businessUnits()
           .withKey({ key })
           .post({
@@ -104,7 +104,7 @@ export class BusinessUnitApi extends BaseApi {
     expand?: string,
   ) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .businessUnits()
         .get({
           queryArgs: {
@@ -133,9 +133,10 @@ export class BusinessUnitApi extends BaseApi {
       return [];
     }
 
-    const config = this.frontasticContext?.project?.configuration?.associateRoles;
-    if (!config?.defaultAdminRoleKey) {
-      throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
+    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
+      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+    if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
+      throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
     }
 
     const rootNode = businessUnits.filter((bu) => !bu.parentUnit);
@@ -151,14 +152,14 @@ export class BusinessUnitApi extends BaseApi {
 
     return filterAdmin
       ? justParents.filter((bu) =>
-          BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultAdminRoleKey),
+          BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, EXTENSION_B2B_DEFAULT_ADMIN_ROLE),
         )
       : justParents
           // sort by Admin first
           .sort((a, b) =>
-            BusinessUnitMappers.isUserAdminInBusinessUnit(a, accountId, config.defaultAdminRoleKey)
+            BusinessUnitMappers.isUserAdminInBusinessUnit(a, accountId, EXTENSION_B2B_DEFAULT_ADMIN_ROLE)
               ? -1
-              : BusinessUnitMappers.isUserAdminInBusinessUnit(b, accountId, config.defaultAdminRoleKey)
+              : BusinessUnitMappers.isUserAdminInBusinessUnit(b, accountId, EXTENSION_B2B_DEFAULT_ADMIN_ROLE)
               ? 1
               : 0,
           );
@@ -166,16 +167,20 @@ export class BusinessUnitApi extends BaseApi {
 
   getMe: (accountId: string) => Promise<BusinessUnit> = async (accountId: string) => {
     try {
-      const storeApi = new StoreApi(this.frontasticContext, this.locale);
-      const config = this.frontasticContext?.project?.configuration?.associateRoles;
-      if (!config?.defaultAdminRoleKey || !config?.defaultSuperUserRoleKey) {
-        throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
+      const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
+      const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+      const EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE =
+        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE;
+
+      if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE || !EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE) {
+        throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
       }
       const results = await this.getAssociatedBusinessUnits(accountId);
       const highestNodes = this.getHighestNodesWithAssociation(results, accountId);
 
       const superUserList = highestNodes.filter((bu) =>
-        BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, config.defaultSuperUserRoleKey),
+        BusinessUnitMappers.isUserAdminInBusinessUnit(bu, accountId, EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE),
       );
 
       if (superUserList.length >= 1) {
@@ -190,7 +195,7 @@ export class BusinessUnitApi extends BaseApi {
           bu as CommercetoolsBusinessUnit,
           allStores,
           accountId,
-          config.defaultAdminRoleKey,
+          EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
         );
       }
       return results?.[0];
@@ -200,13 +205,15 @@ export class BusinessUnitApi extends BaseApi {
   };
 
   get: (key: string, accountId?: string) => Promise<BusinessUnit> = async (key: string, accountId?: string) => {
-    const config = this.frontasticContext?.project?.configuration?.associateRoles;
-    if (!config?.defaultAdminRoleKey) {
-      throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
+    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
+      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+
+    if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
+      throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
     }
-    const storeApi = new StoreApi(this.frontasticContext, this.locale);
+    const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
     try {
-      const bu = await this.getApiForProject()
+      const bu = await this.requestBuilder()
         .businessUnits()
         .withKey({ key })
         .get()
@@ -218,7 +225,7 @@ export class BusinessUnitApi extends BaseApi {
         bu as CommercetoolsBusinessUnit,
         allStores,
         accountId,
-        config.defaultAdminRoleKey,
+        EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
       );
     } catch (e) {
       throw e;
@@ -227,7 +234,7 @@ export class BusinessUnitApi extends BaseApi {
 
   getByKey: (key: string) => Promise<CommercetoolsBusinessUnit> = async (key: string) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .businessUnits()
         .withKey({ key })
         .get()
@@ -246,7 +253,7 @@ export class BusinessUnitApi extends BaseApi {
     }
     let parentBU: CommercetoolsBusinessUnit = { ...businessUnit };
     while (parentBU.storeMode === StoreMode.FromParent && !!parentBU.parentUnit) {
-      const { body } = await this.getApiForProject()
+      const { body } = await this.requestBuilder()
         .businessUnits()
         .withKey({ key: parentBU.parentUnit.key })
         .get()
@@ -271,10 +278,12 @@ export class BusinessUnitApi extends BaseApi {
 
   getTree: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
     let tree: CommercetoolsBusinessUnit[] = [];
-    const storeApi = new StoreApi(this.frontasticContext, this.locale);
-    const config = this.frontasticContext?.project?.configuration?.associateRoles;
-    if (!config?.defaultAdminRoleKey) {
-      throw new Error('Configuration error. No "defaultAdminRoleKey" exists');
+    const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
+    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
+      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+
+    if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
+      throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
     }
     if (accountId) {
       const results = await this.getAssociatedBusinessUnits(accountId);
@@ -312,7 +321,12 @@ export class BusinessUnitApi extends BaseApi {
       .join(' ,');
     const allStores = storeKeys ? await storeApi.query(`key in (${storeKeys})`) : [];
     return tree.map((bu) =>
-      BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(bu, allStores, accountId, config.defaultAdminRoleKey),
+      BusinessUnitMappers.mapBusinessUnitToBusinessUnitTreeItem(
+        bu,
+        allStores,
+        accountId,
+        EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
+      ),
     );
   };
 }

@@ -2,13 +2,14 @@ import { ActionContext, Request } from '@frontastic/extension-types';
 import { Cart } from '../types/cart/Cart';
 import { CartFetcher as BaseCartFetcher } from 'cofe-ct-ecommerce/utils/CartFetcher';
 import { CartApi } from '../apis/CartApi';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 
 export class CartFetcher extends BaseCartFetcher {
   static async fetchCart(request: Request, actionContext: ActionContext): Promise<Cart> {
     const cartApi = new CartApi(
       actionContext.frontasticContext,
       getLocale(request),
+      getCurrency(request),
       request.sessionData?.organization,
       request.sessionData?.account,
     );
