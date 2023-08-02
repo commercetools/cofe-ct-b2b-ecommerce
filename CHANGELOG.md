@@ -1,4 +1,4 @@
-# 1.4.0-beta-multitenant
+# 2.0.0
 - migration to multitenant config
 # 1.3.1
 - considers current locale when mapping product price
