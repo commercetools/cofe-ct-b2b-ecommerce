@@ -11,8 +11,14 @@ export class ApprovalRuleApi extends BaseApi {
   protected account?: Account;
   protected associateEndpoints?;
 
-  constructor(frontasticContext: Context, locale: string, organization?: Organization, account?: Account) {
-    super(frontasticContext, locale);
+  constructor(
+    frontasticContext: Context,
+    locale: string,
+    currency: string,
+    organization?: Organization,
+    account?: Account,
+  ) {
+    super(frontasticContext, locale, currency);
     this.account = account;
     this.organization = organization;
 
@@ -29,9 +35,8 @@ export class ApprovalRuleApi extends BaseApi {
   };
 
   getAccessToken: () => Promise<string> = async (): Promise<string> => {
-    const engine = 'commercetools';
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
     const response = await axios
       .post(
         `${clientSettings.authUrl}/oauth/token?grant_type=client_credentials&scope=manage_project:${clientSettings.projectKey}`,
@@ -50,8 +55,7 @@ export class ApprovalRuleApi extends BaseApi {
 
   query: () => Promise<ApprovalRule[]> = async (): Promise<ApprovalRule[]> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await axios
       .get(
@@ -68,8 +72,7 @@ export class ApprovalRuleApi extends BaseApi {
 
   get: (id: string) => Promise<ApprovalRule> = async (id: string): Promise<ApprovalRule> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await axios
       .get(`${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-rules/${id}`, {
@@ -85,8 +88,7 @@ export class ApprovalRuleApi extends BaseApi {
     data: ApprovalRuleDraft,
   ): Promise<ApprovalRule> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await axios
       .post(`${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-rules`, data, {
@@ -103,8 +105,7 @@ export class ApprovalRuleApi extends BaseApi {
     data: ApprovalRuleDraft,
   ): Promise<ApprovalRule> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await axios
       .post(
@@ -125,8 +126,7 @@ export class ApprovalRuleApi extends BaseApi {
     updateActions: any[],
   ): Promise<ApprovalRule> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await this.get(id).then(async (approvalRule) => {
       const res = await axios

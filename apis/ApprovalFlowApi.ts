@@ -12,8 +12,14 @@ export class ApprovalFlowApi extends BaseApi {
   protected account?: Account;
   protected associateEndpoints?;
 
-  constructor(frontasticContext: Context, locale: string, organization?: Organization, account?: Account) {
-    super(frontasticContext, locale);
+  constructor(
+    frontasticContext: Context,
+    locale: string,
+    currency: string,
+    organization?: Organization,
+    account?: Account,
+  ) {
+    super(frontasticContext, locale, currency);
     this.account = account;
     this.organization = organization;
 
@@ -30,9 +36,8 @@ export class ApprovalFlowApi extends BaseApi {
   };
 
   getAccessToken: () => Promise<string> = async (): Promise<string> => {
-    const engine = 'commercetools';
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
     const response = await axios
       .post(
         `${clientSettings.authUrl}/oauth/token?grant_type=client_credentials&scope=manage_project:${clientSettings.projectKey}`,
@@ -51,23 +56,25 @@ export class ApprovalFlowApi extends BaseApi {
 
   query: () => Promise<ApprovalFlow[]> = async (): Promise<ApprovalFlow[]> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await axios
-      .get(`${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-flows?sort=createdAt desc`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      .get(
+        `${clientSettings.hostUrl}/${clientSettings.projectKey}${this.associateEndpoints}/approval-flows?sort=createdAt desc`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      })
+      )
       .catch(this.throwError);
     return response.data?.results;
   };
 
   get: (id: string) => Promise<DomainApprovalFlow> = async (id: string): Promise<DomainApprovalFlow> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
+
     const locale = await this.getCommercetoolsLocal();
 
     const response = await axios
@@ -85,8 +92,8 @@ export class ApprovalFlowApi extends BaseApi {
 
   getFlowByOrderId: (orderId: string) => Promise<ApprovalFlow> = async (orderId: string): Promise<ApprovalFlow> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
+
     const query = encodeURIComponent(`order(id="${orderId}")`);
 
     const response = await axios
@@ -110,8 +117,7 @@ export class ApprovalFlowApi extends BaseApi {
     updateActions: any[],
   ): Promise<ApprovalFlow> => {
     const accessToken = await this.getAccessToken();
-    const engine = 'commercetools';
-    const clientSettings = getConfig(this.frontasticContext.project, engine, this.locale);
+    const clientSettings = getConfig(this.frontasticContext.projectConfiguration);
 
     const response = await this.get(id).then(async (approvalFlow) => {
       const res = await axios
