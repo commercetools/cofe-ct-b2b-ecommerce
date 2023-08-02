@@ -2,7 +2,7 @@ export * from 'cofe-ct-ecommerce/actionControllers/WishlistController';
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { ApprovalRuleApi } from '../apis/ApprovalRuleApi';
 import { ApprovalFlowApi } from '../apis/ApprovalFlowApi';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { ApprovalRuleDraft, ApprovalRuleUpdateActionSetStatus } from '../types/approval/Rule';
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -11,6 +11,7 @@ export const getApprovalRules: ActionHook = async (request: Request, actionConte
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -37,6 +38,7 @@ export const getApprovalRule: ActionHook = async (request: Request, actionContex
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -62,6 +64,7 @@ export const createApprovalRule: ActionHook = async (request: Request, actionCon
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -90,6 +93,7 @@ export const duplicateApprovalRule: ActionHook = async (request: Request, action
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -137,6 +141,7 @@ export const activateApprovalRule: ActionHook = async (request: Request, actionC
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -169,6 +174,7 @@ export const deactivateApprovalRule: ActionHook = async (request: Request, actio
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -201,6 +207,7 @@ export const updateApprovalRule: ActionHook = async (request: Request, actionCon
   const approvalRuleApi = new ApprovalRuleApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -271,6 +278,7 @@ export const getApprovalFlows: ActionHook = async (request: Request, actionConte
   const approvalFlowApi = new ApprovalFlowApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -297,6 +305,7 @@ export const getApprovalFlow: ActionHook = async (request: Request, actionContex
   const approvalFlowApi = new ApprovalFlowApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -323,6 +332,7 @@ export const getApprovalFlowByOrderId: ActionHook = async (request: Request, act
   const approvalFlowApi = new ApprovalFlowApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -350,6 +360,7 @@ export const approveFlow: ActionHook = async (request: Request, actionContext) =
   const approvalRuleApi = new ApprovalFlowApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
@@ -381,6 +392,7 @@ export const rejectFlow: ActionHook = async (request: Request, actionContext) =>
   const approvalRuleApi = new ApprovalFlowApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     { ...request.sessionData?.organization, businessUnit: { key: businessUnitKey } },
     request.sessionData?.account,
   );
