@@ -49,14 +49,50 @@ export class CartApi extends B2BCartApi {
 ```
 
 ## Configuration
-### Variables to set
-1. project.yml`
+### project configuration schema
 ```
-wishlistSharing:
-    wishlistSharingCustomType: b2b-list
-    wishlistSharingCustomField: business-unit-keys // string(set)
-associateRoles:
-    defaultAdminRoleKey: admin // key of default admin role
-    defaultBuyerRoleKey: buyer // key of default buyer role
-    defaultSuperUserRoleKey: super-user // key of default superUser role
+{
+  "schema": [
+    {
+      "name": "B2B configuration",
+      "fields": [
+        {
+          "label": "Default admin role key",
+          "field": "EXTENSION_B2B_DEFAULT_ADMIN_ROLE",
+          "type": "string",
+          "translatable": false,
+          "required": true
+        },
+        {
+          "label": "Default buyer role key",
+          "field": "EXTENSION_B2B_DEFAULT_BUYER_ROLE",
+          "type": "string",
+          "translatable": false,
+          "required": true
+        },
+        {
+          "label": "Default superuser role key",
+          "field": "EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE",
+          "type": "string",
+          "translatable": false,
+          "required": true
+        },
+        {
+          "label": "Wishlist sharing custom type",
+          "field": "EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE",
+          "type": "string",
+          "translatable": false,
+          "required": false
+        },
+        {
+          "label": "Wishlist sharing custom field",
+          "field": "EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD",
+          "type": "string",
+          "translatable": false,
+          "required": false
+        },
+      ]
+    }
+  ]
+}
 ```

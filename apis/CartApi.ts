@@ -24,17 +24,17 @@ export class CartApi extends BaseCartApi {
   protected organization?: Organization;
   protected account?: Account;
   protected associateEndpoints?;
-  constructor(frontasticContext: Context, locale: string, organization?: Organization, account?: Account) {
-    super(frontasticContext, locale);
+  constructor(frontasticContext: Context, locale: string, currency: string, organization?: Organization, account?: Account) {
+    super(frontasticContext, locale, currency);
     this.account = account;
     this.organization = organization;
     this.associateEndpoints =
       account && organization
-        ? this.getApiForProject()
+        ? this.requestBuilder()
             .asAssociate()
             .withAssociateIdValue({ associateId: account.accountId })
             .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization.businessUnit.key })
-        : this.getApiForProject();
+        : this.requestBuilder();
   }
 
   getForUser: (account?: Account, organization?: Organization) => Promise<Cart> = async (
@@ -496,7 +496,7 @@ export class CartApi extends BaseCartApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
-      const response = await this.getApiForProject()
+      const response = await this.requestBuilder()
         .orders()
         .get({
           queryArgs: {

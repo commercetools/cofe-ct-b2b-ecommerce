@@ -1,3 +1,5 @@
+# 2.0.0
+- migration to multitenant config
 # 1.3.1
 - considers current locale when mapping product price
 # 1.3.0

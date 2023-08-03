@@ -1153,10 +1153,10 @@ co@^4.6.0:
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==
 
-cofe-ct-ecommerce@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/cofe-ct-ecommerce/-/cofe-ct-ecommerce-1.1.0.tgz#88746925c30cce6bef869774c73f36b4701b0012"
-  integrity sha512-ha/Q5+2tt0moU+w3FelU80ynzbhFkJp5hjAFs0JZRFGdcw57iscYi23mGtD4pXT/XrQKNZS7MdqfsVSFhMFaQA==
+cofe-ct-ecommerce@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/cofe-ct-ecommerce/-/cofe-ct-ecommerce-2.0.0.tgz#904750034a01213e0811700e3ac504e3d5ee87d6"
+  integrity sha512-wD92N2PUMYkZKJh/pdPhEKj07jFnfpWt1aqMJfG4QtKWJilcR/mV/r2NvaykcokeiU18lkzYbC6XWXN9kPsaGQ==
   dependencies:
     "@commercetools/frontend-domain-types" "^1.0.7"
     "@commercetools/platform-sdk" "^4.10.1"

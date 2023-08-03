@@ -25,12 +25,12 @@ export class QuoteApi extends BaseApi {
   ) => {
     try {
       const endpoint = organization?.superUserBusinessUnitKey
-        ? this.getApiForProject()
+        ? this.requestBuilder()
             .asAssociate()
             .withAssociateIdValue({ associateId: accountId })
             .inBusinessUnitKeyWithBusinessUnitKeyValue({ businessUnitKey: organization?.businessUnit?.key })
             .quoteRequests()
-        : this.getApiForProject().quoteRequests();
+        : this.requestBuilder().quoteRequests();
       return endpoint
         .post({
           body: {
@@ -50,7 +50,7 @@ export class QuoteApi extends BaseApi {
   };
   getStagedQuote: (ID: string) => Promise<CommercetoolsStagedQuote> = async (ID: string) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stagedQuotes()
         .withId({ ID })
         .get({
@@ -72,7 +72,7 @@ export class QuoteApi extends BaseApi {
   };
   getQuoteRequest: (ID: string) => Promise<CommercetoolsQuoteRequest> = async (ID: string) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quoteRequests()
         .withId({ ID })
         .get({
@@ -94,7 +94,7 @@ export class QuoteApi extends BaseApi {
   };
   getQuote: (ID: string) => Promise<CommercetoolsQuote> = async (ID: string) => {
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quotes()
         .withId({ ID })
         .get()
@@ -114,7 +114,7 @@ export class QuoteApi extends BaseApi {
     try {
       const locale = await this.getCommercetoolsLocal();
 
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quoteRequests()
         .get({
           queryArgs: {
@@ -139,7 +139,7 @@ export class QuoteApi extends BaseApi {
   getStagedQuotesByCustomer: (customerId: string) => Promise<StagedQuote[]> = async (customerId: string) => {
     const locale = await this.getCommercetoolsLocal();
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stagedQuotes()
         .get({
           queryArgs: {
@@ -164,7 +164,7 @@ export class QuoteApi extends BaseApi {
   getQuotesByCustomer: (customerId: string) => Promise<Quote[]> = async (customerId: string) => {
     const locale = await this.getCommercetoolsLocal();
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quotes()
         .get({
           queryArgs: {
@@ -191,7 +191,7 @@ export class QuoteApi extends BaseApi {
   ) => {
     const locale = await this.getCommercetoolsLocal();
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quoteRequests()
         .get({
           queryArgs: {
@@ -218,7 +218,7 @@ export class QuoteApi extends BaseApi {
   ) => {
     const locale = await this.getCommercetoolsLocal();
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .stagedQuotes()
         .get({
           queryArgs: {
@@ -243,7 +243,7 @@ export class QuoteApi extends BaseApi {
   getQuotesByBusinessUnit: (businessUnitKeys: string) => Promise<Quote[]> = async (businessUnitKeys: string) => {
     const locale = await this.getCommercetoolsLocal();
     try {
-      return this.getApiForProject()
+      return this.requestBuilder()
         .quotes()
         .get({
           queryArgs: {
@@ -271,7 +271,7 @@ export class QuoteApi extends BaseApi {
   ) => {
     try {
       return this.getQuote(ID).then((quote) => {
-        return this.getApiForProject()
+        return this.requestBuilder()
           .quotes()
           .withId({ ID })
           .post({
@@ -304,7 +304,7 @@ export class QuoteApi extends BaseApi {
   ) => {
     try {
       return this.getQuoteRequest(ID).then((quoteRequest) => {
-        return this.getApiForProject()
+        return this.requestBuilder()
           .quoteRequests()
           .withId({ ID })
           .post({

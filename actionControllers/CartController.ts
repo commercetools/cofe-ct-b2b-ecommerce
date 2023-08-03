@@ -3,7 +3,7 @@ import { Request, Response } from '@frontastic/extension-types';
 import { ActionContext } from '@frontastic/extension-types';
 import { LineItemReturnItemDraft } from '../types/cart/LineItem';
 import { AddressDraft } from '@commercetools/platform-sdk';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { CartApi } from '../apis/CartApi';
 import { CartFetcher } from '../utils/CartFetcher';
 import { LineItem } from '../types/cart/LineItem';
@@ -16,6 +16,7 @@ async function updateCartFromRequest(request: Request, actionContext: ActionCont
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -50,7 +51,7 @@ export const getCart: ActionHook = async (request: Request, actionContext: Actio
   try {
     const cart = await CartFetcher.fetchCart(request, actionContext);
     const cartId = cart.cartId;
-  
+
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(cart),
@@ -64,7 +65,7 @@ export const getCart: ActionHook = async (request: Request, actionContext: Actio
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    }
+    };
     return response;
   }
 };
@@ -73,6 +74,7 @@ export const getCartById: ActionHook = async (request: Request, actionContext: A
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -81,7 +83,7 @@ export const getCartById: ActionHook = async (request: Request, actionContext: A
   try {
     const cart = await cartApi.getById(id);
     const cartId = cart.cartId;
-  
+
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(cart),
@@ -95,7 +97,7 @@ export const getCartById: ActionHook = async (request: Request, actionContext: A
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    }
+    };
     return response;
   }
 };
@@ -107,6 +109,7 @@ export const getAllSuperUserCarts: ActionHook = async (request: Request, actionC
     const cartApi = new CartApi(
       actionContext.frontasticContext,
       getLocale(request),
+      getCurrency(request),
       request.sessionData?.organization,
       request.sessionData?.account,
     );
@@ -129,6 +132,7 @@ export const createCart: ActionHook = async (request: Request, actionContext: Ac
     const cartApi = new CartApi(
       actionContext.frontasticContext,
       getLocale(request),
+      getCurrency(request),
       request.sessionData?.organization,
       request.sessionData?.account,
     );
@@ -152,6 +156,7 @@ export const checkout: ActionHook = async (request: Request, actionContext: Acti
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -180,6 +185,7 @@ export const removeLineItem: ActionHook = async (request: Request, actionContext
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -216,6 +222,7 @@ export const addToCart: ActionHook = async (request: Request, actionContext: Act
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -255,6 +262,7 @@ export const addItemsToCart: ActionHook = async (request: Request, actionContext
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -294,6 +302,7 @@ export const updateLineItem: ActionHook = async (request: Request, actionContext
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -328,6 +337,7 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -341,13 +351,13 @@ export const returnItems: ActionHook = async (request: Request, actionContext: A
       body: JSON.stringify(res),
       sessionData: request.sessionData,
     };
-  
+
     return response;
   } catch (error: any) {
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    }
+    };
     return response;
   }
 };
@@ -356,6 +366,7 @@ export const updateOrderState: ActionHook = async (request: Request, actionConte
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -387,6 +398,7 @@ export const replicateCart: ActionHook = async (request: Request, actionContext:
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -422,6 +434,7 @@ export const splitLineItem: ActionHook = async (request: Request, actionContext:
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -470,6 +483,7 @@ export const reassignCart: ActionHook = async (request: Request, actionContext: 
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );

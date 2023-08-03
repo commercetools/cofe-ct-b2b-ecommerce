@@ -1,7 +1,7 @@
 import { ActionContext, Request, Response } from '@frontastic/extension-types';
 import { BusinessUnit, BusinessUnitStatus, BusinessUnitType, StoreMode } from '../types/business-unit/BusinessUnit';
 import { Store, StoreKeyReference } from '../types/store/store';
-import { getLocale } from 'cofe-ct-ecommerce/utils/Request';
+import { getCurrency, getLocale } from 'cofe-ct-ecommerce/utils/Request';
 import { BusinessUnitMappers } from '../mappers/BusinessUnitMappers';
 import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
@@ -24,7 +24,11 @@ export const getMe: ActionHook = async (request: Request, actionContext: ActionC
   let businessUnit = organization?.businessUnit;
 
   if (request.sessionData?.account?.accountId && !businessUnit) {
-    const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+    const businessUnitApi = new BusinessUnitApi(
+      actionContext.frontasticContext,
+      getLocale(request),
+      getCurrency(request),
+    );
     businessUnit = await businessUnitApi.getMe(request.sessionData?.account?.accountId);
   }
 
@@ -35,7 +39,11 @@ export const getMe: ActionHook = async (request: Request, actionContext: ActionC
 };
 
 export const setMe: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
   const data = JSON.parse(request.body);
 
   const businessUnit = await businessUnitApi.get(data.key, request.sessionData?.account?.accountId);
@@ -59,7 +67,11 @@ export const setMe: ActionHook = async (request: Request, actionContext: ActionC
 };
 
 export const getMyOrganization: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
 
   const allOrganization = await businessUnitApi.getTree(request.sessionData?.account?.accountId);
 
@@ -73,19 +85,24 @@ export const getMyOrganization: ActionHook = async (request: Request, actionCont
 };
 
 export const getSuperUserBusinessUnits: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const config = actionContext.frontasticContext?.project?.configuration?.associateRoles;
-  if (!config?.defaultSuperUserRoleKey) {
-    throw new Error('Configuration error. No "defaultSuperUserRoleKey" exists');
+  const { EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE } = actionContext.frontasticContext?.projectConfiguration;
+
+  if (!EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE) {
+    throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE" exists');
   }
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
   const customerAccount = await accountApi.getCustomerByEmail(request.query.email);
   if (customerAccount) {
-    const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+    const businessUnitApi = new BusinessUnitApi(
+      actionContext.frontasticContext,
+      getLocale(request),
+      getCurrency(request),
+    );
     const results = await businessUnitApi.getAssociatedBusinessUnits(customerAccount.id);
     const highestNodes = businessUnitApi.getHighestNodesWithAssociation(results, customerAccount.id);
 
     const businessUnitsWithSuperUser = highestNodes.filter((bu) =>
-      BusinessUnitMappers.isUserAdminInBusinessUnit(bu, customerAccount.id, config.defaultSuperUserRoleKey),
+      BusinessUnitMappers.isUserAdminInBusinessUnit(bu, customerAccount.id, EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE),
     );
 
     return {
@@ -105,6 +122,7 @@ export const getBusinessUnitOrders: ActionHook = async (request: Request, action
   const cartApi = new CartApi(
     actionContext.frontasticContext,
     getLocale(request),
+    getCurrency(request),
     request.sessionData?.organization,
     request.sessionData?.account,
   );
@@ -126,16 +144,21 @@ export const getBusinessUnitOrders: ActionHook = async (request: Request, action
 };
 
 export const create: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
-  const config = actionContext.frontasticContext?.project?.configuration?.associateRoles;
-  if (!config?.defaultBuyerRoleKey || !config?.defaultAdminRoleKey) {
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
+  const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE, EXTENSION_B2B_DEFAULT_BUYER_ROLE } =
+    actionContext.frontasticContext?.projectConfiguration;
+  if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE || !EXTENSION_B2B_DEFAULT_BUYER_ROLE) {
     return {
       statusCode: 400,
       error: 'No associateRoles context defined',
       errorCode: 400,
     };
   }
-  const data = mapRequestToBusinessUnit(request, config);
+  const data = mapRequestToBusinessUnit(request, EXTENSION_B2B_DEFAULT_ADMIN_ROLE, EXTENSION_B2B_DEFAULT_BUYER_ROLE);
 
   const store = await businessUnitApi.create(data);
 
@@ -149,8 +172,12 @@ export const create: ActionHook = async (request: Request, actionContext: Action
 };
 
 export const addAssociate: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
-  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
+  const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
   const addUserBody: { email: string; roles: string[] } = JSON.parse(request.body);
 
   const account = await accountApi.getCustomerByEmail(addUserBody.email);
@@ -190,7 +217,11 @@ export const addAssociate: ActionHook = async (request: Request, actionContext: 
 };
 
 export const removeAssociate: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
 
   const { id } = JSON.parse(request.body);
 
@@ -214,7 +245,11 @@ export const removeAssociate: ActionHook = async (request: Request, actionContex
 };
 
 export const updateAssociate: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
 
   const { id, roles }: { id: string; roles: string[] } = JSON.parse(request.body);
 
@@ -246,7 +281,11 @@ export const updateAssociate: ActionHook = async (request: Request, actionContex
 };
 
 export const update: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
   const { key, actions } = JSON.parse(request.body);
 
   const businessUnit = await businessUnitApi.update(key, actions);
@@ -268,28 +307,36 @@ export const update: ActionHook = async (request: Request, actionContext: Action
 };
 
 export const getByKey: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
   try {
     const businessUnit = await businessUnitApi.getByKey(request.query?.['key']);
-  
+
     const response: Response = {
       statusCode: 200,
       body: JSON.stringify(businessUnit),
       sessionData: request.sessionData,
     };
-  
+
     return response;
   } catch (error: any) {
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message || error.body?.message || error),
-    }
+    };
     return response;
   }
 };
 
 export const remove: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
   const key = request.query?.['key'];
 
   const businessUnit = await businessUnitApi.delete(key);
@@ -303,7 +350,11 @@ export const remove: ActionHook = async (request: Request, actionContext: Action
 };
 
 export const query: ActionHook = async (request: Request, actionContext: ActionContext) => {
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
 
   let where = '';
   if ('where' in request.query) {
@@ -320,7 +371,11 @@ export const query: ActionHook = async (request: Request, actionContext: ActionC
   return response;
 };
 
-function mapRequestToBusinessUnit(request: Request, config: Record<string, string>): BusinessUnit {
+function mapRequestToBusinessUnit(
+  request: Request,
+  EXTENSION_B2B_DEFAULT_ADMIN_ROLE: string,
+  EXTENSION_B2B_DEFAULT_BUYER_ROLE: string,
+): BusinessUnit {
   const businessUnitBody: BusinessUnitRequestBody = JSON.parse(request.body);
   const normalizedName = businessUnitBody.account.company.toLowerCase().replace(/ /g, '_');
   const key = businessUnitBody.parentBusinessUnit
@@ -359,13 +414,13 @@ function mapRequestToBusinessUnit(request: Request, config: Record<string, strin
         associateRoleAssignments: [
           {
             associateRole: {
-              key: config.defaultBuyerRoleKey,
+              key: EXTENSION_B2B_DEFAULT_BUYER_ROLE,
               typeId: 'associate-role',
             },
           },
           {
             associateRole: {
-              key: config.defaultAdminRoleKey,
+              key: EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
               typeId: 'associate-role',
             },
           },
