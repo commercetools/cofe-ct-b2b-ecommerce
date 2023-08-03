@@ -133,8 +133,7 @@ export class BusinessUnitApi extends BaseApi {
       return [];
     }
 
-    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
-      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+    const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE } = this.frontasticContext?.projectConfiguration;
     if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
       throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
     }
@@ -168,10 +167,8 @@ export class BusinessUnitApi extends BaseApi {
   getMe: (accountId: string) => Promise<BusinessUnit> = async (accountId: string) => {
     try {
       const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
-      const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
-      const EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE;
+      const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE, EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE } =
+        this.frontasticContext?.projectConfiguration;
 
       if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE || !EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE) {
         throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
@@ -205,8 +202,7 @@ export class BusinessUnitApi extends BaseApi {
   };
 
   get: (key: string, accountId?: string) => Promise<BusinessUnit> = async (key: string, accountId?: string) => {
-    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
-      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+    const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE } = this.frontasticContext?.projectConfiguration;
 
     if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
       throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');
@@ -279,8 +275,7 @@ export class BusinessUnitApi extends BaseApi {
   getTree: (accoundId: string) => Promise<BusinessUnit[]> = async (accountId: string) => {
     let tree: CommercetoolsBusinessUnit[] = [];
     const storeApi = new StoreApi(this.frontasticContext, this.locale, this.currency);
-    const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
-      this.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
+    const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE } = this.frontasticContext?.projectConfiguration;
 
     if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE) {
       throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_ADMIN_ROLE" exists');

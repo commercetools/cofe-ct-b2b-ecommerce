@@ -8,8 +8,7 @@ export class WishlistApi extends BaseWishlistApi {
   getForAccount = async (accountId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+      const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } = this.frontasticContext?.projectConfiguration;
 
       const response = await this.requestBuilder()
         .shoppingLists()
@@ -58,8 +57,7 @@ export class WishlistApi extends BaseWishlistApi {
   getForBusinessUnit = async (businessUnitKey: string, accountId: string): Promise<Wishlist[]> => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+      const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } = this.frontasticContext?.projectConfiguration;
 
       const response = await this.requestBuilder()
         .shoppingLists()
@@ -85,8 +83,7 @@ export class WishlistApi extends BaseWishlistApi {
   getByIdForAccount = async (wishlistId: string, accountId: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+      const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } = this.frontasticContext?.projectConfiguration;
 
       const response = await this.requestBuilder()
         .shoppingLists()
@@ -99,7 +96,11 @@ export class WishlistApi extends BaseWishlistApi {
         })
         .execute();
 
-      return WishlistMapper.commercetoolsShoppingListToWishlist(response.body, locale, EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD);
+      return WishlistMapper.commercetoolsShoppingListToWishlist(
+        response.body,
+        locale,
+        EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD,
+      );
     } catch (error) {
       // @ts-ignore
       throw error;
@@ -178,10 +179,8 @@ export class WishlistApi extends BaseWishlistApi {
   share = async (wishlist: Wishlist, businessUnitKey: string) => {
     try {
       const locale = await this.getCommercetoolsLocal();
-      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
-      const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-        this.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+      const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE, EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } =
+        this.frontasticContext?.projectConfiguration;
 
       // @ts-ignore
       let currentSharedBUs: string[] = wishlist?.shared || [];

@@ -85,7 +85,7 @@ export const getMyOrganization: ActionHook = async (request: Request, actionCont
 };
 
 export const getSuperUserBusinessUnits: ActionHook = async (request: Request, actionContext: ActionContext) => {
-      const EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE = actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE;
+  const { EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE } = actionContext.frontasticContext?.projectConfiguration;
 
   if (!EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE) {
     throw new Error('Configuration error. No "EXTENSION_B2B_DEFAULT_SUPERUSER_ROLE" exists');
@@ -149,10 +149,8 @@ export const create: ActionHook = async (request: Request, actionContext: Action
     getLocale(request),
     getCurrency(request),
   );
-  const EXTENSION_B2B_DEFAULT_ADMIN_ROLE =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_ADMIN_ROLE;
-  const EXTENSION_B2B_DEFAULT_BUYER_ROLE =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_DEFAULT_BUYER_ROLE;
+  const { EXTENSION_B2B_DEFAULT_ADMIN_ROLE, EXTENSION_B2B_DEFAULT_BUYER_ROLE } =
+    actionContext.frontasticContext?.projectConfiguration;
   if (!EXTENSION_B2B_DEFAULT_ADMIN_ROLE || !EXTENSION_B2B_DEFAULT_BUYER_ROLE) {
     return {
       statusCode: 400,

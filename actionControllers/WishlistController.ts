@@ -75,10 +75,8 @@ export const getAllWishlists: ActionHook = async (request, actionContext) => {
 
 export const getSharedWishlists: ActionHook = async (request, actionContext) => {
   const businessUnit = request.sessionData?.organization?.businessUnit?.key;
-  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
-  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+  const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE, EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } =
+    actionContext.frontasticContext?.projectConfiguration;
   const account = fetchAccountFromSessionEnsureLoggedIn(request);
 
   if (!businessUnit || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD) {
@@ -137,10 +135,8 @@ export const createWishlist: ActionHook = async (request, actionContext) => {
 
 export const share: ActionHook = async (request, actionContext) => {
   const wishlistApi = getWishlistApi(request, actionContext);
-  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE;
-  const EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD =
-    actionContext.frontasticContext?.projectConfiguration.EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD;
+  const { EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE, EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD } =
+    actionContext.frontasticContext?.projectConfiguration;
   if (!EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_TYPE || !EXTENSION_B2B_WISHLIST_SHARING_CUSTOM_FIELD) {
     return {
       statusCode: 400,
