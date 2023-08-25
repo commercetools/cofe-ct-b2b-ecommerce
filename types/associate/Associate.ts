@@ -5,11 +5,16 @@ interface AssociateCustomerReference extends Partial<Account> {
   typeId?: string;
 }
 
+enum AssociateRoleInheritanceMode {
+  Enabled = 'Enabled',
+  Disabled = 'Disabled',
+}
+
 export interface AssociateRole {
-    id: string;
-    key: string;
-    buyerAssignable: boolean;
-    name?: string;
+  id: string;
+  key: string;
+  buyerAssignable: boolean;
+  name?: string;
 }
 
 export interface AssociateRoleAssignment {
@@ -18,6 +23,7 @@ export interface AssociateRoleAssignment {
     key?: string;
     typeId?: 'associate-role';
   };
+  inheritance: AssociateRoleInheritanceMode;
 }
 
 export interface Associate {
