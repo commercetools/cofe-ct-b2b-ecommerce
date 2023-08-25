@@ -7,7 +7,7 @@ import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
 import { AccountApi } from '../apis/AccountApi';
-import { AssociateRoleAssignment, AssociateRoleInheritanceMode } from 'types/associate/Associate';
+import { AssociateRoleAssignment, AssociateRoleInheritanceMode } from '../types/associate/Associate';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 

@@ -23,7 +23,7 @@ export interface AssociateRoleAssignment {
     key?: string;
     typeId?: 'associate-role';
   };
-  inheritance: AssociateRoleInheritanceMode;
+  inheritance: AssociateRoleInheritanceMode | string;
 }
 
 export interface Associate {

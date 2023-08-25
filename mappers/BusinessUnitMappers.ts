@@ -60,6 +60,7 @@ export class BusinessUnitMappers {
         ?.map((associate) => ({
           associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
             associateRole: { key: role.associateRole.key },
+            inheritance: role.inheritance
           })),
           customer: { id: associate.customer.id },
         })),
