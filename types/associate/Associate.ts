@@ -5,7 +5,7 @@ interface AssociateCustomerReference extends Partial<Account> {
   typeId?: string;
 }
 
-enum AssociateRoleInheritanceMode {
+export enum AssociateRoleInheritanceMode {
   Enabled = 'Enabled',
   Disabled = 'Disabled',
 }

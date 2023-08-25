@@ -7,6 +7,7 @@ import { AccountRegisterBody } from './AccountController';
 import { BusinessUnitApi } from '../apis/BusinessUnitApi';
 import { CartApi } from '../apis/CartApi';
 import { AccountApi } from '../apis/AccountApi';
+import { AssociateRoleAssignment, AssociateRoleInheritanceMode } from 'types/associate/Associate';
 
 type ActionHook = (request: Request, actionContext: ActionContext) => Promise<Response>;
 
@@ -178,7 +179,7 @@ export const addAssociate: ActionHook = async (request: Request, actionContext: 
     getCurrency(request),
   );
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
-  const addUserBody: { email: string; roles: string[] } = JSON.parse(request.body);
+  const addUserBody: { email: string; roles: Partial<AssociateRoleAssignment>[] } = JSON.parse(request.body);
 
   const account = await accountApi.getCustomerByEmail(addUserBody.email);
   if (!account) {
@@ -197,12 +198,15 @@ export const addAssociate: ActionHook = async (request: Request, actionContext: 
           typeId: 'customer',
           id: account.id,
         },
-        associateRoleAssignments: addUserBody.roles.map((role) => ({
-          associateRole: {
-            typeId: 'associate-role',
-            key: role,
-          },
-        })),
+        associateRoleAssignments: addUserBody.roles.map(
+          (role): AssociateRoleAssignment => ({
+            associateRole: {
+              typeId: 'associate-role',
+              key: role.associateRole.key,
+            },
+            inheritance: role.inheritance,
+          }),
+        ),
       },
     },
   ]);
@@ -417,12 +421,14 @@ function mapRequestToBusinessUnit(
               key: EXTENSION_B2B_DEFAULT_BUYER_ROLE,
               typeId: 'associate-role',
             },
+            inheritance: AssociateRoleInheritanceMode.Disabled,
           },
           {
             associateRole: {
               key: EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
               typeId: 'associate-role',
             },
+            inheritance: AssociateRoleInheritanceMode.Disabled,
           },
         ],
         customer: {
