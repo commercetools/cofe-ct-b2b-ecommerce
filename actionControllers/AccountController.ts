@@ -40,7 +40,11 @@ async function loginAccount(
   businessUnitKey = '',
 ) {
   const accountApi = new AccountApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
-  const businessUnitApi = new BusinessUnitApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
+  const businessUnitApi = new BusinessUnitApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+  );
 
   const cart = await CartFetcher.fetchCart(request, actionContext);
 
@@ -62,7 +66,7 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
       email: accountLoginBody.email,
       password: accountLoginBody.password,
     } as Account;
-  
+
     const { account, organization } = await loginAccount(
       request,
       actionContext,
@@ -83,13 +87,13 @@ export const login: ActionHook = async (request: Request, actionContext: ActionC
         },
       },
     };
-  
+
     return response;
   } catch (error: any) {
     const response: Response = {
       statusCode: 401,
       body: JSON.stringify(error.message),
-    }
+    };
     return response;
   }
 };
@@ -150,4 +154,60 @@ export const getById: ActionHook = async (request: Request, actionContext: Actio
   };
 
   return response;
+};
+
+function mapRequestToAccount(accountRegisterBody: AccountRegisterBody): Account {
+  const account: Account = {
+    email: accountRegisterBody?.email,
+    password: accountRegisterBody?.password,
+    salutation: accountRegisterBody?.salutation,
+    firstName: accountRegisterBody?.firstName,
+    lastName: accountRegisterBody?.lastName,
+    birthday: undefined,
+    isSubscribed: accountRegisterBody?.isSubscribed,
+    addresses: [],
+  };
+
+  if (accountRegisterBody.billingAddress) {
+    accountRegisterBody.billingAddress.isDefaultBillingAddress = true;
+    accountRegisterBody.billingAddress.isDefaultShippingAddress = !(accountRegisterBody.shippingAddress !== undefined);
+
+    account.addresses.push(accountRegisterBody.billingAddress);
+  }
+
+  if (accountRegisterBody.shippingAddress) {
+    accountRegisterBody.shippingAddress.isDefaultShippingAddress = true;
+    accountRegisterBody.shippingAddress.isDefaultBillingAddress = !(accountRegisterBody.billingAddress !== undefined);
+
+    account.addresses.push(accountRegisterBody.shippingAddress);
+  }
+
+  return account;
+}
+
+export const register: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const locale = getLocale(request);
+
+  const accountApi = new AccountApi(actionContext.frontasticContext, locale, getCurrency(request));
+  const accountData = mapRequestToAccount(JSON.parse(request.body));
+
+  try {
+    const account = await accountApi.create(accountData, undefined);
+
+    const response: Response = {
+      statusCode: 200,
+      body: JSON.stringify(account),
+      sessionData: {
+        ...request.sessionData,
+      },
+    };
+
+    return response;
+  } catch (error: any) {
+    const response: Response = {
+      statusCode: 401,
+      body: JSON.stringify(error.message),
+    };
+    return response;
+  }
 };

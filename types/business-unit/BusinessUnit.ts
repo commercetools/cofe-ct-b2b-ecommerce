@@ -18,6 +18,8 @@ export enum StoreMode {
   FromParent = 'FromParent',
 }
 
+export type BusinessUnitAssociateMode = 'Explicit' | 'ExplicitAndFromParent' | string;
+
 export interface BusinessUnitResourceIdentifier {
   id?: string;
   key: string;
@@ -41,6 +43,8 @@ export interface BusinessUnit {
   billingAddresses?: number[];
   defaultBillingAddress?: number;
   associates?: Associate[];
+  inheritedAssociates?: Associate[];
+  associateMode?: BusinessUnitAssociateMode;
   parentUnit?: BusinessUnitResourceIdentifier;
   topLevelUnit?: BusinessUnitResourceIdentifier;
   version?: number;

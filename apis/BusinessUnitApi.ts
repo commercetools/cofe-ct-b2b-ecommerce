@@ -99,9 +99,9 @@ export class BusinessUnitApi extends BaseApi {
     }
   };
 
-  query: (where: string, expand?: string) => Promise<BusinessUnitPagedQueryResponse> = async (
+  query: (where: string, expand?: string | string[]) => Promise<BusinessUnitPagedQueryResponse> = async (
     where: string,
-    expand?: string,
+    expand?: string | string[],
   ) => {
     try {
       return this.requestBuilder()
@@ -195,7 +195,7 @@ export class BusinessUnitApi extends BaseApi {
           EXTENSION_B2B_DEFAULT_ADMIN_ROLE,
         );
       }
-      return results?.[0];
+      return BusinessUnitMappers.mapBusinessUnitToBusinessUnit(results?.[0], [],accountId, EXTENSION_B2B_DEFAULT_ADMIN_ROLE);
     } catch (e) {
       throw e;
     }
@@ -268,7 +268,7 @@ export class BusinessUnitApi extends BaseApi {
   getAssociatedBusinessUnits: (accoundId: string) => Promise<CommercetoolsBusinessUnit[]> = async (
     accountId: string,
   ) => {
-    const response = await this.query(`associates(customer(id="${accountId}"))`, 'associates[*].customer');
+    const response = await this.query(`associates(customer(id="${accountId}")) or inheritedAssociates(customer(id="${accountId}"))`, ['associates[*].customer', 'inheritedAssociates[*].customer']);
     return response.results;
   };
 
@@ -290,7 +290,7 @@ export class BusinessUnitApi extends BaseApi {
         // get the whole organization nodes
         const { results } = await this.query(
           `topLevelUnit(key="${tree[0].topLevelUnit.key}")`,
-          'associates[*].customer',
+          ['associates[*].customer', 'inheritedAssociates[*].customer'],
         );
         const tempParents = [...tree];
 

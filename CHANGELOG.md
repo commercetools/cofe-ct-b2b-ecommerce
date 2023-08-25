@@ -1,3 +1,5 @@
+# 2.0.1
+- Associate inheritance
 # 2.0.0
 - migration to multitenant config
 # 1.3.1

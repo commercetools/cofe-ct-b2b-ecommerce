@@ -16,8 +16,10 @@ export class BusinessUnitMappers {
       name: businessUnit.name,
       parentUnit: businessUnit.parentUnit,
       storeMode: businessUnit.storeMode,
+      associateMode: businessUnit.associateMode,
       stores: this.mapReferencedStoresToStores(businessUnit, allStores),
       associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+      inheritedAssociates: this.mapReferencedInheritedAssociatesToAssociate(businessUnit),
       isAdmin: this.isUserAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
       isRootAdmin: this.isUserRootAdminInBusinessUnit(businessUnit, accountId, adminRoleKey),
       addresses: businessUnit.addresses,
@@ -35,9 +37,11 @@ export class BusinessUnitMappers {
       key: businessUnit.key,
       name: businessUnit.name,
       parentUnit: businessUnit.parentUnit,
+      associateMode: businessUnit.associateMode,
       storeMode: businessUnit.storeMode,
       stores: this.mapReferencedStoresToStores(businessUnit, allStores),
       associates: this.mapReferencedAssociatesToAssociate(businessUnit),
+      inheritedAssociates: this.mapReferencedInheritedAssociatesToAssociate(businessUnit),
       contactEmail: businessUnit.contactEmail,
       unitType: businessUnit.unitType,
       custom: businessUnit.custom,
@@ -60,6 +64,16 @@ export class BusinessUnitMappers {
         ?.map((associate) => ({
           associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
             associateRole: { key: role.associateRole.key },
+            inheritance: role.inheritance,
+          })),
+          customer: { id: associate.customer.id },
+        })),
+      inheritedAssociates: businessUnit.inheritedAssociates
+        ?.filter((associate) => associate.customer.id === accountId)
+        ?.map((associate) => ({
+          associateRoleAssignments: associate.associateRoleAssignments?.map((role) => ({
+            associateRole: { key: role.associateRole.key },
+            inheritance: role.inheritance,
           })),
           customer: { id: associate.customer.id },
         })),
@@ -101,6 +115,32 @@ export class BusinessUnitMappers {
         };
       }
       return associate;
+    });
+  }
+
+  static mapReferencedInheritedAssociatesToAssociate(businessUnit: CommercetoolsBusinessUnit): Associate[] {
+    return businessUnit.inheritedAssociates?.map((associate) => {
+      let customer: any = {
+        id: associate.customer.id,
+        typeId: 'customer',
+      };
+      if (associate.customer?.obj) {
+        customer = {
+          id: associate.customer.id,
+          typeId: 'customer',
+          firstName: associate.customer?.obj?.firstName,
+          lastName: associate.customer?.obj?.lastName,
+          email: associate.customer?.obj?.email,
+        };
+      }
+
+      return {
+        associateRoleAssignments: associate.associateRoleAssignments.map((roleAssignment) => ({
+          associateRole: roleAssignment.associateRole,
+          inheritance: '',
+        })),
+        customer,
+      };
     });
   }
 
