@@ -2,7 +2,7 @@ import { AssociateRoleAssignment } from '../associate/Associate';
 import { BusinessUnitResourceIdentifier } from '../business-unit/BusinessUnit';
 
 export interface ApproverDisjunction {
-  or: AssociateRoleAssignment[];
+  or: Omit<AssociateRoleAssignment, 'inheritance'>[];
 }
 export interface ApproverConjunction {
   and: ApproverDisjunction[];
@@ -24,7 +24,7 @@ export interface ApprovalRuleUpdateActionSetPredicate {
 
 export interface ApprovalRuleUpdateActionSetRequester {
   action: 'setRequesters';
-  requesters: AssociateRoleAssignment[];
+  requesters: Omit<AssociateRoleAssignment, 'inheritance'>[];
 }
 
 export interface ApprovalRuleDraft {
@@ -33,7 +33,7 @@ export interface ApprovalRuleDraft {
   description?: string;
   status: 'Active' | 'Inactive';
   approvers: ApproverHierarchy;
-  requesters: AssociateRoleAssignment[];
+  requesters: Omit<AssociateRoleAssignment, 'inheritance'>[];
 }
 
 export interface ApprovalRuleUpdate {
@@ -53,6 +53,6 @@ export interface ApprovalRule {
   description?: string;
   name: string;
   status: 'Active' | 'Inactive';
-  requesters: AssociateRoleAssignment[];
+  requesters: Omit<AssociateRoleAssignment, 'inheritance'>[];
   predicate: string;
 }

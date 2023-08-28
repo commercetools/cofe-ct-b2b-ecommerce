@@ -1,4 +1,6 @@
 # 2.0.1
+- FIX typing in associate role mix with Approval flow
+# 2.0.1
 - Associate inheritance
 # 2.0.0
 - migration to multitenant config
