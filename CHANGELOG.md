@@ -1,3 +1,5 @@
+# 2.0.3
+- FIX updateLineitemCount in wishlost controller
 # 2.0.2
 - Add Approval rules/flows
 - Multitenancy migration
