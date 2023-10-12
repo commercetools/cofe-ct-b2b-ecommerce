@@ -1,6 +1,6 @@
 {
   "name": "cofe-ct-b2b-ecommerce",
-  "version": "2.0.2-beta-approval-roles",
+  "version": "2.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {

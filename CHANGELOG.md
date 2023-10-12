@@ -1,3 +1,6 @@
+# 2.0.2
+- Add Approval rules/flows
+- Multitenancy migration
 # 2.0.1
 - FIX typing in associate role mix with Approval flow
 # 2.0.1
