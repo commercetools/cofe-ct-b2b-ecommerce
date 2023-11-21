@@ -1,5 +1,7 @@
+# 2.0.5
+- Delete quotedCart from session
 # 2.0.4
-- add deleteQutedCart endpoint
+- add deleteQuotedCart endpoint
 # 2.0.3
 - FIX updateLineitemCount in wishlost controller
 # 2.0.2

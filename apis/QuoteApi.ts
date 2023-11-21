@@ -4,7 +4,7 @@ import {
   Quote as CommercetoolsQuote,
   StagedQuote as CommercetoolsStagedQuote,
   QuoteState,
-  QuoteRequestState
+  QuoteRequestState,
 } from '@commercetools/platform-sdk';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
@@ -265,6 +265,53 @@ export class QuoteApi extends BaseApi {
     }
   };
 
+  getQuoteByCartId: (cartId: string) => Promise<Quote> = async (cartId: string) => {
+    const locale = await this.getCommercetoolsLocal();
+    try {
+      const stagedQuote = await this.getStagedQuoteByCartId(cartId);
+      return this.requestBuilder()
+        .quotes()
+        .get({
+          queryArgs: {
+            where: `stagedQuote(id="${stagedQuote.id}")`,
+            limit: 1,
+          },
+        })
+        .execute()
+        .then((response) => {
+          return QuoteMappers.mapCommercetoolsQuote(response.body.results, locale)?.[0];
+        })
+        .catch((error) => {
+          throw error;
+        });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  getStagedQuoteByCartId: (cartId: string) => Promise<StagedQuote> = async (cartId: string) => {
+    const locale = await this.getCommercetoolsLocal();
+    try {
+      return this.requestBuilder()
+        .stagedQuotes()
+        .get({
+          queryArgs: {
+            where: `quotationCart(id="${cartId}")`,
+            limit: 1,
+          },
+        })
+        .execute()
+        .then((response) => {
+          return QuoteMappers.mapCommercetoolsStagedQuote(response.body.results, locale)?.[0];
+        })
+        .catch((error) => {
+          throw error;
+        });
+    } catch (error) {
+      throw error;
+    }
+  };
+
   updateQuoteState: (ID: string, quoteState: QuoteState) => Promise<CommercetoolsQuote> = async (
     ID: string,
     quoteState: QuoteState,
@@ -296,38 +343,36 @@ export class QuoteApi extends BaseApi {
     } catch {
       throw '';
     }
-  };  
-  
-  updateQuoteRequestState: (ID: string, quoteRequestState: QuoteRequestState) => Promise<CommercetoolsQuoteRequest> = async (
-    ID: string,
-    quoteRequestState: QuoteRequestState,
-  ) => {
-    try {
-      return this.getQuoteRequest(ID).then((quoteRequest) => {
-        return this.requestBuilder()
-          .quoteRequests()
-          .withId({ ID })
-          .post({
-            body: {
-              actions: [
-                {
-                  action: 'changeQuoteRequestState',
-                  quoteRequestState,
-                },
-              ],
-              version: quoteRequest.version,
-            },
-          })
-          .execute()
-          .then((response) => {
-            return response.body;
-          })
-          .catch((error) => {
-            throw error;
-          });
-      });
-    } catch {
-      throw '';
-    }
   };
+
+  updateQuoteRequestState: (ID: string, quoteRequestState: QuoteRequestState) => Promise<CommercetoolsQuoteRequest> =
+    async (ID: string, quoteRequestState: QuoteRequestState) => {
+      try {
+        return this.getQuoteRequest(ID).then((quoteRequest) => {
+          return this.requestBuilder()
+            .quoteRequests()
+            .withId({ ID })
+            .post({
+              body: {
+                actions: [
+                  {
+                    action: 'changeQuoteRequestState',
+                    quoteRequestState,
+                  },
+                ],
+                version: quoteRequest.version,
+              },
+            })
+            .execute()
+            .then((response) => {
+              return response.body;
+            })
+            .catch((error) => {
+              throw error;
+            });
+        });
+      } catch {
+        throw '';
+      }
+    };
 }

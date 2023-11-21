@@ -90,8 +90,6 @@ export const deleteQuotedCart: ActionHook = async (request: Request, actionConte
     request.sessionData?.account,
   );
 
-  const ID = request.query?.['id'];
-
   const cartId = request.sessionData?.cartId;
   if (!cartId) {
     throw new Error('No active cart');
@@ -99,20 +97,28 @@ export const deleteQuotedCart: ActionHook = async (request: Request, actionConte
 
   const cart = await cartApi.getById(cartId);
   const cartVersion = parseInt(cart.cartVersion, 10);
-  const quote = await quoteApi.updateQuoteState(ID, 'Declined');
 
-  await cartApi.deleteCart(cartId, cartVersion);
+  try {
+    const quote = await quoteApi.getQuoteByCartId(cartId);
+    await cartApi.deleteCart(cartId, cartVersion);
 
-  const response: Response = {
-    statusCode: 200,
-    body: JSON.stringify(quote),
-    sessionData: {
-      ...request.sessionData,
-      cartId: undefined,
-    },
-  };
-
-  return response;
+    const response: Response = {
+      statusCode: 200,
+      body: JSON.stringify(quote),
+      sessionData: {
+        ...request.sessionData,
+        cartId: undefined,
+      },
+    };
+    return response;
+  } catch (error) {
+    const response: Response = {
+      statusCode: 401,
+      // @ts-ignore
+      body: JSON.stringify(error.message || error.body?.message || error),
+    };
+    return response;
+  }
 };
 
 export const getMyQuoteRequests: ActionHook = async (request: Request, actionContext: ActionContext) => {
