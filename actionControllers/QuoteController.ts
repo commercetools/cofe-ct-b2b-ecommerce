@@ -80,6 +80,41 @@ export const createQuoteRequest: ActionHook = async (request: Request, actionCon
   return response;
 };
 
+export const deleteQuotedCart: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
+  const cartApi = new CartApi(
+    actionContext.frontasticContext,
+    getLocale(request),
+    getCurrency(request),
+    request.sessionData?.organization,
+    request.sessionData?.account,
+  );
+
+  const ID = request.query?.['id'];
+
+  const cartId = request.sessionData?.cartId;
+  if (!cartId) {
+    throw new Error('No active cart');
+  }
+
+  const cart = await cartApi.getById(cartId);
+  const cartVersion = parseInt(cart.cartVersion, 10);
+  const quote = await quoteApi.updateQuoteState(ID, 'Declined');
+
+  await cartApi.deleteCart(cartId, cartVersion);
+
+  const response: Response = {
+    statusCode: 200,
+    body: JSON.stringify(quote),
+    sessionData: {
+      ...request.sessionData,
+      cartId: undefined,
+    },
+  };
+
+  return response;
+};
+
 export const getMyQuoteRequests: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 

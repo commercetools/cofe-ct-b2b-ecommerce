@@ -1,3 +1,5 @@
+# 2.0.4
+- add deleteQutedCart endpoint
 # 2.0.3
 - FIX updateLineitemCount in wishlost controller
 # 2.0.2
