@@ -1,3 +1,5 @@
+# 2.0.6
+- Renegotiate quote
 # 2.0.5
 - Delete quotedCart from session
 # 2.0.4
