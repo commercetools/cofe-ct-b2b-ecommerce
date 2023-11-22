@@ -5,6 +5,7 @@ import {
   StagedQuote as CommercetoolsStagedQuote,
   QuoteState,
   QuoteRequestState,
+  QuoteUpdateAction,
 } from '@commercetools/platform-sdk';
 import { BaseApi } from 'cofe-ct-ecommerce/apis/BaseApi';
 import { QuoteRequest } from '../types/quotes/QuoteRequest';
@@ -316,6 +317,18 @@ export class QuoteApi extends BaseApi {
     ID: string,
     quoteState: QuoteState,
   ) => {
+    return this.updateQuote(ID, [
+      {
+        action: 'changeQuoteState',
+        quoteState: quoteState,
+      },
+    ]);
+  };
+
+  updateQuote: (ID: string, updateActions: QuoteUpdateAction[]) => Promise<CommercetoolsQuote> = async (
+    ID: string,
+    updateActions: QuoteUpdateAction[],
+  ) => {
     try {
       return this.getQuote(ID).then((quote) => {
         return this.requestBuilder()
@@ -323,12 +336,7 @@ export class QuoteApi extends BaseApi {
           .withId({ ID })
           .post({
             body: {
-              actions: [
-                {
-                  action: 'changeQuoteState',
-                  quoteState: quoteState,
-                },
-              ],
+              actions: updateActions,
               version: quote.version,
             },
           })
@@ -340,8 +348,8 @@ export class QuoteApi extends BaseApi {
             throw error;
           });
       });
-    } catch {
-      throw '';
+    } catch (error) {
+      throw error;
     }
   };
 

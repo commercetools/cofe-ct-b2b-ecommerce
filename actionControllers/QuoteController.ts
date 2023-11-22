@@ -229,6 +229,39 @@ export const updateQuoteState: ActionHook = async (request: Request, actionConte
   return response;
 };
 
+export const renegotiateQuote: ActionHook = async (request: Request, actionContext: ActionContext) => {
+  const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
+
+  const ID = request.query?.['id'];
+  const { buyerComment } = JSON.parse(request.body);
+
+  try {
+    const quote = await quoteApi.updateQuote(ID, [
+      {
+        action: 'requestQuoteRenegotiation',
+        buyerComment,
+      },
+    ]);
+    const sessionData = { ...request.sessionData };
+
+    const response: Response = {
+      statusCode: 200,
+      body: JSON.stringify(quote),
+      sessionData,
+    };
+
+    return response;
+  } catch (error) {
+    const response: Response = {
+      statusCode: 401,
+      // @ts-ignore
+      body: JSON.stringify(error.message || error.body?.message || error),
+    };
+
+    return response;
+  }
+};
+
 export const updateQuoteRequestState: ActionHook = async (request: Request, actionContext: ActionContext) => {
   const quoteApi = new QuoteApi(actionContext.frontasticContext, getLocale(request), getCurrency(request));
 
