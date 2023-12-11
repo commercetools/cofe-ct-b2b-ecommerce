@@ -180,7 +180,7 @@ export class ProductApi extends BaseProductApi {
   };
 
   getNavigationCategories: () => Promise<Category[]> = async () => {
-    const { items }: { items: any[] } = await this.queryCategories({ limit: 500 });
+    const { items }: { items: any[] } = await this.queryCategories({ limit: 500, format: 'tree' });
 
     let categories: Category[] = [];
 

@@ -1,3 +1,5 @@
+# 2.0.7
+- Use tree fromat for category navigation
 # 2.0.6
 - Renegotiate quote
 # 2.0.5
